@@ -1,8 +1,9 @@
 const PLANTS = [
-  {name:'Cassilândia I',  city:'MS', img:'/images/CassilandiaI.jpeg'},
-  {name:'Cassilândia II', city:'MS', img:'/images/CassilandiaII.jpeg'},
-  {name:'Bacuri',         city:'MS', img:'/images/Bacuri.jpeg'},
-  {name:'Barro Branco',   city:'MS', img:'/images/BarroBranco.jpeg'},
+  {name:'Cassilândia I',       city:'Cassilândia',  img:'/images/CassilandiaI.jpeg'},
+  {name:'Cassilândia II',      city:'Cassilândia',  img:'/images/CassilandiaII.jpeg'},
+  {name:'Bacuri',              city:'Paranaíba',    img:'/images/Bacuri.jpeg'},
+  {name:'Barro Branco',        city:'Paranaíba',    img:'/images/BarroBranco.jpeg'},
+  {name:'Paraíso das Águas',   city:'Paraíso das Águas', img:'/images/paraisoDasAguas.jpeg'},
 ]
 
 export default function Plants(){
@@ -21,7 +22,7 @@ export default function Plants(){
             <span className="absolute top-3 left-3 text-xs bg-[color:var(--brand-accent)] text-white px-3 py-1 rounded-full shadow-soft">100% energia do MS</span>
             <div className="card-body">
               <h3 className="font-semibold">{p.name}</h3>
-              <p className="text-xs text-muted">Mato Grosso do Sul</p>
+              <p className="text-xs text-muted">{p.city} - MS</p>
             </div>
           </article>
         ))}
