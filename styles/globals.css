@@ -53,3 +53,10 @@ body{
 /* Sticky mobile CTA space */
 .has-sticky-cta { padding-bottom: 76px; }
 .sticky-cta { @apply fixed bottom-0 inset-x-0 z-50 bg-white/90 backdrop-blur border-t border-line p-3 md:hidden; }
+
+/* Hide horizontal scrollbar for carousels */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar { display: none; }

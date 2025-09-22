@@ -6,8 +6,6 @@ import { LeadSchema, type Lead } from '@/lib/validators'
 import { estimate, type Plan } from './Simulator'
 import { gtmPush } from '@/lib/gtm'
 
-type Step = 1|2|3|4
-
 const STORAGE_KEY = 'helexia_lp_lead'
 
 function formatBRL(n:number){ return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) }
@@ -67,9 +65,8 @@ function AnimatedBar({ bill, pct }: { bill: number; pct: number }){
   )
 }
 
-export default function LeadForm({ initialPlan='Economico12' as Plan }:{ initialPlan?: Plan }){
-  const [step, setStep] = useState<Step>(1)
-  const [partialSent, setPartialSent] = useState(false)
+export default function LeadForm(props: { initialPlan?: Plan }){
+  const initialPlan: Plan = props.initialPlan ?? 'Economico12'
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [billFileName, setBillFileName] = useState('')
   const [submitted, setSubmitted] = useState<{ id?: string; pct: number; saving: number; newBill: number }|null>(null)
@@ -105,26 +102,7 @@ export default function LeadForm({ initialPlan='Economico12' as Plan }:{ initial
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...v, estimatedDiscountPct: calc.pct, estimatedSaving: calc.saving }))
   },[calc.pct, calc.saving])
 
-  useEffect(()=>{ gtmPush({ event:'form_step_change', step }) },[step])
-
-  async function sendPartialIfNeeded(){
-    if(partialSent) return
-    const { email, avgBillValue } = form.getValues()
-    if(email && avgBillValue>0){
-      try{
-        const res = await fetch('/api/lead?partial=1',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ...form.getValues(), acceptLGPD: true }) })
-        if(res.ok){ setPartialSent(true); gtmPush({ event:'lead_partial_sent' }) }
-      }catch{}
-    }
-  }
-
-  function next(){
-    if(step===1) sendPartialIfNeeded()
-    setStep(prev => (prev < 4 ? ((prev + 1) as Step) : (4 as Step)))
-  }
-  function prev(){
-    setStep(prev => (prev > 1 ? ((prev - 1) as Step) : (1 as Step)))
-  }
+  // single-step: no partial send or step navigation
 
   async function onSubmit(data: Lead){
     try{
@@ -152,29 +130,30 @@ export default function LeadForm({ initialPlan='Economico12' as Plan }:{ initial
   }
 
   function onInvalid(){
-    const errs = form.formState.errors
-    // Navigate to the first step that has an error
-    if (errs.email || errs.avgBillValue) { setStep(1) }
-    else if (errs.fullname || errs.phone || errs.document || errs.documentType || errs.cep) { setStep(2) }
-    else if (errs.fileUrl) { setStep(3) }
-    else if (errs.acceptLGPD) { setStep(4) }
-    // Scroll into view to ensure user sees the form
     const el = document.getElementById('leadform'); el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   return (
-    <section className="container-pad py-12" aria-labelledby="leadform-heading" id="leadform">
-      {!submitted && (
-        <>
-          <h2 id="leadform-heading" className="section-title">Descubra agora quanto pode economizar</h2>
-          <p className="section-sub">Preencha em menos de 1 minuto. Retornamos por WhatsApp ou telefone. Seus dados estão protegidos (LGPD).</p>
-        </>
-      )}
+    <section className="py-12 bg-bg" aria-labelledby="leadform-heading" id="leadform">
+      <div className="container-pad">
+        <div className="relative overflow-hidden rounded-3xl border border-white/20 shadow-xl bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)]">
+          <div className="relative p-6 md:p-10">
+            <div className="grid md:grid-cols-5 gap-8 items-start">
+          {/* Persuasive message */}
+          <aside className="md:col-span-2 text-white flex flex-col justify-center min-h-[360px]">
+            <h2 id="leadform-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">Quero obter desconto na minha conta de energia</h2>
+            <ul className="mt-4 space-y-2 text-white/90 text-sm list-disc pl-5">
+              <li>Sem investimento inicial</li>
+              <li>Energia renovável</li>
+              <li>Energia gerada no MS</li>
+            </ul>
+          </aside>
+          <div className="md:col-span-3">
 
       {/* Result after submit */}
       {submitted ? (
         <div className="mt-6">
-          <div className="card">
+          <div className="glass rounded-2xl p-6 bg-white/10 border border-white/20">
             <div className="card-body">
               {(() => {
                 const name = (form.getValues('fullname')||'').trim()
@@ -259,181 +238,89 @@ export default function LeadForm({ initialPlan='Economico12' as Plan }:{ initial
           </div>
         </div>
       ) : (
-      <div className="mt-6 grid md:grid-cols-3 gap-6 items-start">
-        {/* Form */}
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="md:col-span-3 card">
-          <div className="card-body space-y-6">
-            {/* Progress bar */}
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="mt-6 glass rounded-2xl p-6 bg-white/10 border border-white/20">
+        <div className="space-y-6 text-ink">
+          <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-8 gap-y-7">
             <div>
-              <div className="flex justify-between text-xs text-muted mb-2">
-                <span>{step}/4</span>
-                <span>Rápido e seguro</span>
-              </div>
-              <div className="h-2 bg-line rounded">
-                <div className="h-2 bg-[color:var(--brand-accent)] rounded transition-all" style={{ width: `${(step/4)*100}%` }} />
-              </div>
+              <label className="block text-sm font-medium">Telefone (WhatsApp) *</label>
+              <input {...form.register('phone', { required: true })} inputMode="tel" className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-phone" placeholder="(67) 9 9999-9999" />
             </div>
-
-          {step===1 && (
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">E-mail</label>
-                <input {...form.register('email')} type="email" className="mt-2 w-full rounded-2xl border border-line px-4 py-3" data-testid="lead-email" placeholder="seunome@email.com" />
-                {form.formState.errors.email && <p className="text-red-600 text-sm mt-1">{form.formState.errors.email.message as string}</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Valor médio da sua fatura (R$)</label>
-                <input inputMode="numeric" className="mt-2 w-full rounded-2xl border border-line px-4 py-3" data-testid="lead-bill" placeholder="Ex: 2.500"
-                  value={form.getValues('avgBillValue') ? Number(form.getValues('avgBillValue')).toLocaleString('pt-BR') : ''}
-                  onChange={(e)=>{
-                    const digits = e.target.value.replace(/\D+/g,'')
-                    form.setValue('avgBillValue', Number(digits)||0, { shouldDirty: true })
-                  }} />
-                <p className="text-xs text-muted mt-1">Mínimo elegível: R$ 1.000/mês. Cálculo considera desconto apenas sobre TE+TUSD (energia).</p>
-              </div>
-              <div className="md:col-span-2 bg-bg border border-line rounded-2xl p-4">
-                <p className="text-sm">Vamos calcular seu <b>desconto real</b> e entrar em contato em poucas horas por <b>telefone ou WhatsApp</b> para finalizar sua adesão.</p>
-                </div>
-            </div>
-          )}
-
-          {step===2 && (
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Nome completo</label>
-                <input {...form.register('fullname')} className="mt-2 w-full rounded-2xl border border-line px-4 py-3" data-testid="lead-name" />
-                {form.formState.errors.fullname && <p className="text-red-600 text-sm mt-1">{form.formState.errors.fullname.message as string}</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Telefone</label>
-                <input {...form.register('phone')} inputMode="tel" className="mt-2 w-full rounded-2xl border border-line px-4 py-3" data-testid="lead-phone" />
-                {form.formState.errors.phone && <p className="text-red-600 text-sm mt-1">Telefone inválido</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Documento</label>
-                <div className="flex gap-2 mt-2">
-                  <select {...form.register('documentType')} className="rounded-2xl border border-line px-4 py-3">
-                    <option>CPF</option>
-                    <option>CNPJ</option>
-                  </select>
-                  <input {...form.register('document')} className="flex-1 rounded-2xl border border-line px-4 py-3" placeholder="000.000.000-00" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">CEP</label>
-                <input {...form.register('cep')} className="mt-2 w-full rounded-2xl border border-line px-4 py-3" placeholder="79000-000" />
-              </div>
-            </div>
-          )}
-
-          {step===3 && (
             <div>
-              <label className="block text-sm font-medium">Selecionar fatura (PNG/JPG/PDF) — opcional</label>
-              <div className="mt-2 rounded-2xl border-2 border-dashed border-line bg-white p-6">
-                <p className="text-sm text-muted">Anexe sua fatura para acelerar a análise (opcional).</p>
-                <div className="mt-4 flex items-center gap-3">
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={()=> fileInputRef.current?.click()}
-                  >
-                    Selecionar fatura
-                  </button>
-                  {values.fileUrl && (
-                    <button
-                      type="button"
-                      className="btn btn-ghost"
-                      onClick={()=>{
-                        const prev = form.getValues('fileUrl')
-                        if(prev) try{ URL.revokeObjectURL(prev) }catch{}
-                        form.setValue('fileUrl','', { shouldDirty: true })
-                        setBillFileName('')
-                      }}
-                    >
-                      Remover
-                    </button>
-                  )}
-                </div>
-                <p className="text-sm text-muted mt-3">
-                  {values.fileUrl ? `Fatura selecionada${billFileName ? `: ${billFileName}`:''}` : 'Nenhuma fatura selecionada'}
-                </p>
-                <input
-                  ref={fileInputRef}
-                  id="bill-file"
-                  name="bill-file"
-                  type="file"
-                  accept="image/*,.pdf"
-                  className="hidden"
-                  aria-hidden="true"
-                  onChange={(e)=>{
-                    const file = e.target.files?.[0]
-                    if(file){
-                      const url = URL.createObjectURL(file)
-                      form.setValue('fileUrl', url, { shouldDirty: true })
-                      setBillFileName(file.name)
-                    } else {
-                      form.setValue('fileUrl','', { shouldDirty: true })
-                      setBillFileName('')
-                    }
-                  }}
-                />
-              </div>
+              <label className="block text-sm font-medium">Nome completo *</label>
+              <input {...form.register('fullname', { required: true })} className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-name" placeholder="Seu nome completo" />
             </div>
-          )}
-
-          {step===4 && (
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium">Plano</label>
-                <select {...form.register('plan')} className="mt-2 w-full rounded-2xl border border-line px-4 py-3">
-                  <option value="Flex">Flex</option>
-                  <option value="Economico12">Econômico 12</option>
-                  <option value="Premium36">Premium 36</option>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium">CPF/CNPJ *</label>
+              <div className="flex gap-2 mt-2">
+                <select {...form.register('documentType', { required: true })} className="rounded-2xl border border-line px-4 py-3 bg-white">
+                  <option>CPF</option>
+                  <option>CNPJ</option>
                 </select>
-              </div>
-              <div className="bg-bg border border-line rounded-2xl p-4">
-                <div className="text-sm text-muted">Resumo</div>
-                <div className="mt-2 text-sm">Fatura: <b>{formatBRL(values.avgBillValue||0)}</b></div>
-                <div className="text-sm">Plano escolhido: <b>{values.plan}</b></div>
-                <div className="text-sm">Retorno: <b>telefone/WhatsApp</b> em poucas horas</div>
-              </div>
-              <div className="md:col-span-2">
-                <div className="flex items-center gap-3">
-                  <label className="inline-flex items-center gap-2">
-                    <input type="checkbox" {...form.register('acceptLGPD')} />
-                    <span>Li e concordo com a <a className="underline" href="#" target="_blank" rel="noreferrer">Política de Privacidade</a></span>
-                  </label>
-                  <span className="text-xs bg-[rgba(32,178,142,0.10)] text-[color:var(--brand-accent)] px-2 py-1 rounded border border-[rgba(32,178,142,0.20)]">LGPD Compliance</span>
-                </div>
-                {form.formState.errors.acceptLGPD && <p className="text-red-600 text-sm mt-1">{form.formState.errors.acceptLGPD.message as string}</p>}
+                <input {...form.register('document', { required: true })} className="flex-1 rounded-2xl border border-line px-4 py-3 bg-white" placeholder="000.000.000-00" />
               </div>
             </div>
-          )}
-
-          <div className="flex justify-between">
-            <button type="button" className="btn btn-ghost" disabled={step===1} onClick={prev}>Voltar</button>
-            {step<4 ? (
-              <button type="button" className="btn btn-primary" onClick={next} data-testid="lead-next">Continuar</button>
-            ) : (
-              <button type="submit" className="btn btn-primary disabled:opacity-60" disabled={submitting} data-testid="lead-submit">{submitting ? 'Enviando...' : 'Enviar'}</button>
-            )}
+            <div>
+              <label className="block text-sm font-medium">Plano (opcional)</label>
+              <select {...form.register('plan')} className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white">
+                <option value="Flex">Flex</option>
+                <option value="Economico12">Econômico 12</option>
+                <option value="Premium36">Premium 36</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Valor médio da sua fatura (R$) *</label>
+              <input inputMode="numeric" className="mt-2 w-40 md:w-52 rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-bill" placeholder="Ex: 2.500"
+                value={form.getValues('avgBillValue') ? Number(form.getValues('avgBillValue')).toLocaleString('pt-BR') : ''}
+                onChange={(e)=>{
+                  const digits = e.target.value.replace(/\D+/g,'')
+                  form.setValue('avgBillValue', Number(digits)||0, { shouldDirty: true })
+                }} />
+              <p className="text-xs text-muted mt-1">Cálculo considera desconto apenas sobre TE+TUSD (energia).</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium">E-mail</label>
+              <input {...form.register('email')} type="email" className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-email" placeholder="seunome@email.com" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">CEP</label>
+              <input {...form.register('cep')} className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" placeholder="79000-000" />
+            </div>
           </div>
 
-          {/* Consent note */}
-          {step===4 && (
-            <p className="text-xs text-muted mt-2">Ao enviar, você concorda que entremos em contato por telefone, e-mail e WhatsApp conforme nossa <a className="underline" href="/privacidade">Política de Privacidade</a>.</p>
-          )}
+          <div>
+            <label className="block text-sm font-medium">Selecionar fatura (PNG/JPG/PDF) — opcional</label>
+            <div className="mt-2 rounded-2xl border-2 border-dashed border-line bg-white p-6">
+              <div className="mt-1 flex items-center gap-3">
+                <button type="button" className="btn btn-primary" onClick={()=> fileInputRef.current?.click()}>Selecionar fatura</button>
+                {values.fileUrl && (
+                  <button type="button" className="btn btn-ghost" onClick={()=>{ const prev=form.getValues('fileUrl'); if(prev) try{ URL.revokeObjectURL(prev) }catch{}; form.setValue('fileUrl','',{shouldDirty:true}); setBillFileName('') }}>Remover</button>
+                )}
+              </div>
+              <p className="text-sm text-muted mt-3">{values.fileUrl ? `Fatura selecionada${billFileName ? `: ${billFileName}`:''}` : 'Nenhuma fatura selecionada'}</p>
+              <input ref={fileInputRef} id="bill-file" name="bill-file" type="file" accept="image/*,.pdf" className="hidden" aria-hidden="true"
+                onChange={(e)=>{ const file=e.target.files?.[0]; if(file){ const url=URL.createObjectURL(file); form.setValue('fileUrl',url,{shouldDirty:true}); setBillFileName(file.name) } else { form.setValue('fileUrl','',{shouldDirty:true}); setBillFileName('') } }} />
+            </div>
+          </div>
 
-          {/* Trust badges */}
-          <div className="pt-2 text-xs text-muted flex flex-wrap gap-3">
-            <span>Dados protegidos (LGPD)</span>
-            <span>Atendimento rápido</span>
-            <span>Usinas no Mato Grosso do Sul</span>
+          <div>
+            <button
+              type="submit"
+              className="w-full px-6 py-4 rounded-2xl text-white font-semibold shadow-xl hover:opacity-95 disabled:opacity-60 bg-gradient-to-r from-[color:var(--blue)] to-[color:var(--brand-accent)]"
+              disabled={submitting}
+              data-testid="lead-submit"
+            >
+              {submitting ? 'Enviando...' : 'Enviar dados e descobrir meu desconto simulado'}
+            </button>
           </div>
-          </div>
-        </form>
-      </div>
+          <p className="text-xs text-muted">Ao enviar, você concorda que entremos em contato por telefone, e-mail e WhatsApp conforme nossa <a className="underline" href="/privacidade">Política de Privacidade</a>.</p>
+        </div>
+      </form>
       )}
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
     </section>
   )
 }
