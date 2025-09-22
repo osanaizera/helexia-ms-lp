@@ -14,7 +14,7 @@ export const LeadSchema = z.object({
   estimatedSaving: z.number().min(0),
   cep: z.string().optional(),
   city: z.string().optional(),
-  acceptLGPD: z.boolean().refine(v=>v===true,'É necessário consentir com a LGPD'),
+  acceptLGPD: z.boolean().optional(),
   utm: z.record(z.string()).optional(),
   fileUrl: z.string().url().optional(),
   gclid: z.string().optional(),
