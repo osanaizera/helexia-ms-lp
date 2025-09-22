@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import SocialProof from '@/components/SocialProof'
 import StickyCTA from '@/components/StickyCTA'
 import ClientLogos from '@/components/ClientLogos'
+import WhoWeAre from '@/components/WhoWeAre'
 import HowItWorks from '@/components/HowItWorks'
 import { useEffect, useState } from 'react'
 import { gtmPush } from '@/lib/gtm'
@@ -38,6 +39,7 @@ export default function Page(){
 
       <Plans onSelect={(p)=> setSelectedPlan(p)} selected={selectedPlan} />
       <LeadForm initialPlan={selectedPlan} />
+      <WhoWeAre />
       <Plants />
 
       <section className="container-pad py-12 bg-bg">
