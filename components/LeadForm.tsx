@@ -120,9 +120,11 @@ export default function LeadForm({ initialPlan='Economico12' as Plan }:{ initial
 
   function next(){
     if(step===1) sendPartialIfNeeded()
-    setStep(Math.min(4, (step+1) as Step))
+    setStep(prev => (prev < 4 ? ((prev + 1) as Step) : (4 as Step)))
   }
-  function prev(){ setStep(Math.max(1, (step-1) as Step)) }
+  function prev(){
+    setStep(prev => (prev > 1 ? ((prev - 1) as Step) : (1 as Step)))
+  }
 
   async function onSubmit(data: Lead){
     try{
