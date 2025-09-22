@@ -1,0 +1,27 @@
+# Node
+node_modules/
+.pnpm-store/
+.yarn/
+.turbo/
+
+# Next.js
+.next/
+out/
+.vercel/
+
+# Env
+.env
+.env.*
+!.env.local.example
+
+# Editor/OS
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Tests/coverage
+coverage/
+playwright-report/
+test-results/
+

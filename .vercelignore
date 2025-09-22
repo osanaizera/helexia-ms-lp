@@ -1,0 +1,12 @@
+# Ignore test and tooling files from deployment context
+.github/
+.vscode/
+.husky/
+playwright-report/
+coverage/
+tests/
+*.spec.*
+
+# Local env examples
+.env.local.example
+
