@@ -140,7 +140,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
           <div className="relative p-6 md:p-10">
             <div className="grid md:grid-cols-5 gap-8 items-start">
           {/* Persuasive message */}
-          <aside className="md:col-span-2 text-white flex flex-col justify-center min-h-[360px]">
+          <aside className="md:col-span-2 text-white flex flex-col justify-center md:min-h-[360px]">
             <h2 id="leadform-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">Quero obter desconto na minha conta de energia</h2>
             <ul className="mt-4 space-y-2 text-white/90 text-sm list-disc pl-5">
               <li>Sem investimento inicial</li>
@@ -238,7 +238,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
           </div>
         </div>
       ) : (
-      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="mt-6 glass rounded-2xl p-6 bg-white/10 border border-white/20">
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="mt-6 glass rounded-2xl p-4 sm:p-6 bg-white/10 border border-white/20">
         <div className="space-y-6 text-ink">
           <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-8 gap-y-7">
             <div>
@@ -251,12 +251,12 @@ export default function LeadForm(props: { initialPlan?: Plan }){
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium">CPF/CNPJ *</label>
-              <div className="flex gap-2 mt-2">
-                <select {...form.register('documentType', { required: true })} className="rounded-2xl border border-line px-4 py-3 bg-white">
+              <div className="flex flex-col sm:flex-row gap-2 mt-2">
+                <select {...form.register('documentType', { required: true })} className="w-full sm:w-auto rounded-2xl border border-line px-4 py-3 bg-white">
                   <option>CPF</option>
                   <option>CNPJ</option>
                 </select>
-                <input {...form.register('document', { required: true })} className="flex-1 rounded-2xl border border-line px-4 py-3 bg-white" placeholder="000.000.000-00" />
+                <input {...form.register('document', { required: true })} className="w-full sm:flex-1 rounded-2xl border border-line px-4 py-3 bg-white" placeholder="000.000.000-00" />
               </div>
             </div>
             <div>
@@ -269,7 +269,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
             </div>
             <div>
               <label className="block text-sm font-medium">Valor médio da sua fatura (R$) *</label>
-              <input inputMode="numeric" className="mt-2 w-40 md:w-52 rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-bill" placeholder="Ex: 2.500"
+              <input inputMode="numeric" className="mt-2 w-full sm:w-48 md:w-56 rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-bill" placeholder="Ex: 2.500"
                 value={form.getValues('avgBillValue') ? Number(form.getValues('avgBillValue')).toLocaleString('pt-BR') : ''}
                 onChange={(e)=>{
                   const digits = e.target.value.replace(/\D+/g,'')

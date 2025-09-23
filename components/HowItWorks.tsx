@@ -24,11 +24,11 @@ export default function HowItWorks(){
         <h2 id="how-heading" className="section-title">Como funciona a sua economia</h2>
         <p className="section-sub">Helexia + Sion: geração local e gestão do consórcio/cooperativa</p>
 
-        <div className="mt-6 flex items-center justify-center gap-6">
-          <div className="flex items-center gap-3">
-            <img src="/images/logohlx.png" alt="Helexia" className="h-10 md:h-12 w-auto" />
+        <div className="mt-6 flex items-center justify-center">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <img src="/images/logohlx.png" alt="Helexia" className="h-8 sm:h-9 md:h-10 lg:h-12 max-w-full object-contain" />
             <span className="text-muted text-sm">parceria</span>
-            <img src="/images/logosion.png" alt="Sion" className="h-36 md:h-40 w-auto" />
+            <img src="/images/logosion.png" alt="Sion" className="h-8 sm:h-9 md:h-10 lg:h-12 max-w-full object-contain" />
           </div>
         </div>
 
