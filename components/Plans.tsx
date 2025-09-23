@@ -81,12 +81,13 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
           <div ref={trackRef} className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible no-scrollbar overscroll-x-contain snap-x snap-mandatory scroll-smooth px-1 -mx-1" role="radiogroup" aria-label="Seleção de planos">
           {/* Plano Sem Compromisso (Flex) */}
           <article
-            className={`group rounded-3xl bg-white border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[420px] sm:min-h-[480px] md:min-h-[520px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Flex' ? 'border-[color:var(--brand-accent)] ring-2 ring-[color:var(--brand-accent)]/40 shadow-xl' : 'border-line shadow-soft'}`}
+            className={`group rounded-3xl bg-white border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[420px] sm:min-h-[480px] md:min-h-[520px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Flex' ? 'p-[2px] bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] border-transparent shadow-xl' : 'border-line shadow-soft'}`}
             role="radio" aria-checked={selected==='Flex'} tabIndex={0}
             onKeyDown={(e)=>handleKey(e,'Flex')}
             onClick={()=>onSelect?.('Flex')}
             aria-label="Plano Sem Compromisso"
           >
+            <div className={`rounded-3xl ${selected==='Flex' ? 'bg-white h-full flex flex-col' : ''}`}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-bold">Plano Sem Compromisso</h3>
@@ -111,16 +112,18 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
                 Quero economizar 20% agora
               </button>
             </div>
+            </div>
           </article>
 
           {/* Plano Inteligente (Economico12) */}
           <article
-            className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[440px] sm:min-h-[520px] md:min-h-[560px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Economico12' ? 'bg-[rgba(32,178,142,0.05)] border-[color:var(--brand-accent)] ring-2 ring-[color:var(--brand-accent)]/40 shadow-xl' : 'bg-white border-line shadow-soft'} `}
+            className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[440px] sm:min-h-[520px] md:min-h-[560px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Economico12' ? 'p-[2px] bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] border-transparent shadow-xl' : 'bg-white border-line shadow-soft'} `}
             role="radio" aria-checked={selected==='Economico12'} tabIndex={0}
             onKeyDown={(e)=>handleKey(e,'Economico12')}
             onClick={()=>onSelect?.('Economico12')}
             aria-label="Plano Inteligente (Mais popular)"
           >
+            <div className={`rounded-3xl ${selected==='Economico12' ? 'bg-white h-full flex flex-col' : ''}`}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-bold">Plano Inteligente</h3>
@@ -149,16 +152,18 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
                 Quero até 30% de desconto
               </button>
             </div>
+            </div>
           </article>
 
           {/* Plano Premium (Premium36) */}
           <article
-            className={`group rounded-3xl bg-white border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[420px] sm:min-h-[480px] md:min-h-[520px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Premium36' ? 'border-[color:var(--brand-accent)] ring-2 ring-[color:var(--brand-accent)]/40 shadow-xl' : 'border-line shadow-soft'} `}
+            className={`group rounded-3xl bg-white border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[420px] sm:min-h-[480px] md:min-h-[520px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Premium36' ? 'p-[2px] bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] border-transparent shadow-xl' : 'border-line shadow-soft'} `}
             role="radio" aria-checked={selected==='Premium36'} tabIndex={0}
             onKeyDown={(e)=>handleKey(e,'Premium36')}
             onClick={()=>onSelect?.('Premium36')}
             aria-label="Plano Premium (Melhor preço)"
           >
+            <div className={`rounded-3xl ${selected==='Premium36' ? 'bg-white h-full flex flex-col' : ''}`}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-bold">Plano Premium</h3>
@@ -171,7 +176,7 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
             <div className="mt-5">
               <div className="text-sm text-muted">Desconto</div>
               <div className="text-5xl font-bold text-[color:var(--brand-accent)] leading-tight">até 45%</div>
-              <div className="text-sm text-ink/70 mt-2">Prazo: 24 a 36 meses</div>
+              <div className="text-sm text-ink/70 mt-2">Prazo: 36 meses</div>
             </div>
             <p className="mt-5 text-ink/80 text-base">Até 45% de desconto garantido para quem quer o máximo de economia.</p>
             <div className="mt-5 flex gap-2 text-xs text-ink/70">
@@ -186,6 +191,7 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
               <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Premium36')}} data-testid={`select-plan-Premium36`}>
                 Quero até 45% de economia
               </button>
+            </div>
             </div>
           </article>
           </div>
