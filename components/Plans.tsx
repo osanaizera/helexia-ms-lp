@@ -78,7 +78,7 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
           <div className="md:hidden absolute left-0 top-0 bottom-0 w-8 pointer-events-none bg-gradient-to-r from-bg to-transparent" aria-hidden />
           <div className="md:hidden absolute right-0 top-0 bottom-0 w-8 pointer-events-none bg-gradient-to-l from-bg to-transparent" aria-hidden />
           <div className="md:hidden absolute -top-6 right-0 text-xs text-muted">Deslize →</div>
-          <div ref={trackRef} className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-smooth px-1 -mx-1" role="radiogroup" aria-label="Seleção de planos">
+          <div ref={trackRef} className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible no-scrollbar snap-x snap-mandatory scroll-smooth px-1 -mx-1 touch-pan-x" role="radiogroup" aria-label="Seleção de planos">
           {/* Plano Sem Compromisso (Flex) */}
           <article
             className={`group rounded-3xl bg-white border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[520px] p-8 md:p-10 flex flex-col snap-center shrink-0 min-w-[82%] sm:min-w-[65%] md:min-w-0 ${selected==='Flex' ? 'border-[color:var(--brand-accent)] ring-2 ring-[color:var(--brand-accent)]/40 shadow-xl' : 'border-line shadow-soft'}`}
