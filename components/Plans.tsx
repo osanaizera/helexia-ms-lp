@@ -78,10 +78,10 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
           <div className="md:hidden absolute left-0 top-0 bottom-0 w-8 pointer-events-none bg-gradient-to-r from-bg to-transparent" aria-hidden />
           <div className="md:hidden absolute right-0 top-0 bottom-0 w-8 pointer-events-none bg-gradient-to-l from-bg to-transparent" aria-hidden />
           <div className="md:hidden absolute -top-6 right-0 text-xs text-muted">Deslize →</div>
-          <div ref={trackRef} className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible no-scrollbar snap-x snap-mandatory scroll-smooth px-1 -mx-1 touch-pan-x" role="radiogroup" aria-label="Seleção de planos">
+          <div ref={trackRef} className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible no-scrollbar overscroll-x-contain snap-x snap-mandatory scroll-smooth px-1 -mx-1" role="radiogroup" aria-label="Seleção de planos">
           {/* Plano Sem Compromisso (Flex) */}
           <article
-            className={`group rounded-3xl bg-white border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[520px] p-8 md:p-10 flex flex-col snap-center shrink-0 min-w-[82%] sm:min-w-[65%] md:min-w-0 ${selected==='Flex' ? 'border-[color:var(--brand-accent)] ring-2 ring-[color:var(--brand-accent)]/40 shadow-xl' : 'border-line shadow-soft'}`}
+            className={`group rounded-3xl bg-white border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[420px] sm:min-h-[480px] md:min-h-[520px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Flex' ? 'border-[color:var(--brand-accent)] ring-2 ring-[color:var(--brand-accent)]/40 shadow-xl' : 'border-line shadow-soft'}`}
             role="radio" aria-checked={selected==='Flex'} tabIndex={0}
             onKeyDown={(e)=>handleKey(e,'Flex')}
             onClick={()=>onSelect?.('Flex')}
@@ -115,7 +115,7 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
 
           {/* Plano Inteligente (Economico12) */}
           <article
-            className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[560px] p-8 md:p-10 flex flex-col snap-center shrink-0 min-w-[82%] sm:min-w-[65%] md:min-w-0 ${selected==='Economico12' ? 'bg-[rgba(32,178,142,0.05)] border-[color:var(--brand-accent)] ring-2 ring-[color:var(--brand-accent)]/40 shadow-xl' : 'bg-white border-line shadow-soft'} `}
+            className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[440px] sm:min-h-[520px] md:min-h-[560px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Economico12' ? 'bg-[rgba(32,178,142,0.05)] border-[color:var(--brand-accent)] ring-2 ring-[color:var(--brand-accent)]/40 shadow-xl' : 'bg-white border-line shadow-soft'} `}
             role="radio" aria-checked={selected==='Economico12'} tabIndex={0}
             onKeyDown={(e)=>handleKey(e,'Economico12')}
             onClick={()=>onSelect?.('Economico12')}
@@ -153,7 +153,7 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
 
           {/* Plano Premium (Premium36) */}
           <article
-            className={`group rounded-3xl bg-white border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[520px] p-8 md:p-10 flex flex-col snap-center shrink-0 min-w-[82%] sm:min-w-[65%] md:min-w-0 ${selected==='Premium36' ? 'border-[color:var(--brand-accent)] ring-2 ring-[color:var(--brand-accent)]/40 shadow-xl' : 'border-line shadow-soft'} `}
+            className={`group rounded-3xl bg-white border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[420px] sm:min-h-[480px] md:min-h-[520px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Premium36' ? 'border-[color:var(--brand-accent)] ring-2 ring-[color:var(--brand-accent)]/40 shadow-xl' : 'border-line shadow-soft'} `}
             role="radio" aria-checked={selected==='Premium36'} tabIndex={0}
             onKeyDown={(e)=>handleKey(e,'Premium36')}
             onClick={()=>onSelect?.('Premium36')}
