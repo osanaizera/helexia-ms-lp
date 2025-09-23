@@ -81,117 +81,114 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
           <div ref={trackRef} className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible no-scrollbar overscroll-x-contain snap-x snap-mandatory scroll-smooth px-1 -mx-1" role="radiogroup" aria-label="Seleção de planos">
           {/* Plano Sem Compromisso (Flex) */}
           <article
-            className={`group rounded-3xl bg-white border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[420px] sm:min-h-[480px] md:min-h-[520px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Flex' ? 'p-[2px] bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] border-transparent shadow-xl' : 'border-line shadow-soft'}`}
+            className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[420px] sm:min-h-[480px] md:min-h-[520px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Flex' ? 'bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] text-white border-transparent ring-2 ring-white/20 shadow-2xl' : 'bg-white border-line text-ink shadow-soft'}`}
             role="radio" aria-checked={selected==='Flex'} tabIndex={0}
             onKeyDown={(e)=>handleKey(e,'Flex')}
             onClick={()=>onSelect?.('Flex')}
             aria-label="Plano Sem Compromisso"
           >
-            <div className={`rounded-3xl ${selected==='Flex' ? 'bg-white h-full flex flex-col' : ''}`}>
+            
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-bold">Plano Sem Compromisso</h3>
-                <p className="text-sm text-ink/60 mt-1">Liberdade total</p>
+                <p className={`text-sm mt-1 ${selected==='Flex' ? 'text-white/80' : 'text-ink/60'}`}>Liberdade total</p>
               </div>
               {selected==='Flex' && (
                 <span className="text-xs text-[color:var(--brand-accent)]">Selecionado</span>
               )}
             </div>
             <div className="mt-5">
-              <div className="text-sm text-muted">Desconto</div>
-              <div className="text-5xl font-bold text-[color:var(--brand-accent)] leading-tight">20%</div>
-              <div className="text-sm text-ink/70 mt-2">Prazo: sem fidelidade</div>
+              <div className={`text-sm ${selected==='Flex' ? 'text-white/80' : 'text-muted'}`}>Desconto</div>
+              <div className={`text-5xl font-bold leading-tight ${selected==='Flex' ? 'text-white' : 'text-[color:var(--brand-accent)]'}`}>20%</div>
+              <div className={`text-sm mt-2 ${selected==='Flex' ? 'text-white/80' : 'text-ink/70'}`}>Prazo: sem fidelidade</div>
             </div>
-            <p className="mt-5 text-ink/80 text-base">Economize 20% hoje mesmo. Cancele quando quiser.</p>
-            <div className="mt-5 flex gap-2 text-xs text-ink/70">
-              <span className="px-2 py-1 rounded-full bg-line/60">Liberdade total</span>
-              <span className="px-2 py-1 rounded-full bg-line/60">Sem multa</span>
+            <p className={`mt-5 text-base ${selected==='Flex' ? 'text-white/90' : 'text-ink/80'}`}>Economize 20% hoje mesmo. Cancele quando quiser.</p>
+            <div className={`mt-5 flex gap-2 text-xs ${selected==='Flex' ? 'text-white/80' : 'text-ink/70'}`}>
+              <span className={`${selected==='Flex' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Liberdade total</span>
+              <span className={`${selected==='Flex' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Sem multa</span>
             </div>
             <div className="mt-auto">
               <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Flex')}} data-testid={`select-plan-Flex`}>
                 Quero economizar 20% agora
               </button>
             </div>
-            </div>
           </article>
 
           {/* Plano Inteligente (Economico12) */}
           <article
-            className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[440px] sm:min-h-[520px] md:min-h-[560px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Economico12' ? 'p-[2px] bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] border-transparent shadow-xl' : 'bg-white border-line shadow-soft'} `}
+            className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[440px] sm:min-h-[520px] md:min-h-[560px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Economico12' ? 'bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] text-white border-transparent ring-2 ring-white/20 shadow-2xl' : 'bg-white border-line text-ink shadow-soft'} `}
             role="radio" aria-checked={selected==='Economico12'} tabIndex={0}
             onKeyDown={(e)=>handleKey(e,'Economico12')}
             onClick={()=>onSelect?.('Economico12')}
             aria-label="Plano Inteligente (Mais popular)"
           >
-            <div className={`rounded-3xl ${selected==='Economico12' ? 'bg-white h-full flex flex-col' : ''}`}>
+            
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-bold">Plano Inteligente</h3>
-                <p className="text-sm text-ink/60 mt-1">Bom desconto, baixa fidelidade</p>
+                <p className={`text-sm mt-1 ${selected==='Economico12' ? 'text-white/80' : 'text-ink/60'}`}>Bom desconto, baixa fidelidade</p>
               </div>
               {selected==='Economico12' && (
                 <span className="text-xs text-[color:var(--brand-accent)]">Selecionado</span>
               )}
             </div>
             <div className="mt-5">
-              <div className="text-sm text-muted">Desconto</div>
-              <div className="text-5xl font-bold text-[color:var(--brand-accent)] leading-tight">até 30%</div>
-              <div className="text-sm text-ink/70 mt-2">Prazo: 12 meses</div>
+              <div className={`text-sm ${selected==='Economico12' ? 'text-white/80' : 'text-muted'}`}>Desconto</div>
+              <div className={`text-5xl font-bold leading-tight ${selected==='Economico12' ? 'text-white' : 'text-[color:var(--brand-accent)]'}`}>até 30%</div>
+              <div className={`text-sm mt-2 ${selected==='Economico12' ? 'text-white/80' : 'text-ink/70'}`}>Prazo: 12 meses</div>
             </div>
-            <p className="mt-5 text-ink/80 text-base">Ganhe até 30% de desconto com apenas 12 meses de fidelidade.</p>
-            <div className="mt-5 flex gap-2 text-xs text-ink/70">
-              <span className="px-2 py-1 rounded-full bg-line/60">Melhor custo-benefício</span>
-              <span className="px-2 py-1 rounded-full bg-line/60">Adesão rápida</span>
+            <p className={`mt-5 text-base ${selected==='Economico12' ? 'text-white/90' : 'text-ink/80'}`}>Ganhe até 30% de desconto com apenas 12 meses de fidelidade.</p>
+            <div className={`mt-5 flex gap-2 text-xs ${selected==='Economico12' ? 'text-white/80' : 'text-ink/70'}`}>
+              <span className={`${selected==='Economico12' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Melhor custo-benefício</span>
+              <span className={`${selected==='Economico12' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Adesão rápida</span>
             </div>
-            <div className="mt-5 text-sm text-ink/90 space-y-1">
-              <div><b>Desconto:</b> 25% a 30%</div>
-              <div><b>Prazo:</b> 12 meses</div>
+            <div className="mt-5 text-sm space-y-1">
+              <div className={`${selected==='Economico12' ? 'text-white/90' : 'text-ink/90'}`}><b>Desconto:</b> 25% a 30%</div>
+              <div className={`${selected==='Economico12' ? 'text-white/90' : 'text-ink/90'}`}><b>Prazo:</b> 12 meses</div>
             </div>
             <div className="mt-auto">
               <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Economico12')}} data-testid={`select-plan-Economico12`}>
                 Quero até 30% de desconto
               </button>
             </div>
-            </div>
           </article>
 
           {/* Plano Premium (Premium36) */}
           <article
-            className={`group rounded-3xl bg-white border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[420px] sm:min-h-[480px] md:min-h-[520px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Premium36' ? 'p-[2px] bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] border-transparent shadow-xl' : 'border-line shadow-soft'} `}
+            className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[420px] sm:min-h-[480px] md:min-h-[520px] p-6 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[78%] sm:min-w-[64%] md:min-w-0 ${selected==='Premium36' ? 'bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] text-white border-transparent ring-2 ring-white/20 shadow-2xl' : 'bg-white border-line text-ink shadow-soft'} `}
             role="radio" aria-checked={selected==='Premium36'} tabIndex={0}
             onKeyDown={(e)=>handleKey(e,'Premium36')}
             onClick={()=>onSelect?.('Premium36')}
             aria-label="Plano Premium (Melhor preço)"
           >
-            <div className={`rounded-3xl ${selected==='Premium36' ? 'bg-white h-full flex flex-col' : ''}`}>
+            
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-bold">Plano Premium</h3>
-                <p className="text-sm text-ink/60 mt-1">Máximo desconto, fidelidade longa</p>
+                <p className={`text-sm mt-1 ${selected==='Premium36' ? 'text-white/80' : 'text-ink/60'}`}>Máximo desconto, fidelidade longa</p>
               </div>
               {selected==='Premium36' && (
                 <span className="text-xs text-[color:var(--brand-accent)]">Selecionado</span>
               )}
             </div>
             <div className="mt-5">
-              <div className="text-sm text-muted">Desconto</div>
-              <div className="text-5xl font-bold text-[color:var(--brand-accent)] leading-tight">até 45%</div>
-              <div className="text-sm text-ink/70 mt-2">Prazo: 36 meses</div>
+              <div className={`text-sm ${selected==='Premium36' ? 'text-white/80' : 'text-muted'}`}>Desconto</div>
+              <div className={`text-5xl font-bold leading-tight ${selected==='Premium36' ? 'text-white' : 'text-[color:var(--brand-accent)]'}`}>até 45%</div>
+              <div className={`text-sm mt-2 ${selected==='Premium36' ? 'text-white/80' : 'text-ink/70'}`}>Prazo: 36 meses</div>
             </div>
-            <p className="mt-5 text-ink/80 text-base">Até 45% de desconto garantido para quem quer o máximo de economia.</p>
-            <div className="mt-5 flex gap-2 text-xs text-ink/70">
-              <span className="px-2 py-1 rounded-full bg-line/60">Máxima economia</span>
-              <span className="px-2 py-1 rounded-full bg-line/60">Previsibilidade</span>
+            <p className={`mt-5 text-base ${selected==='Premium36' ? 'text-white/90' : 'text-ink/80'}`}>Até 45% de desconto garantido para quem quer o máximo de economia.</p>
+            <div className={`mt-5 flex gap-2 text-xs ${selected==='Premium36' ? 'text-white/80' : 'text-ink/70'}`}>
+              <span className={`${selected==='Premium36' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Máxima economia</span>
+              <span className={`${selected==='Premium36' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Previsibilidade</span>
             </div>
-            <div className="mt-5 text-sm text-ink/90 space-y-1">
-              <div><b>Desconto:</b> 30% a 45%*</div>
-              <div><b>Prazo:</b> 24 a 36 meses</div>
+            <div className="mt-5 text-sm space-y-1">
+              <div className={`${selected==='Premium36' ? 'text-white/90' : 'text-ink/90'}`}><b>Desconto:</b> 30% a 45%*</div>
+              <div className={`${selected==='Premium36' ? 'text-white/90' : 'text-ink/90'}`}><b>Prazo:</b> 36 meses</div>
             </div>
             <div className="mt-auto">
               <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Premium36')}} data-testid={`select-plan-Premium36`}>
                 Quero até 45% de economia
               </button>
-            </div>
             </div>
           </article>
           </div>
