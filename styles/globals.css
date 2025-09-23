@@ -41,8 +41,8 @@ body{
 *:focus-visible { outline: 3px solid var(--brand-accent); outline-offset: 2px; }
 
 /* Utilities */
-.text-gradient { @apply bg-gradient-to-r from-[color:var(--brand)] to-[color:var(--brand-accent)] bg-clip-text text-transparent; }
-.highlight-gradient { @apply bg-gradient-to-r from-[color:var(--brand)] to-[color:var(--brand-accent)]; }
+.text-gradient { @apply bg-gradient-to-r from-white to-[color:var(--brand-accent)] bg-clip-text text-transparent; }
+.highlight-gradient { @apply bg-gradient-to-r from-black/60 to-black/40; }
 
 /* Dark section */
 .section-dark { @apply bg-[color:var(--brand)] text-white; }

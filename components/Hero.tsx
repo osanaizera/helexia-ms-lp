@@ -9,7 +9,7 @@ export default function Hero({ onPrimaryCTAClick }: { onPrimaryCTAClick?: () => 
       }}
       aria-label="Helexia — Energia solar no MS"
     >
-      <div className="highlight-gradient absolute inset-0 opacity-50" aria-hidden="true" />
+      <div className="highlight-gradient absolute inset-0" aria-hidden="true" />
       <div className="container-pad pt-24 pb-16 md:pt-32 md:pb-24 relative z-10">
         <div className="max-w-3xl mx-auto text-center text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
           <div className="inline-flex items-center gap-2 bg-white/15 border border-white/30 rounded-full px-3 py-1 text-sm mb-4">
