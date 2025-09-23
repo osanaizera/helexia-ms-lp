@@ -6,7 +6,7 @@ export const LeadSchema = z.object({
   phone: z.string().min(10).max(16),
   documentType: z.enum(['CPF','CNPJ']),
   document: z.string().optional(),
-  // Permitir < 1000 para leads fora de escopo; regra de bloqueio é feita no front
+  // Permitir < 500 para leads fora de escopo; regra de bloqueio é feita no front
   avgBillValue: z.number().min(0),
   segment: z.enum(['Residencial','Comercial','Industrial','Serviços','Outros']).optional(),
   plan: z.enum(['Flex','Economico12','Premium36']),

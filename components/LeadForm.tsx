@@ -115,7 +115,8 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       gtmPush({ event:'lead_submit_success' })
       // Show persuasive simulation result after submit
       const r = estimate(form.getValues('avgBillValue')||0, form.getValues('plan'))
-      const faixa = (form.getValues('avgBillValue')||0) < 1000 ? '<1000' : (form.getValues('avgBillValue')||0) <= 1999 ? '1000-1999' : (form.getValues('avgBillValue')||0) <= 5999 ? '2000-5999' : (form.getValues('avgBillValue')||0) <= 9999 ? '6000-9999' : '>=10000'
+      const v = form.getValues('avgBillValue')||0
+      const faixa = v < 500 ? '<500' : v <= 999 ? '500-999' : v <= 1999 ? '1000-1999' : v <= 5999 ? '2000-5999' : v <= 9999 ? '6000-9999' : '>=10000'
       gtmPush({ event:'simulator_calculated', plan: form.getValues('plan'), faixa_fatura: faixa, discountPct: r.pct })
       setSubmitted({ id: json?.id, pct: r.pct, saving: r.saving, newBill: r.newBill })
       localStorage.removeItem(STORAGE_KEY)

@@ -5,8 +5,9 @@ import { gtmPush } from '@/lib/gtm'
 export type Plan = 'Flex'|'Economico12'|'Premium36'
 
 export function getDiscountPct(plan: Plan, value:number){
-  if(value < 1000) return 0;
+  if(value < 500) return 0;
   const ranges = [
+    {min:500,  max:999,  pct:{Flex:20, Economico12:25, Premium36:30}},
     {min:1000, max:1999, pct:{Flex:20, Economico12:25, Premium36:30}},
     {min:2000, max:5999, pct:{Flex:22, Economico12:27, Premium36:35}},
     {min:6000, max:9999, pct:{Flex:24, Economico12:29, Premium36:40}},
@@ -38,7 +39,7 @@ export default function Simulator({ initialPlan='Premium36', onPlanChange, onCal
   useEffect(()=>{ onPlanChange?.(plan) },[plan, onPlanChange])
   useEffect(()=>{
     if(value>0){
-      const faixa = value < 1000 ? '<1000' : value <= 1999 ? '1000-1999' : value <= 5999 ? '2000-5999' : value <= 9999 ? '6000-9999' : '>=10000'
+      const faixa = value < 500 ? '<500' : value <= 999 ? '500-999' : value <= 1999 ? '1000-1999' : value <= 5999 ? '2000-5999' : value <= 9999 ? '6000-9999' : '>=10000'
       gtmPush({ event:'simulator_calculated', plan, faixa_fatura: faixa, discountPct: result.pct })
       onCalculated?.({ value, plan, pct: result.pct })
     }
@@ -58,8 +59,8 @@ export default function Simulator({ initialPlan='Premium36', onPlanChange, onCal
               const num = Number(digits)
               setBill(num.toLocaleString('pt-BR'))
             }}
-            inputMode="numeric" className="mt-2 w-full rounded-2xl border border-line px-4 py-3" placeholder="1.000" aria-describedby="bill-help" />
-          <p id="bill-help" className="text-xs text-muted mt-1">Mínimo elegível: R$ 1.000/mês</p>
+            inputMode="numeric" className="mt-2 w-full rounded-2xl border border-line px-4 py-3" placeholder="500" aria-describedby="bill-help" />
+          <p id="bill-help" className="text-xs text-muted mt-1">Mínimo elegível: R$ 500/mês</p>
 
           <label className="block text-sm font-medium mt-4" htmlFor="plan">Plano</label>
           <select id="plan" data-testid="sim-select-plan" value={plan} onChange={(e)=> setPlan(e.target.value as Plan)} className="mt-2 w-full rounded-2xl border border-line px-4 py-3">
@@ -69,8 +70,8 @@ export default function Simulator({ initialPlan='Premium36', onPlanChange, onCal
           </select>
         </div></div>
         <div className="md:col-span-2 card"><div className="card-body">
-          {value < 1000 ? (
-            <p className="text-ink">Atualmente atendemos contas a partir de <b>R$ 1.000/mês</b>. Deixe seu contato e avisaremos quando houver oferta para você.</p>
+          {value < 500 ? (
+            <p className="text-ink">Atualmente atendemos contas a partir de <b>R$ 500/mês</b>. Deixe seu contato e avisaremos quando houver oferta para você.</p>
           ) : (
             <div className="grid sm:grid-cols-3 gap-4">
               <div>
