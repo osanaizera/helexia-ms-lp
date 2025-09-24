@@ -152,7 +152,8 @@ export default function LeadForm(props: { initialPlan?: Plan }){
             </ul>
           </aside>
           <div className="md:col-span-3 relative rounded-2xl overflow-hidden">
-            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(0,149,217,0.06), rgba(32,178,142,0.05))' }} aria-hidden />
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(0,149,217,0.14), rgba(32,178,142,0.16))' }} aria-hidden />
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(60rem 30rem at 85% 15%, rgba(34, 227, 177, 0.22), transparent 55%)' }} aria-hidden />
 
       {/* Result after submit */}
       {submitted ? (
