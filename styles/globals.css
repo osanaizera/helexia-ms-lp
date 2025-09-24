@@ -6,6 +6,9 @@
   --brand:#0F2A2F;        /* azul petróleo (heading/escuro) */
   --brand-accent:#20B28E; /* verde vibrante (CTAs/destaques) */
   --blue:#0095D9;         /* azul claro (links/hover) */
+  /* Tons mais saturados para CTAs destacados */
+  --blue-strong:#00C2FF;      /* ciano saturado */
+  --accent-strong:#22E3B1;    /* verde-água saturado */
   --ink:#0F172A;          /* texto escuro */
   --muted:#334155;        /* texto secundário */
   --line:#E2E8F0;         /* linhas/bordas */
