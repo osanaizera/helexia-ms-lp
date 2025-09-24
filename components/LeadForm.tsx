@@ -151,7 +151,8 @@ export default function LeadForm(props: { initialPlan?: Plan }){
               <li>Energia gerada no MS</li>
             </ul>
           </aside>
-          <div className="md:col-span-3">
+          <div className="md:col-span-3 relative rounded-2xl overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(0,149,217,0.06), rgba(32,178,142,0.05))' }} aria-hidden />
 
       {/* Result after submit */}
       {submitted ? (
