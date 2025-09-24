@@ -137,7 +137,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
   return (
     <section className="py-12 bg-bg" aria-labelledby="leadform-heading" id="leadform">
       <div className="container-pad">
-        <div className="relative overflow-hidden rounded-3xl border border-white/20 shadow-xl bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)]">
+        <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)]">
           <div className="relative z-10 p-6 md:p-8">
             <div className="grid md:grid-cols-5 gap-6 md:gap-8 items-start">
           {/* Persuasive message */}
