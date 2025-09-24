@@ -137,9 +137,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
   return (
     <section className="py-12 bg-bg" aria-labelledby="leadform-heading" id="leadform">
       <div className="container-pad">
-        <div className="relative overflow-hidden rounded-3xl border border-line shadow-xl bg-white/90 backdrop-blur-md">
-          {/* Lado esquerdo com gradiente verde (somente cobre a coluna da esquerda em md+) */}
-          <div className="absolute inset-y-0 left-0 w-full md:w-[40%] bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)]" aria-hidden />
+        <div className="relative overflow-hidden rounded-3xl border border-white/20 shadow-xl bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)]">
           <div className="relative z-10 p-6 md:p-8">
             <div className="grid md:grid-cols-5 gap-6 md:gap-8 items-start">
           {/* Persuasive message */}
@@ -151,9 +149,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
               <li>Energia gerada no MS</li>
             </ul>
           </aside>
-          <div className="md:col-span-3 relative rounded-2xl overflow-hidden">
-            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(0,149,217,0.14), rgba(32,178,142,0.16))' }} aria-hidden />
-            <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(60rem 30rem at 85% 15%, rgba(34, 227, 177, 0.22), transparent 55%)' }} aria-hidden />
+          <div className="md:col-span-3 relative rounded-2xl overflow-hidden bg-white/80 backdrop-blur-md border border-white/20">
 
       {/* Result after submit */}
       {submitted ? (
