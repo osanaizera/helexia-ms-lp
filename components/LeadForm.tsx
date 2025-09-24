@@ -151,7 +151,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
               <li>Energia gerada no MS</li>
             </ul>
           </aside>
-          <div className={`md:col-span-3 ${!submitted ? 'md:max-h-[70vh] md:overflow-y-auto pr-1' : ''}`}>
+          <div className="md:col-span-3">
 
       {/* Result after submit */}
       {submitted ? (
