@@ -23,7 +23,7 @@ export default function Hero({ onPrimaryCTAClick }: { onPrimaryCTAClick?: () => 
             Sem investimento inicial. Energia limpa e local, direto de nossas usinas no MS.
           </p>
           <div className="mt-8 flex items-center justify-center">
-            <button className="btn btn-primary text-base px-8 py-3 rounded-full" onClick={()=>{
+            <button className="btn btn-primary text-base px-8 py-3 rounded-full shine-sweep pulse-glow" onClick={()=>{
               const el = document.getElementById('leadform'); el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
               onPrimaryCTAClick?.()
             }} data-testid="cta-simular">

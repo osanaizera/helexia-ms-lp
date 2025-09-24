@@ -24,8 +24,10 @@ export default function HowItWorks(){
         <h2 id="how-heading" className="section-title">Como funciona a sua economia</h2>
         <p className="section-sub">Helexia + Sion: geração local e gestão do consórcio/cooperativa</p>
 
-        <div className="mt-6 flex items-center justify-center">
-          <div className="flex items-center gap-3 sm:gap-4">
+        <div className="mt-6 relative flex items-center justify-center">
+          {/* Energy glow orb background */}
+          <div className="energy-orb" style={{ left:'50%', transform:'translateX(-50%)', top:'-2rem' }} aria-hidden />
+          <div className="relative z-10 flex items-center gap-3 sm:gap-4">
             <img src="/images/logohlx.png" alt="Helexia" className="h-8 sm:h-9 md:h-10 lg:h-12 max-w-full object-contain" />
             <span className="text-muted text-sm">parceria</span>
             <img src="/images/logosion.png" alt="Sion" className="h-24 sm:h-28 md:h-32 lg:h-36 max-w-full object-contain" />

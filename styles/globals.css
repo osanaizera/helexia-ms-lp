@@ -69,3 +69,44 @@ body{
   }
   .pulse-glow { animation: pulse-glow 2.6s ease-in-out infinite; will-change: filter, transform; }
 }
+
+/* Shining sweep for CTAs */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes shine-sweep {
+    0% { transform: translateX(-150%) skewX(-20deg); opacity: 0; }
+    35% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translateX(200%) skewX(-20deg); opacity: 0; }
+  }
+  .shine-sweep { position: relative; overflow: hidden; }
+  .shine-sweep::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -150%;
+    width: 50%; height: 100%;
+    background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+    mix-blend-mode: screen;
+    transform: skewX(-20deg);
+    animation: shine-sweep 3.6s ease-in-out infinite;
+  }
+}
+
+/* Energy-themed radial glow orb */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes orb-pulse {
+    0%, 100% { transform: scale(0.97); opacity: 0.85; }
+    50% { transform: scale(1.03); opacity: 1; }
+  }
+}
+.energy-orb {
+  position: absolute;
+  width: 28rem; height: 28rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(32,178,142,0.35) 0%, rgba(32,178,142,0.22) 35%, rgba(32,178,142,0.10) 60%, transparent 72%);
+  filter: blur(14px);
+  pointer-events: none;
+  z-index: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .energy-orb { animation: orb-pulse 6.5s ease-in-out infinite; }
+}
