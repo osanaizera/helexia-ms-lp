@@ -276,7 +276,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
                   const digits = e.target.value.replace(/\D+/g,'')
                   form.setValue('avgBillValue', Number(digits)||0, { shouldDirty: true })
                 }} />
-              <p className="text-xs text-muted mt-1">Cálculo considera desconto apenas sobre TE+TUSD (energia).</p>
+              {/* Nota removida conforme solicitação */}
             </div>
             <div>
               <label className="block text-sm font-medium">E-mail</label>
@@ -306,7 +306,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
           <div>
             <button
               type="submit"
-              className="w-full px-6 py-4 rounded-2xl text-white font-semibold shadow-xl hover:opacity-95 disabled:opacity-60 bg-gradient-to-r from-[color:var(--blue)] to-[color:var(--brand-accent)]"
+              className="w-full px-6 py-4 rounded-2xl text-white font-semibold shadow-xl disabled:opacity-60 bg-gradient-to-r from-[color:var(--blue)] to-[color:var(--brand-accent)] transition-[shadow,transform,opacity] hover:opacity-100 hover:shadow-[0_0_28px_rgba(32,178,142,0.75)] hover:scale-[1.01] focus:shadow-[0_0_32px_rgba(32,178,142,0.85)] pulse-glow"
               disabled={submitting}
               data-testid="lead-submit"
             >

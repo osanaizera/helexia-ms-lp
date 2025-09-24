@@ -102,7 +102,7 @@ export default function WhoWeAre(){
         {/* Sion Energia */}
         <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           <div className="order-2 md:order-1 flex flex-col items-center gap-4">
-            <img src="/images/logosion.png" alt="Sion Energia" className="h-48 w-auto" />
+            <img src="/images/logosion.png" alt="Sion Energia" className="w-full max-w-[18rem] h-auto" />
           </div>
           <div className="order-1 md:order-2 rounded-2xl p-6" style={{ background: 'linear-gradient(135deg, rgba(32,178,142,0.08), rgba(15,42,47,0.06))' }}>
             <h3 className="text-xl font-bold">Sobre a Sion Energia</h3>
