@@ -137,19 +137,19 @@ export default function LeadForm(props: { initialPlan?: Plan }){
   return (
     <section className="py-12 bg-bg" aria-labelledby="leadform-heading" id="leadform">
       <div className="container-pad">
-        <div className="relative overflow-hidden rounded-3xl border border-white/20 shadow-xl bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)]">
-          <div className="relative p-6 md:p-10">
-            <div className="grid md:grid-cols-5 gap-8 items-start">
+        <div className="relative overflow-hidden rounded-3xl border border-line shadow-xl bg-white/90 backdrop-blur-md">
+          <div className="relative p-6 md:p-8">
+            <div className="grid md:grid-cols-5 gap-6 md:gap-8 items-start">
           {/* Persuasive message */}
-          <aside className="md:col-span-2 text-white flex flex-col justify-center md:min-h-[360px]">
+          <aside className="md:col-span-2 text-ink flex flex-col justify-center md:min-h-[360px]">
             <h2 id="leadform-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">Quero obter desconto na minha conta de energia</h2>
-            <ul className="mt-4 space-y-2 text-white/90 text-sm list-disc pl-5">
+            <ul className="mt-4 space-y-2 text-ink/80 text-sm list-disc pl-5">
               <li>Sem investimento inicial</li>
               <li>Energia renovável</li>
               <li>Energia gerada no MS</li>
             </ul>
           </aside>
-          <div className="md:col-span-3">
+          <div className="md:col-span-3 md:max-h-[70vh] md:overflow-y-auto pr-1">
 
       {/* Result after submit */}
       {submitted ? (
