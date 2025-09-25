@@ -74,6 +74,8 @@ export default function LeadForm(props: { initialPlan?: Plan }){
   const [submitted, setSubmitted] = useState<{ id?: string; pct: number; saving: number; newBill: number }|null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string>('')
+  const [submitProgress, setSubmitProgress] = useState(0)
+  const submitIntervalRef = useRef<number|undefined>(undefined)
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY as string | undefined
   const form = useForm<Lead>({
     resolver: zodResolver(LeadSchema),
@@ -88,7 +90,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
 
   const values = form.watch()
   const calc = useMemo(()=> estimate(values.avgBillValue||0, values.plan), [values.avgBillValue, values.plan])
-  const [sheetsStatus, setSheetsStatus] = useState<'idle'|'sending'|'ok'|'error'>('idle')
+  // removed sheets status UI; keeping logs only
 
   useEffect(()=>{
     // restore autosave
@@ -156,6 +158,12 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       setSubmitting(true)
       setSubmitError('')
       console.log('[lead] submit start')
+      // start progress animation
+      setSubmitProgress(5)
+      if(submitIntervalRef.current) window.clearInterval(submitIntervalRef.current)
+      submitIntervalRef.current = window.setInterval(()=>{
+        setSubmitProgress((p)=> Math.min(90, p + Math.floor(Math.random()*6)+2))
+      }, 280)
       // reCAPTCHA v3 token
       let recaptchaToken = ''
       if(siteKey){
@@ -190,6 +198,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       gtmPush({ event:'simulator_calculated', plan: form.getValues('plan'), faixa_fatura: faixa, discountPct: r.pct })
       setSubmitted({ id: json?.id, pct: r.pct, saving: r.saving, newBill: r.newBill })
       localStorage.removeItem(STORAGE_KEY)
+      setSubmitProgress(100)
       // Forward to Google Sheets Apps Script (non-blocking)
       try{
         const valuesAll = form.getValues()
@@ -219,18 +228,19 @@ export default function LeadForm(props: { initialPlan?: Plan }){
           recaptchaToken
         }
         console.log('[sheets] forward start')
-        setSheetsStatus('sending')
         fetch('/api/sheets', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payloadSheets) })
-          .then(async (r)=>{ const t = await r.text(); if(!r.ok){ throw new Error(t||String(r.status)) } console.log('[sheets] forward ok', t); setSheetsStatus('ok') })
-          .catch((err)=>{ console.error('[sheets] forward error', err); setSheetsStatus('error') })
+          .then(async (r)=>{ const t = await r.text(); if(!r.ok){ throw new Error(t||String(r.status)) } console.log('[sheets] forward ok') })
+          .catch((err)=>{ console.error('[sheets] forward error', err) })
       }catch(err){ console.warn('sheets forward error', err) }
     }catch(e:any){
       console.error(e)
       gtmPush({ event:'lead_submit_error' })
       setSubmitError('Não foi possível enviar. Verifique os dados e tente novamente.')
+      setSubmitProgress(0)
     }
     finally{
       setSubmitting(false)
+      if(submitIntervalRef.current){ window.clearInterval(submitIntervalRef.current); submitIntervalRef.current = undefined }
     }
   }
 
@@ -324,17 +334,10 @@ export default function LeadForm(props: { initialPlan?: Plan }){
                   </>
                 )
               })()}
-              {/* Rodapé legal enxuto */}
+              {/* Mensagem de sucesso e rodapé */}
               <div className="mt-6 flex flex-wrap items-center gap-3">
-                <p className="text-sm text-ink/80">Nossa equipe vai entrar em contato por telefone ou WhatsApp em breve para enviar sua proposta.</p>
+                <p className="text-sm text-ink/80"><span className="text-green-700 font-medium">Formulário enviado com sucesso.</span> Nossa equipe vai entrar em contato por telefone ou WhatsApp em breve para enviar sua proposta.</p>
                 <button className="btn btn-ghost" onClick={()=> setSubmitted(null)}>Revisar informações</button>
-              </div>
-
-              {/* Status do registro no Sheets para monitorar */}
-              <div className="mt-3">
-                {sheetsStatus === 'sending' && (<p className="text-xs text-muted">Registrando no Google Sheets…</p>)}
-                {sheetsStatus === 'ok' && (<p className="text-xs text-green-700">Registrado no Google Sheets.</p>)}
-                {sheetsStatus === 'error' && (<p className="text-xs text-red-600">Falha ao registrar no Google Sheets. Verifique a URL do Web App e permissões.</p>)}
               </div>
 
               {/* Prova social e selos */}
@@ -427,7 +430,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
               disabled={submitting}
               data-testid="lead-submit"
             >
-              {submitting ? 'Enviando...' : 'Enviar dados e descobrir meu desconto simulado'}
+              {submitting ? `Enviando... ${submitProgress}%` : 'Enviar dados e descobrir meu desconto simulado'}
             </button>
             {submitError && (<p className="mt-2 text-sm text-red-600">{submitError}</p>)}
           </div>
