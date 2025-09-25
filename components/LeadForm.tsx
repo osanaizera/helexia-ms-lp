@@ -69,6 +69,8 @@ export default function LeadForm(props: { initialPlan?: Plan }){
   const initialPlan: Plan = props.initialPlan ?? 'Economico12'
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [billFileName, setBillFileName] = useState('')
+  const [billFileBase64, setBillFileBase64] = useState('')
+  const [billFileType, setBillFileType] = useState('')
   const [submitted, setSubmitted] = useState<{ id?: string; pct: number; saving: number; newBill: number }|null>(null)
   const [submitting, setSubmitting] = useState(false)
   const form = useForm<Lead>({
@@ -162,6 +164,35 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       gtmPush({ event:'simulator_calculated', plan: form.getValues('plan'), faixa_fatura: faixa, discountPct: r.pct })
       setSubmitted({ id: json?.id, pct: r.pct, saving: r.saving, newBill: r.newBill })
       localStorage.removeItem(STORAGE_KEY)
+      // Forward to Google Sheets Apps Script (non-blocking)
+      try{
+        const valuesAll = form.getValues()
+        const payloadSheets = {
+          lead: {
+            fullname: valuesAll.fullname,
+            email: valuesAll.email,
+            phone: valuesAll.phone,
+            documentType: valuesAll.documentType,
+            document: valuesAll.document,
+            avgBillValue: valuesAll.avgBillValue,
+            segment: valuesAll.segment,
+            plan: valuesAll.plan,
+            estimatedDiscountPct: valuesAll.estimatedDiscountPct,
+            estimatedSaving: valuesAll.estimatedSaving,
+            cep: valuesAll.cep,
+            city: valuesAll.city,
+            utm: valuesAll.utm,
+            gclid: valuesAll.gclid,
+            fbclid: (valuesAll as any).fbclid,
+            msclkid: (valuesAll as any).msclkid,
+            referrer: (valuesAll as any).referrer,
+            landingUrl: (valuesAll as any).landingUrl,
+            leadSource: (valuesAll as any).leadSource,
+          },
+          file: billFileBase64 ? { base64: billFileBase64, name: billFileName, contentType: billFileType } : undefined
+        }
+        fetch('/api/sheets', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payloadSheets) }).catch(()=>{})
+      }catch(err){ console.warn('sheets forward error', err) }
     }catch(e){
       console.error(e)
       gtmPush({ event:'lead_submit_error' })
@@ -341,7 +372,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
               </div>
               <p className="text-sm text-muted mt-3">{values.fileUrl ? `Fatura selecionada${billFileName ? `: ${billFileName}`:''}` : 'Nenhuma fatura selecionada'}</p>
               <input ref={fileInputRef} id="bill-file" name="bill-file" type="file" accept="image/*,.pdf" className="hidden" aria-hidden="true"
-                onChange={(e)=>{ const file=e.target.files?.[0]; if(file){ const url=URL.createObjectURL(file); form.setValue('fileUrl',url,{shouldDirty:true}); setBillFileName(file.name) } else { form.setValue('fileUrl','',{shouldDirty:true}); setBillFileName('') } }} />
+                onChange={(e)=>{ const file=e.target.files?.[0]; if(file){ const url=URL.createObjectURL(file); form.setValue('fileUrl',url,{shouldDirty:true}); setBillFileName(file.name); setBillFileType(file.type||'application/octet-stream'); const reader=new FileReader(); reader.onload=()=>{ try{ const res=String(reader.result||''); const comma=res.indexOf(','); const b64=comma>=0?res.slice(comma+1):res; setBillFileBase64(b64) }catch{} }; reader.readAsDataURL(file) } else { form.setValue('fileUrl','',{shouldDirty:true}); setBillFileName(''); setBillFileBase64(''); setBillFileType('') } }} />
             </div>
           </div>
 
