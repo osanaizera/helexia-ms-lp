@@ -87,6 +87,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
 
   const values = form.watch()
   const calc = useMemo(()=> estimate(values.avgBillValue||0, values.plan), [values.avgBillValue, values.plan])
+  const [sheetsStatus, setSheetsStatus] = useState<'idle'|'sending'|'ok'|'error'>('idle')
 
   useEffect(()=>{
     // restore autosave
@@ -195,7 +196,11 @@ export default function LeadForm(props: { initialPlan?: Plan }){
           },
           file: billFileBase64 ? { base64: billFileBase64, name: billFileName, contentType: billFileType } : undefined
         }
-        fetch('/api/sheets', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payloadSheets) }).catch(()=>{})
+        console.log('[sheets] forward start')
+        setSheetsStatus('sending')
+        fetch('/api/sheets', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payloadSheets) })
+          .then(async (r)=>{ const t = await r.text(); if(!r.ok){ throw new Error(t||String(r.status)) } console.log('[sheets] forward ok', t); setSheetsStatus('ok') })
+          .catch((err)=>{ console.error('[sheets] forward error', err); setSheetsStatus('error') })
       }catch(err){ console.warn('sheets forward error', err) }
     }catch(e:any){
       console.error(e)
@@ -301,6 +306,13 @@ export default function LeadForm(props: { initialPlan?: Plan }){
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <p className="text-sm text-ink/80">Nossa equipe vai entrar em contato por telefone ou WhatsApp em breve para enviar sua proposta.</p>
                 <button className="btn btn-ghost" onClick={()=> setSubmitted(null)}>Revisar informações</button>
+              </div>
+
+              {/* Status do registro no Sheets para monitorar */}
+              <div className="mt-3">
+                {sheetsStatus === 'sending' && (<p className="text-xs text-muted">Registrando no Google Sheets…</p>)}
+                {sheetsStatus === 'ok' && (<p className="text-xs text-green-700">Registrado no Google Sheets.</p>)}
+                {sheetsStatus === 'error' && (<p className="text-xs text-red-600">Falha ao registrar no Google Sheets. Verifique a URL do Web App e permissões.</p>)}
               </div>
 
               {/* Prova social e selos */}
