@@ -18,6 +18,11 @@ export const LeadSchema = z.object({
   utm: z.record(z.string()).optional(),
   fileUrl: z.string().url().optional(),
   gclid: z.string().optional(),
+  fbclid: z.string().optional(),
+  msclkid: z.string().optional(),
+  referrer: z.string().optional(),
+  landingUrl: z.string().optional(),
+  leadSource: z.string().optional(),
   outsideScope: z.boolean().optional(), // para fora de MS
 });
 

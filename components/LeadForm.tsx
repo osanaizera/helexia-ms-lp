@@ -78,7 +78,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       fullname: '', email: '', phone: '', documentType:'CPF', document:'',
       avgBillValue: 0, segment:'Residencial', plan: initialPlan,
       estimatedDiscountPct: 0, estimatedSaving: 0,
-      cep:'', city:'', acceptLGPD:false, utm: {}, fileUrl:'', gclid:'', outsideScope: false
+      cep:'', city:'', acceptLGPD:false, utm: {}, fileUrl:'', gclid:'', fbclid:'', msclkid:'', referrer:'', landingUrl:'', leadSource:'', outsideScope: false
     }
   })
 
@@ -91,6 +91,48 @@ export default function LeadForm(props: { initialPlan?: Plan }){
     if(saved){
       try{ form.reset(JSON.parse(saved)) }catch{}
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[])
+
+  // Capture UTM and source on first load
+  useEffect(()=>{
+    try{
+      const url = new URL(window.location.href)
+      const sp = url.searchParams
+      const utm: Record<string,string> = {}
+      const utmKeys = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content'] as const
+      utmKeys.forEach(k=>{ const v = sp.get(k); if(v) utm[k] = v })
+      const gclid = sp.get('gclid') || ''
+      const fbclid = sp.get('fbclid') || ''
+      const msclkid = sp.get('msclkid') || ''
+      const ref = sp.get('ref') || ''
+      const referrer = document.referrer || ''
+      const landingUrl = url.toString()
+
+      function inferSource(){
+        if(utm.utm_source) return utm.utm_source
+        if(gclid) return 'google_ads'
+        if(fbclid) return 'facebook_ads'
+        if(msclkid) return 'microsoft_ads'
+        if(ref) return ref
+        if(/facebook|instagram\.com/i.test(referrer)) return 'meta_organic'
+        if(/google\./i.test(referrer)) return 'google_organic'
+        if(/bing\./i.test(referrer)) return 'bing_organic'
+        if(referrer) return 'referral'
+        return 'direct'
+      }
+
+      const alreadySource = form.getValues('leadSource')
+      if(!alreadySource){
+        form.setValue('utm', Object.keys(utm).length ? utm : {}, { shouldDirty: true })
+        if(gclid) form.setValue('gclid', gclid, { shouldDirty: true })
+        if(fbclid) form.setValue('fbclid', fbclid, { shouldDirty: true })
+        if(msclkid) form.setValue('msclkid', msclkid, { shouldDirty: true })
+        if(referrer) form.setValue('referrer', referrer, { shouldDirty: true })
+        form.setValue('landingUrl', landingUrl, { shouldDirty: true })
+        form.setValue('leadSource', inferSource(), { shouldDirty: true })
+      }
+    }catch{}
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 

@@ -60,6 +60,11 @@ function mapProps(lead: Lead, opts?: CreateOpts){
     document: sanitizeDoc(lead.document || ''),
     document_type: lead.documentType,
     gclid: lead.gclid,
+    fbclid: lead.fbclid,
+    msclkid: lead.msclkid,
+    landing_url: lead.landingUrl,
+    original_referrer: lead.referrer,
+    lead_source: lead.leadSource,
     ...(lead.utm || {})
   }
   return props
@@ -85,4 +90,3 @@ export async function createOrUpdateContact(lead: Lead, opts?: CreateOpts){
   const data = await res.json()
   return { id: data.id as string, status: 'created' as const }
 }
-
