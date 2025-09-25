@@ -73,6 +73,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
   const [billFileType, setBillFileType] = useState('')
   const [submitted, setSubmitted] = useState<{ id?: string; pct: number; saving: number; newBill: number }|null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string>('')
   const form = useForm<Lead>({
     resolver: zodResolver(LeadSchema),
     mode: 'onBlur',
@@ -151,12 +152,15 @@ export default function LeadForm(props: { initialPlan?: Plan }){
   async function onSubmit(data: Lead){
     try{
       setSubmitting(true)
+      setSubmitError('')
+      console.log('[lead] submit start')
       const outsideScope = !!(data.city && !/\bMS\b|Mato Grosso do Sul/i.test(data.city))
       const payload = { ...data, outsideScope }
       const res = await fetch('/api/lead',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
       if(!res.ok) throw new Error(await res.text())
       const json = await res.json().catch(()=>({}))
       gtmPush({ event:'lead_submit_success' })
+      console.log('[lead] submit success', json)
       // Show persuasive simulation result after submit
       const r = estimate(form.getValues('avgBillValue')||0, form.getValues('plan'))
       const v = form.getValues('avgBillValue')||0
@@ -193,10 +197,10 @@ export default function LeadForm(props: { initialPlan?: Plan }){
         }
         fetch('/api/sheets', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payloadSheets) }).catch(()=>{})
       }catch(err){ console.warn('sheets forward error', err) }
-    }catch(e){
+    }catch(e:any){
       console.error(e)
       gtmPush({ event:'lead_submit_error' })
-      alert('Não foi possível enviar. Verifique os dados e tente novamente.')
+      setSubmitError('Não foi possível enviar. Verifique os dados e tente novamente.')
     }
     finally{
       setSubmitting(false)
@@ -352,8 +356,8 @@ export default function LeadForm(props: { initialPlan?: Plan }){
               {/* Nota removida conforme solicitação */}
             </div>
             <div>
-              <label className="block text-sm font-medium">E-mail</label>
-              <input {...form.register('email')} type="email" className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-email" placeholder="seunome@email.com" />
+              <label className="block text-sm font-medium">E-mail *</label>
+              <input {...form.register('email', { required: true })} required type="email" className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-email" placeholder="seunome@email.com" />
             </div>
             <div>
               <label className="block text-sm font-medium">CEP</label>
@@ -385,6 +389,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
             >
               {submitting ? 'Enviando...' : 'Enviar dados e descobrir meu desconto simulado'}
             </button>
+            {submitError && (<p className="mt-2 text-sm text-red-600">{submitError}</p>)}
           </div>
           <p className="text-xs text-muted">Ao enviar, você concorda que entremos em contato por telefone, e-mail e WhatsApp conforme nossa <a className="underline" href="/privacidade">Política de Privacidade</a>.</p>
         </div>
