@@ -74,6 +74,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
   const [submitted, setSubmitted] = useState<{ id?: string; pct: number; saving: number; newBill: number }|null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string>('')
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY as string | undefined
   const form = useForm<Lead>({
     resolver: zodResolver(LeadSchema),
     mode: 'onBlur',
@@ -155,8 +156,28 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       setSubmitting(true)
       setSubmitError('')
       console.log('[lead] submit start')
+      // reCAPTCHA v3 token
+      let recaptchaToken = ''
+      if(siteKey){
+        recaptchaToken = await new Promise<string>((resolve)=>{
+          function load(){
+            (window as any).grecaptcha.ready(()=>{
+              (window as any).grecaptcha.execute(siteKey, { action: 'lead_submit' }).then((tok:string)=> resolve(tok))
+            })
+          }
+          if(!(window as any).grecaptcha){
+            const s = document.createElement('script')
+            s.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`
+            s.async = true
+            s.onload = load
+            document.head.appendChild(s)
+          } else {
+            load()
+          }
+        })
+      }
       const outsideScope = !!(data.city && !/\bMS\b|Mato Grosso do Sul/i.test(data.city))
-      const payload = { ...data, outsideScope }
+      const payload = { ...data, outsideScope, recaptchaToken }
       const res = await fetch('/api/lead',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
       if(!res.ok) throw new Error(await res.text())
       const json = await res.json().catch(()=>({}))
@@ -194,7 +215,8 @@ export default function LeadForm(props: { initialPlan?: Plan }){
             landingUrl: (valuesAll as any).landingUrl,
             leadSource: (valuesAll as any).leadSource,
           },
-          file: billFileBase64 ? { base64: billFileBase64, name: billFileName, contentType: billFileType } : undefined
+          file: billFileBase64 ? { base64: billFileBase64, name: billFileName, contentType: billFileType } : undefined,
+          recaptchaToken
         }
         console.log('[sheets] forward start')
         setSheetsStatus('sending')
@@ -388,7 +410,13 @@ export default function LeadForm(props: { initialPlan?: Plan }){
               </div>
               <p className="text-sm text-muted mt-3">{values.fileUrl ? `Fatura selecionada${billFileName ? `: ${billFileName}`:''}` : 'Nenhuma fatura selecionada'}</p>
               <input ref={fileInputRef} id="bill-file" name="bill-file" type="file" accept="image/*,.pdf" className="hidden" aria-hidden="true"
-                onChange={(e)=>{ const file=e.target.files?.[0]; if(file){ const url=URL.createObjectURL(file); form.setValue('fileUrl',url,{shouldDirty:true}); setBillFileName(file.name); setBillFileType(file.type||'application/octet-stream'); const reader=new FileReader(); reader.onload=()=>{ try{ const res=String(reader.result||''); const comma=res.indexOf(','); const b64=comma>=0?res.slice(comma+1):res; setBillFileBase64(b64) }catch{} }; reader.readAsDataURL(file) } else { form.setValue('fileUrl','',{shouldDirty:true}); setBillFileName(''); setBillFileBase64(''); setBillFileType('') } }} />
+                onChange={(e)=>{ const file=e.target.files?.[0]; if(file){
+                  const allowed = ['image/png','image/jpeg','application/pdf']
+                  if(!allowed.includes(file.type||'')){ alert('Tipo de arquivo inválido. Envie PNG, JPG ou PDF.'); return }
+                  const maxBytes = 5 * 1024 * 1024; if(file.size > maxBytes){ alert('Arquivo muito grande (máx. 5MB).'); return }
+                  const url=URL.createObjectURL(file); form.setValue('fileUrl',url,{shouldDirty:true}); setBillFileName(file.name); setBillFileType(file.type||'application/octet-stream');
+                  const reader=new FileReader(); reader.onload=()=>{ try{ const res=String(reader.result||''); const comma=res.indexOf(','); const b64=comma>=0?res.slice(comma+1):res; setBillFileBase64(b64) }catch{} }; reader.readAsDataURL(file)
+                } else { form.setValue('fileUrl','',{shouldDirty:true}); setBillFileName(''); setBillFileBase64(''); setBillFileType('') } }} />
             </div>
           </div>
 

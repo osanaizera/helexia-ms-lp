@@ -11,9 +11,11 @@ export async function POST(req: Request){
     const partial = searchParams.get('partial') === '1'
     const body = await req.json()
 
-    // Optional reCAPTCHA v3 token
-    if(body?.recaptchaToken){
-      const verify = await verifyRecaptcha(body.recaptchaToken)
+    // Require reCAPTCHA v3 token when secret configured
+    const recaptchaSecretConfigured = !!process.env.RECAPTCHA_SECRET
+    if(recaptchaSecretConfigured){
+      const token = body?.recaptchaToken
+      const verify = await verifyRecaptcha(token)
       if(!verify.success){
         return NextResponse.json({ error: 'recaptcha_failed' }, { status: 400 })
       }

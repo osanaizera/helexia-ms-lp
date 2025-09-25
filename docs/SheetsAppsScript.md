@@ -13,7 +13,13 @@ Script (Apps Script)
 ```
 function doPost(e) {
   try {
-    var data = JSON.parse(e.postData.contents);
+    var data = JSON.parse(e.postData && e.postData.contents || '{}');
+
+    // Segurança: valide um segredo compartilhado
+    var SHARED_SECRET = 'SAME_SECRET_AS_ENV_SHEETS_SHARED_SECRET'; // troque aqui
+    if (!data || data.secret !== SHARED_SECRET) {
+      return ContentService.createTextOutput(JSON.stringify({ ok:false, error: 'unauthorized' })).setMimeType(ContentService.MimeType.JSON);
+    }
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('Leads') || ss.insertSheet('Leads');
 
@@ -34,7 +40,10 @@ function doPost(e) {
       var folder = DriveApp.getFolderById('FOLDER_ID');
       var blob = Utilities.newBlob(Utilities.base64Decode(file.base64), file.contentType || 'application/octet-stream', file.name);
       var created = folder.createFile(blob);
-      created.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      // Opções de compartilhamento (ajuste conforme sua política):
+      // created.setSharing(DriveApp.Access.DOMAIN_WITH_LINK, DriveApp.Permission.VIEW); // domínio
+      // ou manter privado removendo setSharing
+      created.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); // atual padrão
       fileUrl = created.getUrl();
     }
 
@@ -87,3 +96,7 @@ SHEETS_WEB_APP_URL=https://script.google.com/macros/s/SEU_DEPLOY_ID/exec
 Como funciona o envio
 - No submit do formulário, o site primeiro envia ao /api/lead (HubSpot). Em seguida, envia para /api/sheets, que repassa ao Web App do Apps Script com o JSON e, se houver, a fatura em base64.
 
+Segurança
+- O backend envia `secret` (SHEETS_SHARED_SECRET) e o Apps Script valida antes de gravar.
+- O reCAPTCHA v3 é exigido no backend se RECAPTCHA_SECRET estiver configurado.
+- O backend valida tipo e tamanho do arquivo antes de encaminhar.
