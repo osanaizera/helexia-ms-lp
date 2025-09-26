@@ -38,9 +38,14 @@ const PLANS: { key: PlanKey; title: string; desc: string; badge?: string; range:
 export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) => void, selected?: PlanKey }){
   const trackRef = useRef<HTMLDivElement>(null)
   const [activeIdx, setActiveIdx] = useState(0)
+  function scrollToForm(){
+    try{ document.getElementById('leadform')?.scrollIntoView({ behavior:'smooth', block:'start' }) }catch{}
+  }
   function handleKey(e: KeyboardEvent, plan: PlanKey){
     if(e.key === 'Enter' || e.key === ' '){
       e.preventDefault();
+      // If pressing on the already selected plan, also scroll to form
+      if(selected === plan){ scrollToForm() }
       onSelect?.(plan)
     }
   }
@@ -84,7 +89,7 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
             className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[360px] sm:min-h-[440px] md:min-h-[520px] p-5 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[calc(100%-2rem)] sm:min-w-[70%] md:min-w-0 break-words touch-pan-y ${selected==='Flex' ? 'bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] text-white border-transparent ring-2 ring-white/20 shadow-2xl' : 'bg-white border-line text-ink shadow-soft'}`}
             role="radio" aria-checked={selected==='Flex'} tabIndex={0}
             onKeyDown={(e)=>handleKey(e,'Flex')}
-            onClick={()=>onSelect?.('Flex')}
+            onClick={()=>{ if(selected==='Flex'){ scrollToForm() } onSelect?.('Flex') }}
             aria-label="Plano Sem Compromisso"
           >
             
@@ -108,7 +113,7 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
               <span className={`${selected==='Flex' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Sem multa</span>
             </div>
             <div className="mt-auto">
-              <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Flex')}} data-testid={`select-plan-Flex`}>
+              <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Flex'); scrollToForm() }} data-testid={`select-plan-Flex`}>
                 Quero economizar 20% agora
               </button>
             </div>
@@ -119,7 +124,7 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
             className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[360px] sm:min-h-[440px] md:min-h-[560px] p-5 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[calc(100%-2rem)] sm:min-w-[70%] md:min-w-0 break-words touch-pan-y ${selected==='Economico12' ? 'bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] text-white border-transparent ring-2 ring-white/20 shadow-2xl' : 'bg-white border-line text-ink shadow-soft'} `}
             role="radio" aria-checked={selected==='Economico12'} tabIndex={0}
             onKeyDown={(e)=>handleKey(e,'Economico12')}
-            onClick={()=>onSelect?.('Economico12')}
+            onClick={()=>{ if(selected==='Economico12'){ scrollToForm() } onSelect?.('Economico12') }}
             aria-label="Plano Inteligente (Mais popular)"
           >
             
@@ -147,7 +152,7 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
               <div className={`${selected==='Economico12' ? 'text-white/90' : 'text-ink/90'}`}><b>Prazo:</b> 12 meses</div>
             </div>
             <div className="mt-auto">
-              <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Economico12')}} data-testid={`select-plan-Economico12`}>
+              <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Economico12'); scrollToForm() }} data-testid={`select-plan-Economico12`}>
                 Quero até 30% de desconto
               </button>
             </div>
@@ -158,7 +163,7 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
             className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[360px] sm:min-h-[440px] md:min-h-[520px] p-5 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[calc(100%-2rem)] sm:min-w-[70%] md:min-w-0 break-words touch-pan-y ${selected==='Premium36' ? 'bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] text-white border-transparent ring-2 ring-white/20 shadow-2xl' : 'bg-white border-line text-ink shadow-soft'} `}
             role="radio" aria-checked={selected==='Premium36'} tabIndex={0}
             onKeyDown={(e)=>handleKey(e,'Premium36')}
-            onClick={()=>onSelect?.('Premium36')}
+            onClick={()=>{ if(selected==='Premium36'){ scrollToForm() } onSelect?.('Premium36') }}
             aria-label="Plano Premium (Melhor preço)"
           >
             
@@ -186,7 +191,7 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
               <div className={`${selected==='Premium36' ? 'text-white/90' : 'text-ink/90'}`}><b>Prazo:</b> 36 meses</div>
             </div>
             <div className="mt-auto">
-              <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Premium36')}} data-testid={`select-plan-Premium36`}>
+              <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Premium36'); scrollToForm() }} data-testid={`select-plan-Premium36`}>
                 Quero até 45% de economia
               </button>
             </div>

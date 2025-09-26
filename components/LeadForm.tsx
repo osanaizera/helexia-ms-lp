@@ -423,11 +423,22 @@ export default function LeadForm(props: { initialPlan?: Plan }){
             </div>
             <div>
               <label className="block text-sm font-medium">Plano (opcional)</label>
-              <select {...form.register('plan')} className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white">
-                <option value="Flex">Flex</option>
-                <option value="Economico12">Econômico 12</option>
-                <option value="Premium36">Premium 36</option>
-              </select>
+              <div className="mt-2 inline-flex w-full gap-2">
+                {(['Flex','Economico12','Premium36'] as const).map((p)=>{
+                  const isSel = form.getValues('plan') === p
+                  return (
+                    <button
+                      type="button"
+                      key={p}
+                      onClick={()=> form.setValue('plan', p, { shouldDirty: true })}
+                      className={`flex-1 px-3 py-2 rounded-xl border text-sm transition-colors ${isSel ? 'border-[color:var(--brand-accent)] bg-[color:var(--brand-accent)]/10 text-[color:var(--brand)]' : 'border-line bg-white text-ink hover:border-[color:var(--brand-accent)]'}`}
+                      aria-pressed={isSel}
+                    >
+                      {p === 'Flex' ? 'Flex' : p === 'Economico12' ? 'Econômico 12' : 'Premium 36'}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium">Valor médio da sua fatura (R$) *</label>
