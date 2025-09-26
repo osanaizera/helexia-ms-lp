@@ -20,11 +20,12 @@ export async function POST(req: Request){
     const body = await req.json()
 
     // Require reCAPTCHA v3 token only in production and when secret is configured
-    const recaptchaRequired = !!process.env.RECAPTCHA_SECRET && process.env.NODE_ENV === 'production'
+    const recaptchaRequired = !!process.env.RECAPTCHA_SECRET && process.env.NODE_ENV === 'production' && process.env.RECAPTCHA_ENFORCE !== '0'
     if(recaptchaRequired){
       const token = body?.recaptchaToken
       const verify = await verifyRecaptcha(token)
       if(!verify.success){
+        console.warn('[recaptcha] verification failed on /api/lead', { score: (verify as any)?.score, errorCodes: (verify as any)?.['error-codes'] })
         return NextResponse.json({ error: 'recaptcha_failed' }, { status: 400 })
       }
     }

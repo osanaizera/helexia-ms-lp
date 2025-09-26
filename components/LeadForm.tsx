@@ -159,6 +159,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       setSubmitting(true)
       setSubmitError('')
       console.log('[lead] submit start')
+      try { (window as any)?.gtag?.('event','form_start',{ form_id:'leadform', form_name:'Lead Form', form_destination: window?.location?.href }) } catch {}
       // start progress animation
       setSubmitProgress(5)
       if(submitIntervalRef.current) window.clearInterval(submitIntervalRef.current)
@@ -192,6 +193,11 @@ export default function LeadForm(props: { initialPlan?: Plan }){
             ready()
           }
         })
+        if(!recaptchaToken){
+          console.warn('[recaptcha] empty token generated; check site key and domain whitelisting')
+        }
+      } else {
+        console.warn('[recaptcha] NEXT_PUBLIC_RECAPTCHA_SITE_KEY not set')
       }
       const outsideScope = !!(data.city && !/\bMS\b|Mato Grosso do Sul/i.test(data.city))
       const payload = { ...data, outsideScope, recaptchaToken }
@@ -200,6 +206,13 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       const json = await res.json().catch(()=>({}))
       gtmPush({ event:'lead_submit_success' })
       console.log('[lead] submit success', json)
+      try {
+        const planVal = form.getValues('plan')
+        const billVal = form.getValues('avgBillValue')||0
+        ;(window as any)?.gtag?.('event','generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan: planVal, bill_value: billVal })
+        ;(window as any)?.gtag?.('event','lead_submit_success', { plan: planVal, bill_value: billVal })
+        ;(window as any)?.gtag?.('event','page_view', { page_location: `${window.location.origin}/sucesso`, page_title: 'Formulário Enviado' })
+      } catch {}
       // Show persuasive simulation result after submit
       const r = estimate(form.getValues('avgBillValue')||0, form.getValues('plan'))
       const v = form.getValues('avgBillValue')||0
@@ -238,12 +251,13 @@ export default function LeadForm(props: { initialPlan?: Plan }){
         }
         console.log('[sheets] forward start')
         fetch('/api/sheets', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payloadSheets) })
-          .then(async (r)=>{ const t = await r.text(); if(!r.ok){ throw new Error(t||String(r.status)) } console.log('[sheets] forward ok') })
-          .catch((err)=>{ console.error('[sheets] forward error', err) })
+          .then(async (r)=>{ const t = await r.text(); if(!r.ok){ gtmPush({ event:'sheets_forward_error', status:r.status }); throw new Error(t||String(r.status)) } console.log('[sheets] forward ok'); gtmPush({ event:'sheets_forward_ok' }) })
+          .catch((err)=>{ console.error('[sheets] forward error', err); if(process.env.NODE_ENV==='production'){ setSubmitError('Recebemos seus dados, mas não foi possível registrar no Sheets. Nossa equipe verificará.'); } })
       }catch(err){ console.warn('sheets forward error', err) }
     }catch(e:any){
       console.error(e)
       gtmPush({ event:'lead_submit_error' })
+      try { (window as any)?.gtag?.('event','lead_submit_error', { message: String(e?.message||e) }) } catch {}
       setSubmitError('Não foi possível enviar. Verifique os dados e tente novamente.')
       setSubmitProgress(0)
     }
