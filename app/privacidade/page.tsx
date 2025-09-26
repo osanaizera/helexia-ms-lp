@@ -17,29 +17,33 @@ export default function Privacy(){
 
         <h2 className="text-lg font-bold mt-8">1. Controladores e Escopo</h2>
         <p>
-          A Helexia é responsável pela geração de energia (usinas), enquanto a Sion administra o consórcio/cooperativa e a comercialização junto à distribuidora. Para fins de LGPD, Helexia e Sion podem atuar como controladoras conjuntas quando definirem, em conjunto, as finalidades e os meios de tratamento.
+          A Helexia é responsável pela geração de energia (usinas), enquanto a Sion administra o consórcio/cooperativa e a comercialização junto à distribuidora. Para fins de LGPD, Helexia e Sion podem atuar como <b>controladoras conjuntas</b> quando definirem, em conjunto, as finalidades e os meios de tratamento desta Landing Page e do fluxo de qualificação de leads.
         </p>
 
         <h2 className="text-lg font-bold mt-8">2. Dados Pessoais Coletados</h2>
         <ul className="list-disc pl-5">
-          <li>Identificação e contato: nome, e-mail, telefone, CPF/CNPJ.</li>
-          <li>Dados de consumo e faturamento: valor médio da fatura, CEP e informações relacionadas à unidade consumidora.</li>
-          <li>Dados de navegação e UTM: origem da visita, dados de campanha, gclid (quando disponível).</li>
-          <li>Documentos de suporte: imagem/PDF de fatura (opcional) e demais documentos necessários para análise e adesão.</li>
+          <li><b>Identificação e contato</b>: nome, e-mail, telefone (WhatsApp), CPF/CNPJ.</li>
+          <li><b>Consumo e faturamento</b>: valor médio da fatura, CEP, cidade e informações relacionadas à unidade consumidora.</li>
+          <li><b>Navegação e campanhas</b>: parâmetros UTM (utm_source, utm_medium, etc.), <code>gclid</code>, <code>fbclid</code>, <code>msclkid</code>, <b>referrer</b> e <b>URL de aterrissagem</b>.</li>
+          <li><b>Arquivos opcionais</b>: imagem/PDF da fatura para agilizar a análise (máx. 5MB), que pode ser armazenada de forma temporária para validação.</li>
+          <li><b>Preferências de plano</b> e <b>valor informado</b> para estimativa de desconto e elaboração de proposta.</li>
         </ul>
 
         <h2 className="text-lg font-bold mt-8">3. Finalidades de Uso</h2>
         <ul className="list-disc pl-5">
-          <li>Contato comercial: entrar em contato por telefone, e-mail e aplicativos de mensagens (incl. WhatsApp) para apresentar proposta, confirmar dados e realizar adesão.</li>
-          <li>Análise de elegibilidade e cálculo de desconto: estimar desconto sobre TE+TUSD, simular economia e verificar disponibilidade técnica e regulatória.</li>
-          <li>Prevenção à fraude e segurança: validar identidade, prevenir abusos e cumprir obrigações legais e regulatórias.</li>
-          <li>Melhoria de serviços e estatísticas: analisar uso do site, campanhas e conversões (via tags/UTM/GTM).</li>
+          <li><b>Contato comercial</b>: entrar em contato por telefone, e-mail e aplicativos de mensagens (incl. WhatsApp) para apresentar proposta, confirmar dados e realizar adesão.</li>
+          <li><b>Elegibilidade e cálculo</b>: estimar desconto sobre TE+TUSD, simular economia e verificar disponibilidade técnica/regulatória.</li>
+          <li><b>Prevenção à fraude e segurança</b>: validar identidade, prevenir abusos e cumprir obrigações legais e regulatórias.</li>
+          <li><b>Mensuração e melhoria</b>: analisar uso do site, campanhas e conversões (ex.: Google Analytics 4 via Tag Manager) e aprimorar a experiência.</li>
         </ul>
 
         <h2 className="text-lg font-bold mt-8">4. Bases Legais</h2>
-        <p>
-          Tratamos dados com base em: (i) execução de procedimentos preliminares relacionados a contrato a pedido do titular (art. 7º, V), (ii) consentimento (art. 7º, I), quando aplicável — ex.: comunicações e marketing, e (iii) legítimo interesse (art. 7º, IX) para ações de prospecção compatíveis com expectativas do titular, respeitados seus direitos e opt-out.
-        </p>
+        <ul className="list-disc pl-5">
+          <li><b>Procedimentos preliminares ao contrato</b> (art. 7º, V): análise de elegibilidade, simulação e elaboração de proposta a pedido do titular.</li>
+          <li><b>Consentimento</b> (art. 7º, I): envio de comunicações de marketing, quando aplicável, e uso de cookies/analytics não essenciais (mediante banner de consentimento).</li>
+          <li><b>Legítimo interesse</b> (art. 7º, IX): prospecção compatível com expectativas do titular, mensuração de performance agregada e segurança — com possibilidade de oposição.</li>
+          <li><b>Cumprimento de obrigação legal/regulatória</b> (art. 7º, II): atendimento a solicitações de autoridades e normas do setor elétrico.</li>
+        </ul>
 
         <h2 className="text-lg font-bold mt-8">5. Consulta a Fontes Públicas e Bureaus</h2>
         <p>
@@ -48,42 +52,61 @@ export default function Privacy(){
 
         <h2 className="text-lg font-bold mt-8">6. Compartilhamento</h2>
         <ul className="list-disc pl-5">
-          <li>Entre Helexia e Sion para operação do consórcio/cooperativa e comercialização.</li>
-          <li>Prestadores de serviços (ex.: CRM, hospedagem, atendimento) sob contrato, com obrigações de confidencialidade e segurança.</li>
-          <li>Autoridades e órgãos reguladores quando exigido por lei.</li>
+          <li><b>Helexia e Sion</b>: operação do consórcio/cooperativa e comercialização.</li>
+          <li><b>CRM e automação</b> (ex.: HubSpot): gestão de leads e comunicações.</li>
+          <li><b>Hospedagem/infra</b> (ex.: Vercel, provedores cloud): disponibilização do site e serviços de backend.</li>
+          <li><b>Google</b> (GA4, Tag Manager, reCAPTCHA, Google Sheets Apps Script): mensuração, antispam e roteamento seguro de dados (quando aplicável).</li>
+          <li><b>Atendimento e canais</b>: provedores de e-mail, telefonia e WhatsApp.</li>
+          <li><b>Autoridades e órgãos reguladores</b>: quando exigido por lei.</li>
         </ul>
 
         <h2 className="text-lg font-bold mt-8">7. Transferências Internacionais</h2>
         <p>
-          Alguns provedores podem estar fora do Brasil. Nesses casos, adotamos salvaguardas adequadas conforme a LGPD (ex.: cláusulas contratuais específicas e padrões de segurança).
+          Alguns provedores podem estar fora do Brasil (ex.: EUA/UE). Nesses casos, adotamos salvaguardas adequadas conforme a LGPD (cláusulas contratuais específicas, padrões de segurança e auditoria de fornecedores).
         </p>
 
         <h2 className="text-lg font-bold mt-8">8. Segurança e Retenção</h2>
         <p>
-          Implementamos medidas técnicas e organizacionais para proteger dados contra acessos não autorizados. Retemos dados pelo tempo necessário para as finalidades aqui descritas ou para cumprimento de obrigações legais/regulatórias e exercício regular de direitos.
+          Implementamos medidas técnicas e organizacionais para proteger dados contra acessos não autorizados, tais como controle de acesso, criptografia em trânsito e políticas de retenção. Retemos dados pelo tempo necessário às finalidades aqui descritas e/ou para cumprimento de obrigações legais/regulatórias e exercício regular de direitos.
         </p>
+        <ul className="list-disc pl-5">
+          <li><b>Leads não convertidos</b>: até 24 meses após o último contato útil, salvo oposição anterior.</li>
+          <li><b>Contratos/adesões</b>: prazos previstos em lei/regulação aplicável (ex.: até 10 anos para guarda de documentos fiscais).</li>
+          <li><b>Logs técnicos</b>: prazos reduzidos conforme necessidade de segurança e auditoria.</li>
+        </ul>
 
         <h2 className="text-lg font-bold mt-8">9. Direitos do Titular</h2>
         <p>
-          Você pode solicitar: confirmação do tratamento, acesso, correção, anonimização, portabilidade, eliminação, informação sobre compartilhamentos e revisão de decisões automatizadas. Pode também se opor a tratamentos baseados em legítimo interesse e revogar consentimentos.
+          Você pode solicitar: confirmação do tratamento, acesso, correção, anonimização, portabilidade, eliminação, informação sobre compartilhamentos e revisão de decisões automatizadas. Pode também se opor a tratamentos baseados em legítimo interesse e revogar consentimentos. Para exercer seus direitos, utilize os canais informados no item 13.
         </p>
 
         <h2 className="text-lg font-bold mt-8">10. Comunicações</h2>
         <p>
-          Ao enviar seus dados, você autoriza nosso contato por telefone, e-mail e aplicativos de mensagens (incl. WhatsApp) para propostas, esclarecimentos e conclusão da contratação. Você pode solicitar interrupção dessas comunicações a qualquer momento pelos canais de atendimento.
+          Ao enviar seus dados, você autoriza nosso contato por telefone, e-mail e aplicativos de mensagens (incl. WhatsApp) para propostas, esclarecimentos e conclusão da contratação. Você pode solicitar interrupção dessas comunicações (opt-out) a qualquer momento pelos canais de atendimento.
         </p>
 
         <h2 className="text-lg font-bold mt-8">11. Cookies e Tags</h2>
         <p>
-          Utilizamos cookies e tags (via GTM) para medir performance e melhorar a experiência. Você pode gerenciar preferências no navegador. Em campanhas, podemos usar parâmetros UTM e gclid.
+          Utilizamos cookies e tags (via Google Tag Manager) para medir performance (Google Analytics 4), segurança antispam (Google reCAPTCHA) e melhorar a experiência. As <b>preferências de consentimento</b> podem ser gerenciadas pelo banner do site e/ou no seu navegador. Em campanhas, utilizamos parâmetros UTM e identificadores de cliques (gclid/fbclid/msclkid) para atribuição.
+        </p>
+        <ul className="list-disc pl-5">
+          <li><b>GA4</b>: page views e eventos de conversão desta LP; podemos usar também envio do lado do servidor (Measurement Protocol).</li>
+          <li><b>GTM</b>: orquestração de tags e respeito às escolhas de consentimento.</li>
+          <li><b>reCAPTCHA</b>: proteção contra abuso de formulário (quando aplicável).</li>
+          <li><b>Planilhas Google</b>: como etapa de roteamento seguro de dados para processamento (quando aplicável).</li>
+        </ul>
+
+        <h2 className="text-lg font-bold mt-8">12. Crianças e Adolescentes</h2>
+        <p>
+          Esta LP não se destina a menores de 18 anos e não coletamos intencionalmente dados de crianças e adolescentes. Caso identifiquemos cadastros dessa natureza sem autorização adequada, adotaremos as medidas para exclusão segura.
         </p>
 
-        <h2 className="text-lg font-bold mt-8">12. Atualizações desta Política</h2>
+        <h2 className="text-lg font-bold mt-8">13. Atualizações desta Política</h2>
         <p>
           Podemos atualizar esta Política para refletir mudanças legais, regulatórias ou operacionais. A versão vigente estará sempre disponível neste endereço.
         </p>
 
-        <h2 className="text-lg font-bold mt-8">13. Contato do Encarregado (DPO)</h2>
+        <h2 className="text-lg font-bold mt-8">14. Contato do Encarregado (DPO)</h2>
         <p>
           Para exercer seus direitos ou esclarecer dúvidas, entre em contato: <a className="underline" href="mailto:dpo@helexia-sion.example">dpo@helexia-sion.example</a>.
         </p>
