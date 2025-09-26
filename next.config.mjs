@@ -12,7 +12,7 @@ const nextConfig = {
       "img-src 'self' data: https:",
       "style-src 'self' 'unsafe-inline' https:",
       "font-src 'self' data: https:",
-      "frame-src https://www.googletagmanager.com https://www.google.com https://recaptcha.google.com",
+      "frame-src https://www.googletagmanager.com https://www.google.com https://recaptcha.google.com https://tagassistant.google.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'"
