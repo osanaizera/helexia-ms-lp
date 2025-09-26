@@ -6,16 +6,16 @@ export type Plan = 'Flex'|'Economico12'|'Premium36'
 
 export function getDiscountPct(plan: Plan, value:number){
   if(value < 500) return 0;
-  const ranges = [
-    {min:500,  max:999,  pct:{Flex:20, Economico12:25, Premium36:30}},
-    {min:1000, max:1999, pct:{Flex:20, Economico12:25, Premium36:30}},
-    {min:2000, max:5999, pct:{Flex:22, Economico12:27, Premium36:35}},
-    {min:6000, max:9999, pct:{Flex:24, Economico12:29, Premium36:40}},
-    {min:10000, max:Infinity, pct:{Flex:25, Economico12:30, Premium36:45}},
-  ];
-  const row = ranges.find(r => value>=r.min && value<=r.max)!;
-  // @ts-ignore
-  return row?.pct?.[plan] ?? 0;
+  // Nova regra:
+  // Flex: 25%
+  // Econômico 12: 28% até 5999; 30% acima
+  // Premium 24: 30% até 5999; 33% até 9999; 35% acima
+  if(plan === 'Flex') return 25;
+  if(plan === 'Economico12') return value <= 5999 ? 28 : 30;
+  // Premium (24 meses)
+  if(value <= 5999) return 30;
+  if(value <= 9999) return 33;
+  return 35;
 }
 export function estimate(value:number, plan: Plan){
   const pct = getDiscountPct(plan, value);
@@ -66,7 +66,7 @@ export default function Simulator({ initialPlan='Premium36', onPlanChange, onCal
           <select id="plan" data-testid="sim-select-plan" value={plan} onChange={(e)=> setPlan(e.target.value as Plan)} className="mt-2 w-full rounded-2xl border border-line px-4 py-3">
             <option value="Flex">Flex</option>
             <option value="Economico12">Econômico 12</option>
-            <option value="Premium36">Premium 36</option>
+            <option value="Premium36">Premium 24</option>
           </select>
         </div></div>
         <div className="md:col-span-2 card"><div className="card-body">

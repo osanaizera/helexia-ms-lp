@@ -434,7 +434,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
                       className={`flex-1 px-3 py-2 rounded-xl border text-sm transition-colors ${isSel ? 'border-[color:var(--brand-accent)] bg-[color:var(--brand-accent)]/10 text-[color:var(--brand)]' : 'border-line bg-white text-ink hover:border-[color:var(--brand-accent)]'}`}
                       aria-pressed={isSel}
                     >
-                      {p === 'Flex' ? 'Flex' : p === 'Economico12' ? 'Econômico 12' : 'Premium 36'}
+                      {p === 'Flex' ? 'Flex' : p === 'Economico12' ? 'Econômico 12' : 'Premium 24'}
                     </button>
                   )
                 })}

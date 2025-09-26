@@ -6,11 +6,11 @@ import ConsentBanner from '@/components/ConsentBanner'
 import type { ReactNode } from 'react'
 
 export const metadata = {
-  title: 'Helexia MS — Energia com desconto (até 45%)',
-  description: 'Pague menos na conta de luz no Mato Grosso do Sul. Planos Flex, Econômico 12 e Premium 36. Simule sua economia.',
+  title: 'Helexia MS — Energia com desconto (até 35%)',
+  description: 'Pague menos na conta de luz no Mato Grosso do Sul. Planos Flex, Econômico 12 e Premium 24. Simule sua economia.',
   openGraph: {
     title: 'Helexia MS — Energia com desconto',
-    description: 'Até 45% de desconto na fatura no MS',
+    description: 'Até 35% de desconto na fatura no MS',
     url: 'https://helexia-ms.example',
     siteName: 'Helexia',
     locale: 'pt_BR',
@@ -20,7 +20,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }){
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID
-  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-KMG1D0HBYK'
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-XMNXWQXQJZ'
   return (
     <html lang="pt-BR">
       <head>

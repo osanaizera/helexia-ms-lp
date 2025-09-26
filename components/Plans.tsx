@@ -30,9 +30,9 @@ function IconMedal(){
 }
 
 const PLANS: { key: PlanKey; title: string; desc: string; badge?: string; range: string; color: string; icon: JSX.Element }[] = [
-  { key:'Flex', title:'Flex', desc:'20–25% de desconto, sem fidelidade', badge:'Sem fidelidade', range:'20–25%', color:'from-gray-100 to-brand-accent text-brand', icon:<IconClock/> },
-  { key:'Economico12', title:'Econômico 12', desc:'25–30% de desconto, 12 meses', range:'25–30%', color:'from-blue to-brand-accent text-blue', icon:<IconCalendar/> },
-  { key:'Premium36', title:'Premium 36', desc:'30–45% de desconto, 36 meses', badge:'Melhor preço', range:'30–45%', color:'from-brand to-brand-accent text-brand', icon:<IconMedal/> },
+  { key:'Flex', title:'Flex', desc:'25% de desconto, sem fidelidade', badge:'Sem fidelidade', range:'25%', color:'from-gray-100 to-brand-accent text-brand', icon:<IconClock/> },
+  { key:'Economico12', title:'Econômico 12', desc:'28–30% de desconto, fidelidade de 12 meses', range:'28–30%', color:'from-blue to-brand-accent text-blue', icon:<IconCalendar/> },
+  { key:'Premium36', title:'Premium 24', desc:'30–35% de desconto, fidelidade de 24 meses', badge:'Melhor preço', range:'30–35%', color:'from-brand to-brand-accent text-brand', icon:<IconMedal/> },
 ]
 
 export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) => void, selected?: PlanKey }){
@@ -128,17 +128,17 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
             </div>
             <div className="mt-5">
               <div className={`text-sm ${selected==='Flex' ? 'text-white/80' : 'text-muted'}`}>Desconto</div>
-              <div className={`text-5xl font-bold leading-tight ${selected==='Flex' ? 'text-white' : 'text-[color:var(--brand-accent)]'}`}>20%</div>
+              <div className={`text-5xl font-bold leading-tight ${selected==='Flex' ? 'text-white' : 'text-[color:var(--brand-accent)]'}`}>25%</div>
               <div className={`text-sm mt-2 ${selected==='Flex' ? 'text-white/80' : 'text-ink/70'}`}>Prazo: sem fidelidade</div>
             </div>
-            <p className={`mt-5 text-base ${selected==='Flex' ? 'text-white/90' : 'text-ink/80'}`}>Economize 20% hoje mesmo. Cancele quando quiser.</p>
+            <p className={`mt-5 text-base ${selected==='Flex' ? 'text-white/90' : 'text-ink/80'}`}>Economize 25% hoje mesmo. Cancele quando quiser.</p>
             <div className={`mt-5 flex gap-2 text-xs ${selected==='Flex' ? 'text-white/80' : 'text-ink/70'}`}>
               <span className={`${selected==='Flex' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Liberdade total</span>
               <span className={`${selected==='Flex' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Sem multa</span>
             </div>
             <div className="mt-auto">
               <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Flex'); scrollToForm() }} data-testid={`select-plan-Flex`}>
-                Quero economizar 20% agora
+                Quero economizar 25% agora
               </button>
             </div>
           </article>
@@ -166,13 +166,13 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
               <div className={`text-5xl font-bold leading-tight ${selected==='Economico12' ? 'text-white' : 'text-[color:var(--brand-accent)]'}`}>até 30%</div>
               <div className={`text-sm mt-2 ${selected==='Economico12' ? 'text-white/80' : 'text-ink/70'}`}>Prazo: 12 meses</div>
             </div>
-            <p className={`mt-5 text-base ${selected==='Economico12' ? 'text-white/90' : 'text-ink/80'}`}>Ganhe até 30% de desconto com apenas 12 meses de fidelidade.</p>
+            <p className={`mt-5 text-base ${selected==='Economico12' ? 'text-white/90' : 'text-ink/80'}`}>Ganhe até 30% de desconto com fidelidade de 12 meses.</p>
             <div className={`mt-5 flex gap-2 text-xs ${selected==='Economico12' ? 'text-white/80' : 'text-ink/70'}`}>
               <span className={`${selected==='Economico12' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Melhor custo-benefício</span>
               <span className={`${selected==='Economico12' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Adesão rápida</span>
             </div>
             <div className="mt-5 text-sm space-y-1">
-              <div className={`${selected==='Economico12' ? 'text-white/90' : 'text-ink/90'}`}><b>Desconto:</b> 25% a 30%</div>
+              <div className={`${selected==='Economico12' ? 'text-white/90' : 'text-ink/90'}`}><b>Desconto:</b> 28% a 30%</div>
               <div className={`${selected==='Economico12' ? 'text-white/90' : 'text-ink/90'}`}><b>Prazo:</b> 12 meses</div>
             </div>
             <div className="mt-auto">
@@ -202,21 +202,21 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
             </div>
             <div className="mt-5">
               <div className={`text-sm ${selected==='Premium36' ? 'text-white/80' : 'text-muted'}`}>Desconto</div>
-              <div className={`text-5xl font-bold leading-tight ${selected==='Premium36' ? 'text-white' : 'text-[color:var(--brand-accent)]'}`}>até 45%</div>
-              <div className={`text-sm mt-2 ${selected==='Premium36' ? 'text-white/80' : 'text-ink/70'}`}>Prazo: 36 meses</div>
+              <div className={`text-5xl font-bold leading-tight ${selected==='Premium36' ? 'text-white' : 'text-[color:var(--brand-accent)]'}`}>até 35%</div>
+              <div className={`text-sm mt-2 ${selected==='Premium36' ? 'text-white/80' : 'text-ink/70'}`}>Prazo: 24 meses (fidelidade)</div>
             </div>
-            <p className={`mt-5 text-base ${selected==='Premium36' ? 'text-white/90' : 'text-ink/80'}`}>Até 45% de desconto garantido para quem quer o máximo de economia.</p>
+            <p className={`mt-5 text-base ${selected==='Premium36' ? 'text-white/90' : 'text-ink/80'}`}>Até 35% de desconto garantido para quem quer o máximo de economia.</p>
             <div className={`mt-5 flex gap-2 text-xs ${selected==='Premium36' ? 'text-white/80' : 'text-ink/70'}`}>
               <span className={`${selected==='Premium36' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Máxima economia</span>
               <span className={`${selected==='Premium36' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Previsibilidade</span>
             </div>
             <div className="mt-5 text-sm space-y-1">
-              <div className={`${selected==='Premium36' ? 'text-white/90' : 'text-ink/90'}`}><b>Desconto:</b> 30% a 45%*</div>
-              <div className={`${selected==='Premium36' ? 'text-white/90' : 'text-ink/90'}`}><b>Prazo:</b> 36 meses</div>
+              <div className={`${selected==='Premium36' ? 'text-white/90' : 'text-ink/90'}`}><b>Desconto:</b> 30% a 35%*</div>
+              <div className={`${selected==='Premium36' ? 'text-white/90' : 'text-ink/90'}`}><b>Prazo:</b> 24 meses (fidelidade)</div>
             </div>
             <div className="mt-auto">
               <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Premium36'); scrollToForm() }} data-testid={`select-plan-Premium36`}>
-                Quero até 45% de economia
+                Quero até 35% de economia
               </button>
             </div>
           </article>

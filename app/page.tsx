@@ -52,7 +52,7 @@ export default function Page(){
               <ul className="list-disc pl-5 space-y-1">
                 <li><b>Flex</b>: sem fidelidade, você pode cancelar a qualquer momento.</li>
                 <li><b>Econômico 12</b>: fidelidade de 12 meses, pois o desconto é maior.</li>
-                <li><b>Premium 36</b>: fidelidade de 36 meses para o máximo desconto.</li>
+                <li><b>Premium 24</b>: fidelidade de 24 meses para o máximo desconto.</li>
               </ul>
               <p>O cancelamento pode ser solicitado por WhatsApp/telefone. Em planos com fidelidade, aplicamos <b>fórmula proporcional ao período restante do contrato</b> para calcular a multa. Ex.: se restarem 6 de 36 meses, considera-se a razão <b>6/36</b> sobre a base contratual definida. O desligamento ocorre a partir do ciclo de faturamento seguinte (regras da distribuidora).</p>
             </div>
@@ -73,7 +73,7 @@ export default function Page(){
               <ul className="list-disc pl-5 space-y-1">
                 <li><b>Flex</b>: 0 mês de fidelidade, desconto menor.</li>
                 <li><b>Econômico</b>: 12 meses, desconto intermediário.</li>
-                <li><b>Premium</b>: 36 meses, <b>maior desconto</b>.</li>
+                <li><b>Premium</b>: 24 meses, <b>maior desconto</b>.</li>
               </ul>
               <p>Em caso de saída antecipada dos planos com fidelidade, a multa é calculada por <b>fórmula proporcional ao período restante</b> (ex.: meses restantes/prazo total). Os detalhes e a base de cálculo constam na proposta/contrato.</p>
             </div>

@@ -17,7 +17,7 @@ export default function Hero({ onPrimaryCTAClick }: { onPrimaryCTAClick?: () => 
             <span>Mato Grosso do Sul</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-            Economize <span className="text-gradient">até 45%</span> na sua conta de energia no Mato Grosso do Sul
+            Economize <span className="text-gradient">até 35%</span> na sua conta de energia no Mato Grosso do Sul
           </h1>
           <p className="mt-4 text-white/90 text-lg">
             Sem investimento inicial. Energia limpa e local, direto de nossas usinas no MS.
