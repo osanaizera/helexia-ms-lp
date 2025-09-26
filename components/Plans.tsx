@@ -80,10 +80,34 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
         <h2 id="plans-heading" className="section-title">Nossos Planos</h2>
         <p className="section-sub">Escolha o que combina com seu perfil</p>
         <div className="mt-6 md:mt-8 relative">
-          <div className="md:hidden absolute left-0 top-0 bottom-0 w-8 pointer-events-none bg-gradient-to-r from-bg to-transparent" aria-hidden />
-          <div className="md:hidden absolute right-0 top-0 bottom-0 w-8 pointer-events-none bg-gradient-to-l from-bg to-transparent" aria-hidden />
-          <div className="md:hidden absolute -top-6 right-0 text-xs text-muted">Deslize →</div>
-          <div ref={trackRef} className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible no-scrollbar overscroll-x-contain touch-pan-x snap-x snap-mandatory scroll-smooth -mx-4 px-4" role="radiogroup" aria-label="Seleção de planos">
+          {/* Mobile: stacked compact cards (no carousel) */}
+          <div className="md:hidden space-y-3" role="radiogroup" aria-label="Seleção de planos (mobile)">
+            {PLANS.map((pl)=>{
+              const isSel = selected === pl.key
+              return (
+                <article
+                  key={pl.key}
+                  onClick={()=>{ onSelect?.(pl.key as PlanKey); scrollToForm() }}
+                  role="radio"
+                  aria-checked={isSel}
+                  tabIndex={0}
+                  className={`rounded-2xl border transition-colors p-4 flex items-center justify-between ${isSel ? 'border-[color:var(--brand-accent)] bg-white' : 'border-line bg-white'} `}
+                >
+                  <div className="flex-1 pr-3">
+                    <h3 className="text-base font-semibold">{pl.title}</h3>
+                    <p className="text-xs text-ink/70 mt-1 line-clamp-2">{pl.desc}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xl font-bold text-[color:var(--brand-accent)] leading-none">{pl.range}</div>
+                    <div className="text-[11px] text-muted mt-1">toque para selecionar</div>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+
+          {/* Desktop/Tablet: 3-column grid with full cards */}
+          <div ref={trackRef} className="hidden md:grid md:grid-cols-3 gap-8" role="radiogroup" aria-label="Seleção de planos">
           {/* Plano Sem Compromisso (Flex) */}
           <article
             className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[360px] sm:min-h-[440px] md:min-h-[520px] p-5 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[calc(100%-2rem)] sm:min-w-[70%] md:min-w-0 break-words touch-pan-y ${selected==='Flex' ? 'bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] text-white border-transparent ring-2 ring-white/20 shadow-2xl' : 'bg-white border-line text-ink shadow-soft'}`}
@@ -196,11 +220,6 @@ export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) 
               </button>
             </div>
           </article>
-          </div>
-          <div className="md:hidden mt-4 flex items-center justify-center gap-2">
-            {PLANS.map((_, i)=>(
-              <span key={i} className={`inline-block w-2 h-2 rounded-full ${i===activeIdx ? 'bg-[color:var(--brand-accent)]' : 'bg-line'}`} />
-            ))}
           </div>
         </div>
         <div className="mt-8 text-center">
