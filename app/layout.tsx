@@ -2,6 +2,7 @@ import '../styles/globals.css'
 import { GtmHeadScript, GtmNoScript } from '@/lib/gtm'
 // Vercel Analytics/SpeedInsights imports removed to avoid build errors when packages aren't installed
 import { GA4HeadScript } from '@/lib/ga'
+import ConsentBanner from '@/components/ConsentBanner'
 import type { ReactNode } from 'react'
 
 export const metadata = {
@@ -25,6 +26,18 @@ export default function RootLayout({ children }: { children: ReactNode }){
       <head>
         <GtmHeadScript id={gtmId} />
         <GA4HeadScript id={gaId} />
+        <script
+          dangerouslySetInnerHTML={{ __html: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);} 
+          gtag('consent', 'default', {
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'functionality_storage': 'granted',
+            'security_storage': 'granted'
+          });
+        ` }}
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className="has-sticky-cta">
@@ -38,6 +51,7 @@ export default function RootLayout({ children }: { children: ReactNode }){
         </header>
         <GtmNoScript id={gtmId} />
         {children}
+        <ConsentBanner />
       </body>
     </html>
   )
