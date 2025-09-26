@@ -206,6 +206,8 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       const json = await res.json().catch(()=>({}))
       gtmPush({ event:'lead_submit_success' })
       console.log('[lead] submit success', json)
+      // Calculate result for analytics and UI
+      const r = estimate(form.getValues('avgBillValue')||0, form.getValues('plan'))
       try {
         const planVal = form.getValues('plan')
         const billVal = form.getValues('avgBillValue')||0
@@ -214,7 +216,6 @@ export default function LeadForm(props: { initialPlan?: Plan }){
         ;(window as any)?.gtag?.('event','page_view', { page_location: `${window.location.origin}/sucesso`, page_title: 'Formulário Enviado' })
       } catch {}
       // Show persuasive simulation result after submit
-      const r = estimate(form.getValues('avgBillValue')||0, form.getValues('plan'))
       const v = form.getValues('avgBillValue')||0
       const faixa = v < 500 ? '<500' : v <= 999 ? '500-999' : v <= 1999 ? '1000-1999' : v <= 5999 ? '2000-5999' : v <= 9999 ? '6000-9999' : '>=10000'
       gtmPush({ event:'simulator_calculated', plan: form.getValues('plan'), faixa_fatura: faixa, discountPct: r.pct })
