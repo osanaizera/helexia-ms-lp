@@ -5,6 +5,7 @@ import { GA4HeadScript } from '@/lib/ga'
 import ConsentBanner from '@/components/ConsentBanner'
 import type { ReactNode } from 'react'
 import { FbPixelHeadScript, FbPixelNoScript } from '@/lib/fbpixel'
+import FbqRoute from '@/components/FbqRoute'
 
 export const metadata = {
   title: 'Helexia MS — Economize até 35% na conta de energia',
@@ -29,12 +30,13 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }){
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-XMNXWQXQJZ'
+  const fbId = process.env.NEXT_PUBLIC_FB_PIXEL_ID || '1305029297374794'
   return (
     <html lang="pt-BR">
       <head>
         <GtmHeadScript id={gtmId} />
         <GA4HeadScript id={gaId} />
-        <FbPixelHeadScript id={process.env.NEXT_PUBLIC_FB_PIXEL_ID} />
+        <FbPixelHeadScript id={fbId} />
         <script
           dangerouslySetInnerHTML={{ __html: `
           window.dataLayer = window.dataLayer || [];
@@ -59,8 +61,9 @@ export default function RootLayout({ children }: { children: ReactNode }){
           </div>
         </header>
         <GtmNoScript id={gtmId} />
-        <FbPixelNoScript id={process.env.NEXT_PUBLIC_FB_PIXEL_ID} />
+        <FbPixelNoScript id={fbId} />
         {children}
+        <FbqRoute />
         <ConsentBanner />
       </body>
     </html>
