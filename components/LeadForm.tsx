@@ -200,7 +200,17 @@ export default function LeadForm(props: { initialPlan?: Plan }){
         console.warn('[recaptcha] NEXT_PUBLIC_RECAPTCHA_SITE_KEY not set')
       }
       const outsideScope = !!(data.city && !/\bMS\b|Mato Grosso do Sul/i.test(data.city))
-      const payload = { ...data, outsideScope, recaptchaToken }
+      // Try to fetch GA client ID for server-side Measurement Protocol (optional)
+      let gaClientId = ''
+      try{
+        const mid = (window as any)?.GA_MEASUREMENT_ID || (process as any)?.env?.NEXT_PUBLIC_GA_MEASUREMENT_ID
+        if((window as any)?.gtag && mid){
+          await new Promise<void>((resolve)=>{
+            try{ (window as any).gtag('get', mid, 'client_id', (cid:string)=>{ gaClientId = cid||''; resolve() }) } catch { resolve() }
+          })
+        }
+      }catch{}
+      const payload = { ...data, outsideScope, recaptchaToken, gaClientId }
       const res = await fetch('/api/lead',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
       if(!res.ok) throw new Error(await res.text())
       const json = await res.json().catch(()=>({}))

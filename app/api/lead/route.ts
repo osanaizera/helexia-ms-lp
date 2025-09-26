@@ -4,6 +4,8 @@ import { verifyRecaptcha } from '@/lib/recaptcha'
 import { isAllowedRequest } from '@/lib/origin'
 import { clientKeyFromRequest, rateLimit } from '@/lib/rateLimit'
 import { createOrUpdateContact } from '@/lib/hubspot'
+import { sendGA4Event } from '@/lib/ga4'
+import { estimate, type Plan as ServerPlan } from '@/lib/estimate'
 
 export const runtime = 'nodejs'
 
@@ -44,6 +46,15 @@ export async function POST(req: Request){
     }
 
     const result = await createOrUpdateContact(lead, { partial })
+    // Fire GA4 server-side events (Measurement Protocol) for reliability
+    try{
+      const bill = lead.avgBillValue || 0
+      const plan = lead.plan as ServerPlan
+      const r = estimate(bill, plan)
+      const clientId = undefined // could be passed from client; fallback to random in sendGA4Event
+      await sendGA4Event('generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan, bill_value: bill }, { clientId })
+      await sendGA4Event('lead_submit_success', { plan, bill_value: bill }, { clientId })
+    }catch{}
     return NextResponse.json({ id: result.id, status: partial ? 'partial' : 'complete' })
   }catch(e:any){
     console.error('lead api error', e)
