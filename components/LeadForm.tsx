@@ -89,6 +89,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
   })
 
   const values = form.watch()
+  const { errors } = form.formState
   const calc = useMemo(()=> estimate(values.avgBillValue||0, values.plan), [values.avgBillValue, values.plan])
   // removed sheets status UI; keeping logs only
 
@@ -168,19 +169,27 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       let recaptchaToken = ''
       if(siteKey){
         recaptchaToken = await new Promise<string>((resolve)=>{
-          function load(){
-            (window as any).grecaptcha.ready(()=>{
-              (window as any).grecaptcha.execute(siteKey, { action: 'lead_submit' }).then((tok:string)=> resolve(tok))
-            })
+          let settled = false
+          const finish = (tok:string='')=>{ if(!settled){ settled=true; resolve(tok) } }
+          const timer = window.setTimeout(()=> finish(''), 3000) // fallback em 3s
+          function ready(){
+            try{
+              (window as any).grecaptcha.ready(()=>{
+                (window as any).grecaptcha.execute(siteKey, { action: 'lead_submit' })
+                  .then((tok:string)=>{ window.clearTimeout(timer); finish(tok) })
+                  .catch(()=>{ window.clearTimeout(timer); finish('') })
+              })
+            }catch{ window.clearTimeout(timer); finish('') }
           }
           if(!(window as any).grecaptcha){
             const s = document.createElement('script')
             s.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`
             s.async = true
-            s.onload = load
+            s.onload = ready
+            s.onerror = ()=>{ window.clearTimeout(timer); finish('') }
             document.head.appendChild(s)
           } else {
-            load()
+            ready()
           }
         })
       }
@@ -359,10 +368,12 @@ export default function LeadForm(props: { initialPlan?: Plan }){
             <div>
               <label className="block text-sm font-medium">Telefone (WhatsApp) *</label>
               <input {...form.register('phone', { required: true })} inputMode="tel" className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-phone" placeholder="(67) 9 9999-9999" />
+              {errors.phone && <p className="mt-1 text-xs text-red-600">Informe um telefone válido.</p>}
             </div>
             <div>
               <label className="block text-sm font-medium">Nome completo *</label>
               <input {...form.register('fullname', { required: true })} className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-name" placeholder="Seu nome completo" />
+              {errors.fullname && <p className="mt-1 text-xs text-red-600">Informe seu nome completo.</p>}
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium">CPF/CNPJ *</label>
@@ -373,6 +384,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
                 </select>
                 <input {...form.register('document', { required: true })} className="w-full sm:flex-1 rounded-2xl border border-line px-4 py-3 bg-white" placeholder="000.000.000-00" />
               </div>
+              {errors.document && <p className="mt-1 text-xs text-red-600">Informe CPF/CNPJ.</p>}
             </div>
             <div>
               <label className="block text-sm font-medium">Plano (opcional)</label>
@@ -390,11 +402,13 @@ export default function LeadForm(props: { initialPlan?: Plan }){
                   const digits = e.target.value.replace(/\D+/g,'')
                   form.setValue('avgBillValue', Number(digits)||0, { shouldDirty: true })
                 }} />
+              {errors.avgBillValue && <p className="mt-1 text-xs text-red-600">Informe o valor médio da fatura.</p>}
               {/* Nota removida conforme solicitação */}
             </div>
             <div>
               <label className="block text-sm font-medium">E-mail *</label>
               <input {...form.register('email', { required: true })} required type="email" className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-email" placeholder="seunome@email.com" />
+              {errors.email && <p className="mt-1 text-xs text-red-600">Informe um e-mail válido.</p>}
             </div>
             <div>
               <label className="block text-sm font-medium">CEP</label>
@@ -411,7 +425,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
                   <button type="button" className="btn btn-ghost" onClick={()=>{ const prev=form.getValues('fileUrl'); if(prev) try{ URL.revokeObjectURL(prev) }catch{}; form.setValue('fileUrl','',{shouldDirty:true}); setBillFileName('') }}>Remover</button>
                 )}
               </div>
-              <p className="text-sm text-muted mt-3">{values.fileUrl ? `Fatura selecionada${billFileName ? `: ${billFileName}`:''}` : 'Nenhuma fatura selecionada'}</p>
+              <p className="text-sm text-muted mt-3">{values.fileUrl ? `Fatura selecionada${billFileName ? `: ${billFileName}`:''}` : 'Fatura opcional — nenhuma selecionada'}</p>
               <input ref={fileInputRef} id="bill-file" name="bill-file" type="file" accept="image/*,.pdf" className="hidden" aria-hidden="true"
                 onChange={(e)=>{ const file=e.target.files?.[0]; if(file){
                   const allowed = ['image/png','image/jpeg','application/pdf']
