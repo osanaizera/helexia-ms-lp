@@ -4,10 +4,12 @@ import { GtmHeadScript, GtmNoScript } from '@/lib/gtm'
 import { GA4HeadScript } from '@/lib/ga'
 import ConsentBanner from '@/components/ConsentBanner'
 import type { ReactNode } from 'react'
+import { Suspense } from 'react'
 import { FbPixelHeadScript, FbPixelNoScript } from '@/lib/fbpixel'
 import FbqRoute from '@/components/FbqRoute'
 
 export const metadata = {
+  metadataBase: new URL('https://suacontamenor.com.br'),
   title: 'Helexia MS — Economize até 35% na conta de energia',
   description: 'Energia com desconto e segurança. Sem investimento inicial. Usinas no MS (Helexia) e gestão Sion. Planos sem fidelidade, 12 e 24 meses. Simule sua economia.',
   openGraph: {
@@ -63,7 +65,9 @@ export default function RootLayout({ children }: { children: ReactNode }){
         <GtmNoScript id={gtmId} />
         <FbPixelNoScript id={fbId} />
         {children}
-        <FbqRoute />
+        <Suspense fallback={null}>
+          <FbqRoute />
+        </Suspense>
         <ConsentBanner />
       </body>
     </html>
