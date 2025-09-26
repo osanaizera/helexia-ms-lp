@@ -15,20 +15,13 @@ export const metadata = {
     siteName: 'Helexia MS',
     locale: 'pt_BR',
     type: 'website',
-    images: [
-      {
-        url: '/images/hero-ms-solar.png',
-        width: 1200,
-        height: 630,
-        alt: 'Economia na conta de energia com Helexia MS'
-      }
-    ]
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Economia na conta de energia com Helexia MS' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Helexia MS — Economize até 35% na conta de energia',
     description: 'Energia com desconto e segurança. Sem investimento inicial. Usinas no MS (Helexia) e gestão Sion. Simule sua economia.',
-    images: ['/images/hero-ms-solar.png']
+    images: ['/twitter-image']
   }
 }
 
