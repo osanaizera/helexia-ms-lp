@@ -16,7 +16,8 @@ export const LeadSchema = z.object({
   city: z.string().optional(),
   acceptLGPD: z.boolean().optional(),
   utm: z.record(z.string()).optional(),
-  fileUrl: z.string().url().optional(),
+  // Permitir ausência ou qualquer string; evitamos travar envio quando vazio
+  fileUrl: z.string().optional(),
   gclid: z.string().optional(),
   fbclid: z.string().optional(),
   msclkid: z.string().optional(),

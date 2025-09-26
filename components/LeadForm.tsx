@@ -84,7 +84,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       fullname: '', email: '', phone: '', documentType:'CPF', document:'',
       avgBillValue: 0, segment:'Residencial', plan: initialPlan,
       estimatedDiscountPct: 0, estimatedSaving: 0,
-      cep:'', city:'', acceptLGPD:false, utm: {}, fileUrl:'', gclid:'', fbclid:'', msclkid:'', referrer:'', landingUrl:'', leadSource:'', outsideScope: false
+      cep:'', city:'', acceptLGPD:false, utm: {}, fileUrl: undefined as any, gclid:'', fbclid:'', msclkid:'', referrer:'', landingUrl:'', leadSource:'', outsideScope: false
     }
   })
 
@@ -433,7 +433,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
                   const maxBytes = 5 * 1024 * 1024; if(file.size > maxBytes){ alert('Arquivo muito grande (máx. 5MB).'); return }
                   const url=URL.createObjectURL(file); form.setValue('fileUrl',url,{shouldDirty:true}); setBillFileName(file.name); setBillFileType(file.type||'application/octet-stream');
                   const reader=new FileReader(); reader.onload=()=>{ try{ const res=String(reader.result||''); const comma=res.indexOf(','); const b64=comma>=0?res.slice(comma+1):res; setBillFileBase64(b64) }catch{} }; reader.readAsDataURL(file)
-                } else { form.setValue('fileUrl','',{shouldDirty:true}); setBillFileName(''); setBillFileBase64(''); setBillFileType('') } }} />
+                } else { form.setValue('fileUrl', undefined as any,{shouldDirty:true}); setBillFileName(''); setBillFileBase64(''); setBillFileType('') } }} />
             </div>
           </div>
 
