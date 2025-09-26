@@ -8,7 +8,7 @@ const nextConfig = {
     const csp = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.gstatic.com",
-      "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://www.google.com",
+      "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://www.google.com https://vitals.vercel-insights.com https://vitals.vercel-analytics.com",
       "img-src 'self' data: https:",
       "style-src 'self' 'unsafe-inline' https:",
       "font-src 'self' data: https:",
