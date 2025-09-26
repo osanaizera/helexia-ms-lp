@@ -6,15 +6,29 @@ import ConsentBanner from '@/components/ConsentBanner'
 import type { ReactNode } from 'react'
 
 export const metadata = {
-  title: 'Helexia MS — Energia com desconto (até 35%)',
-  description: 'Pague menos na conta de luz no Mato Grosso do Sul. Planos Flex, Econômico 12 e Premium 24. Simule sua economia.',
+  title: 'Helexia MS — Economize até 35% na conta de energia',
+  description: 'Energia com desconto e segurança. Sem investimento inicial. Usinas no MS (Helexia) e gestão Sion. Planos sem fidelidade, 12 e 24 meses. Simule sua economia.',
   openGraph: {
-    title: 'Helexia MS — Energia com desconto',
-    description: 'Até 35% de desconto na fatura no MS',
+    title: 'Helexia MS — Economize até 35% na conta de energia',
+    description: 'Economia real na sua conta de luz com energia renovável, sem investimento inicial e atendimento especializado. Simule sua economia em minutos.',
     url: 'https://helexia-ms.example',
-    siteName: 'Helexia',
+    siteName: 'Helexia MS',
     locale: 'pt_BR',
-    type: 'website'
+    type: 'website',
+    images: [
+      {
+        url: '/images/hero-ms-solar.png',
+        width: 1200,
+        height: 630,
+        alt: 'Economia na conta de energia com Helexia MS'
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Helexia MS — Economize até 35% na conta de energia',
+    description: 'Energia com desconto e segurança. Sem investimento inicial. Usinas no MS (Helexia) e gestão Sion. Simule sua economia.',
+    images: ['/images/hero-ms-solar.png']
   }
 }
 
