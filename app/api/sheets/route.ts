@@ -51,16 +51,7 @@ export async function POST(req: Request){
       }
     }
 
-    // Mask sensitive document before forwarding (store only last 4 digits)
-    try{
-      if(body.lead && typeof body.lead.document === 'string'){
-        const raw = String(body.lead.document||'');
-        const digits = raw.replace(/\D+/g,'');
-        if(digits){
-          body.lead.document = `***${digits.slice(-4)}`;
-        }
-      }
-    }catch{}
+    // Forward document as provided (per request: store full CPF/CNPJ in Sheets)
 
     // Inject shared secret for Apps Script validation
     const shared = process.env.SHEETS_SHARED_SECRET
