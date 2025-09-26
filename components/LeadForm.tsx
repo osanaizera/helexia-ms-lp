@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LeadSchema, type Lead } from '@/lib/validators'
@@ -66,6 +67,7 @@ function AnimatedBar({ bill, pct }: { bill: number; pct: number }){
 }
 
 export default function LeadForm(props: { initialPlan?: Plan }){
+  const router = useRouter()
   const initialPlan: Plan = props.initialPlan ?? 'Economico12'
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [billFileName, setBillFileName] = useState('')
@@ -236,7 +238,15 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       const v = form.getValues('avgBillValue')||0
       const faixa = v < 500 ? '<500' : v <= 999 ? '500-999' : v <= 1999 ? '1000-1999' : v <= 5999 ? '2000-5999' : v <= 9999 ? '6000-9999' : '>=10000'
       gtmPush({ event:'simulator_calculated', plan: form.getValues('plan'), faixa_fatura: faixa, discountPct: r.pct })
-      setSubmitted({ id: json?.id, pct: r.pct, saving: r.saving, newBill: r.newBill })
+      // Redirect to success page (simpler GA conversion via page_view)
+      try{
+        const planVal = form.getValues('plan')
+        const billVal = form.getValues('avgBillValue')||0
+        router.push(`/sucesso?plan=${encodeURIComponent(planVal)}&bill=${encodeURIComponent(String(billVal))}&pct=${encodeURIComponent(String(r.pct))}`)
+      }catch{
+        // Fallback: show inline success if navigation fails
+        setSubmitted({ id: json?.id, pct: r.pct, saving: r.saving, newBill: r.newBill })
+      }
       localStorage.removeItem(STORAGE_KEY)
       setSubmitProgress(100)
       // Forward to Google Sheets Apps Script (non-blocking)
