@@ -4,6 +4,7 @@ import { GtmHeadScript, GtmNoScript } from '@/lib/gtm'
 import { GA4HeadScript } from '@/lib/ga'
 import ConsentBanner from '@/components/ConsentBanner'
 import type { ReactNode } from 'react'
+import { FbPixelHeadScript, FbPixelNoScript } from '@/lib/fbpixel'
 
 export const metadata = {
   title: 'Helexia MS — Economize até 35% na conta de energia',
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: ReactNode }){
       <head>
         <GtmHeadScript id={gtmId} />
         <GA4HeadScript id={gaId} />
+        <FbPixelHeadScript id={process.env.NEXT_PUBLIC_FB_PIXEL_ID} />
         <script
           dangerouslySetInnerHTML={{ __html: `
           window.dataLayer = window.dataLayer || [];
@@ -57,6 +59,7 @@ export default function RootLayout({ children }: { children: ReactNode }){
           </div>
         </header>
         <GtmNoScript id={gtmId} />
+        <FbPixelNoScript id={process.env.NEXT_PUBLIC_FB_PIXEL_ID} />
         {children}
         <ConsentBanner />
       </body>
