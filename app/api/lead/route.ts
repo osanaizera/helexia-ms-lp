@@ -6,6 +6,7 @@ import { clientKeyFromRequest, rateLimit } from '@/lib/rateLimit'
 import { createOrUpdateContact } from '@/lib/hubspot'
 import { sendGA4Event } from '@/lib/ga4'
 import { estimate, type Plan as ServerPlan } from '@/lib/estimate'
+import { sendFbCapiEvent } from '@/lib/fbCapi'
 
 export const runtime = 'nodejs'
 
@@ -54,6 +55,29 @@ export async function POST(req: Request){
       const clientId = undefined // could be passed from client; fallback to random in sendGA4Event
       await sendGA4Event('generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan, bill_value: bill }, { clientId })
       await sendGA4Event('lead_submit_success', { plan, bill_value: bill }, { clientId })
+    }catch{}
+    // Fire Meta Conversions API (server-side) for reliability
+    try{
+      const url = new URL(req.url)
+      const cookies = req.headers.get('cookie') || ''
+      const fbp = (cookies.match(/_fbp=([^;]+)/)?.[1]) || undefined
+      const fbc = (cookies.match(/_fbc=([^;]+)/)?.[1]) || undefined
+      const ua = req.headers.get('user-agent') || undefined
+      const ip = (req.headers.get('x-forwarded-for')||'').split(',')[0]?.trim() || undefined
+      const bill = lead.avgBillValue || 0
+      const plan = lead.plan as ServerPlan
+      const r = estimate(bill, plan)
+      await sendFbCapiEvent({
+        eventName: 'Lead',
+        eventSourceUrl: lead.landingUrl || url.origin,
+        value: r.saving,
+        currency: 'BRL',
+        email: lead.email,
+        phone: lead.phone,
+        clientIpAddress: ip,
+        clientUserAgent: ua,
+        fbp, fbc,
+      })
     }catch{}
     return NextResponse.json({ id: result.id, status: partial ? 'partial' : 'complete' })
   }catch(e:any){
