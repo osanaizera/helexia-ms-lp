@@ -1,12 +1,20 @@
 import { NextResponse } from 'next/server'
 import { LeadSchema, type Lead } from '@/lib/validators'
 import { verifyRecaptcha } from '@/lib/recaptcha'
+import { isAllowedRequest } from '@/lib/origin'
+import { clientKeyFromRequest, rateLimit } from '@/lib/rateLimit'
 import { createOrUpdateContact } from '@/lib/hubspot'
 
 export const runtime = 'nodejs'
 
 export async function POST(req: Request){
   try{
+    if(!isAllowedRequest(req)){
+      return NextResponse.json({ error: 'forbidden_origin' }, { status: 403 })
+    }
+    const key = clientKeyFromRequest(req) + '|lead';
+    const ok = await rateLimit(key, 30, 10*60*1000);
+    if(!ok) return NextResponse.json({ error:'rate_limited' }, { status: 429 })
     const { searchParams } = new URL(req.url)
     const partial = searchParams.get('partial') === '1'
     const body = await req.json()

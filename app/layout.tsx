@@ -1,6 +1,5 @@
 import '../styles/globals.css'
 import { GtmHeadScript, GtmNoScript } from '@/lib/gtm'
-import { GA4HeadScript } from '@/lib/ga'
 import type { ReactNode } from 'react'
 
 export const metadata = {
@@ -18,12 +17,10 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }){
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID
-  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-KMG1D0HBYK'
   return (
     <html lang="pt-BR">
       <head>
         <GtmHeadScript id={gtmId} />
-        <GA4HeadScript id={gaId} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className="has-sticky-cta">
