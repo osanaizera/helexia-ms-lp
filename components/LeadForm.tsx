@@ -159,7 +159,13 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       setSubmitting(true)
       setSubmitError('')
       console.log('[lead] submit start')
-      try { (window as any)?.gtag?.('event','form_start',{ form_id:'leadform', form_name:'Lead Form', form_destination: window?.location?.href }) } catch {}
+      try {
+        const dbg = process.env.NEXT_PUBLIC_GA_DEBUG === '1'
+        ;(window as any)?.gtag?.('event','lead_form_start',{
+          form_id:'leadform', form_name:'Lead Form', form_destination: window?.location?.href,
+          ...(dbg ? { debug_mode: true } : {})
+        })
+      } catch {}
       // start progress animation
       setSubmitProgress(5)
       if(submitIntervalRef.current) window.clearInterval(submitIntervalRef.current)
@@ -219,11 +225,12 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       // Calculate result for analytics and UI
       const r = estimate(form.getValues('avgBillValue')||0, form.getValues('plan'))
       try {
+        const dbg = process.env.NEXT_PUBLIC_GA_DEBUG === '1'
         const planVal = form.getValues('plan')
         const billVal = form.getValues('avgBillValue')||0
-        ;(window as any)?.gtag?.('event','generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan: planVal, bill_value: billVal })
-        ;(window as any)?.gtag?.('event','lead_submit_success', { plan: planVal, bill_value: billVal })
-        ;(window as any)?.gtag?.('event','page_view', { page_location: `${window.location.origin}/sucesso`, page_title: 'Formulário Enviado' })
+        ;(window as any)?.gtag?.('event','generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan: planVal, bill_value: billVal, ...(dbg ? { debug_mode: true } : {}) })
+        ;(window as any)?.gtag?.('event','lead_submit_success', { plan: planVal, bill_value: billVal, ...(dbg ? { debug_mode: true } : {}) })
+        ;(window as any)?.gtag?.('event','page_view', { page_location: `${window.location.origin}/sucesso`, page_title: 'Formulário Enviado', ...(dbg ? { debug_mode: true } : {}) })
       } catch {}
       // Show persuasive simulation result after submit
       const v = form.getValues('avgBillValue')||0
@@ -268,7 +275,10 @@ export default function LeadForm(props: { initialPlan?: Plan }){
     }catch(e:any){
       console.error(e)
       gtmPush({ event:'lead_submit_error' })
-      try { (window as any)?.gtag?.('event','lead_submit_error', { message: String(e?.message||e) }) } catch {}
+      try {
+        const dbg = process.env.NEXT_PUBLIC_GA_DEBUG === '1'
+        ;(window as any)?.gtag?.('event','lead_submit_error', { message: String(e?.message||e), ...(dbg ? { debug_mode: true } : {}) })
+      } catch {}
       setSubmitError('Não foi possível enviar. Verifique os dados e tente novamente.')
       setSubmitProgress(0)
     }
