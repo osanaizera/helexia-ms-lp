@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getDiscountPct } from '@/lib/estimate'
 
@@ -58,7 +58,7 @@ function formatBRL(n: number){
   return n.toLocaleString('pt-BR',{ style:'currency', currency:'BRL' })
 }
 
-export default function SuccessPage(){
+function SuccessModal(){
   const router = useRouter()
   const sp = useSearchParams()
   const plan = (sp.get('plan')||'').toString() as 'Flex'|'Economico12'|'Premium36'
@@ -130,5 +130,13 @@ export default function SuccessPage(){
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SuccessPage(){
+  return (
+    <Suspense fallback={<div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"><div className="w-full max-w-md rounded-2xl bg-white p-6 text-center">Carregando…</div></div>}>
+      <SuccessModal />
+    </Suspense>
   )
 }
