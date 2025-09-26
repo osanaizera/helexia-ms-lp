@@ -431,10 +431,10 @@ export default function LeadForm(props: { initialPlan?: Plan }){
                       type="button"
                       key={p}
                       onClick={()=> form.setValue('plan', p, { shouldDirty: true })}
-                      className={`flex-1 px-3 py-2 rounded-xl border text-sm transition-colors ${isSel ? 'border-[color:var(--brand-accent)] bg-[color:var(--brand-accent)]/10 text-[color:var(--brand)]' : 'border-line bg-white text-ink hover:border-[color:var(--brand-accent)]'}`}
+                      className={`flex-1 px-3 py-2 rounded-xl border text-sm transition-colors ${isSel ? 'border-transparent text-white bg-gradient-to-r from-[color:var(--brand)] to-[color:var(--brand-accent)] shadow-sm' : 'border-line bg-white text-ink hover:border-[color:var(--brand-accent)]'}`}
                       aria-pressed={isSel}
                     >
-                      {p === 'Flex' ? 'Flex' : p === 'Economico12' ? 'Econômico 12' : 'Premium 24'}
+                      {p === 'Flex' ? 'Sem fidelidade' : p === 'Economico12' ? '12 meses' : '24 meses'}
                     </button>
                   )
                 })}
