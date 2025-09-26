@@ -1,6 +1,7 @@
 import '../styles/globals.css'
 import { GtmHeadScript, GtmNoScript } from '@/lib/gtm'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { GA4HeadScript } from '@/lib/ga'
 import type { ReactNode } from 'react'
 
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }){
         <GtmNoScript id={gtmId} />
         {children}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
