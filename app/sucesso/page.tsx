@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { getDiscountPct } from '@/lib/estimate'
 
 function CountUp({ value, format = (v:number)=>String(v), duration=800 }: { value: number; format?: (v:number)=>string; duration?: number }){
@@ -59,6 +59,7 @@ function formatBRL(n: number){
 }
 
 export default function SuccessPage(){
+  const router = useRouter()
   const sp = useSearchParams()
   const plan = (sp.get('plan')||'').toString() as 'Flex'|'Economico12'|'Premium36'
   const bill = Number(sp.get('bill')||0)
@@ -81,10 +82,20 @@ export default function SuccessPage(){
     }catch{}
   },[])
 
+  function close(){ router.push('/') }
+  useEffect(()=>{
+    const onKey = (e: KeyboardEvent)=>{ if(e.key === 'Escape') close() }
+    document.addEventListener('keydown', onKey)
+    return ()=> document.removeEventListener('keydown', onKey)
+  },[])
+
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div role="dialog" aria-modal className="w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl bg-white">
-        <div className="bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] px-6 py-5 text-white">
+        <div className="relative bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] px-6 py-5 text-white">
+          <button aria-label="Fechar" onClick={close} className="absolute top-3 right-3 inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white transition">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
           <h1 className="text-2xl md:text-3xl font-bold">Formulário enviado com sucesso!</h1>
           <p className="text-white/90 mt-1">{planLabel ? `Plano: ${planLabel}` : 'Obrigado pelo interesse. Em breve entraremos em contato.'}</p>
         </div>
