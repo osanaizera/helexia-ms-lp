@@ -10,21 +10,21 @@ import FbqRoute from '@/components/FbqRoute'
 
 export const metadata = {
   metadataBase: new URL('https://suacontamenor.com.br'),
-  title: 'Helexia MS — Economize até 35% na conta de energia',
-  description: 'Energia com desconto e segurança. Sem investimento inicial. Usinas no MS (Helexia) e gestão Sion. Planos sem fidelidade, 12 e 24 meses. Simule sua economia.',
+  title: 'Sua Conta Menor — Energia com desconto',
+  description: 'Economize até 35% na sua fatura de energia no MS.',
   openGraph: {
-    title: 'Helexia MS — Economize até 35% na conta de energia',
-    description: 'Economia real na sua conta de luz com energia renovável, sem investimento inicial e atendimento especializado. Simule sua economia em minutos.',
-    url: 'https://helexia-ms.example',
-    siteName: 'Helexia MS',
+    title: 'Sua Conta Menor — Energia com desconto',
+    description: 'Economize até 35% na sua fatura de energia no MS.',
+    url: 'https://suacontamenor.com.br',
+    siteName: 'Sua Conta Menor',
     locale: 'pt_BR',
     type: 'website',
-    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Economia na conta de energia com Helexia MS' }]
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Economia na conta de energia no MS' }]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Helexia MS — Economize até 35% na conta de energia',
-    description: 'Energia com desconto e segurança. Sem investimento inicial. Usinas no MS (Helexia) e gestão Sion. Simule sua economia.',
+    title: 'Sua Conta Menor — Energia com desconto',
+    description: 'Economize até 35% na sua fatura de energia no MS.',
     images: ['/twitter-image']
   }
 }
