@@ -447,6 +447,12 @@ export default function LeadForm(props: { initialPlan?: Plan }){
               {submitting ? `Enviando... ${submitProgress}%` : 'Enviar dados e descobrir meu desconto simulado'}
             </button>
             {submitError && (<p className="mt-2 text-sm text-red-600">{submitError}</p>)}
+            <p className="text-xs text-muted mt-2">
+              Este site é protegido por reCAPTCHA e aplicam-se a
+              {' '}<a className="underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>
+              {' '}e os{' '}
+              <a className="underline" href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Termos de Serviço</a> do Google.
+            </p>
           </div>
           <p className="text-xs text-muted">Ao enviar, você concorda que entremos em contato por telefone, e-mail e WhatsApp conforme nossa <a className="underline" href="/privacidade">Política de Privacidade</a>.</p>
         </div>
