@@ -21,9 +21,9 @@ export async function POST(req: Request){
     if(!body){
       return NextResponse.json({ error: 'invalid_body' }, { status: 400 })
     }
-    // Require recaptcha if secret configured
-    const recaptchaSecretConfigured = !!process.env.RECAPTCHA_SECRET
-    if(recaptchaSecretConfigured){
+    // Require recaptcha only in production and when secret is configured
+    const recaptchaRequired = !!process.env.RECAPTCHA_SECRET && process.env.NODE_ENV === 'production'
+    if(recaptchaRequired){
       const token = (body && body.recaptchaToken) || ''
       const verify = await verifyRecaptcha(token)
       if(!verify.success){

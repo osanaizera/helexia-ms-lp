@@ -19,9 +19,9 @@ export async function POST(req: Request){
     const partial = searchParams.get('partial') === '1'
     const body = await req.json()
 
-    // Require reCAPTCHA v3 token when secret configured
-    const recaptchaSecretConfigured = !!process.env.RECAPTCHA_SECRET
-    if(recaptchaSecretConfigured){
+    // Require reCAPTCHA v3 token only in production and when secret is configured
+    const recaptchaRequired = !!process.env.RECAPTCHA_SECRET && process.env.NODE_ENV === 'production'
+    if(recaptchaRequired){
       const token = body?.recaptchaToken
       const verify = await verifyRecaptcha(token)
       if(!verify.success){
