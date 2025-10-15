@@ -3,6 +3,7 @@ import { GtmHeadScript, GtmNoScript } from '@/lib/gtm'
 // Vercel Analytics/SpeedInsights imports removed to avoid build errors when packages aren't installed
 import { GA4HeadScript } from '@/lib/ga'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Analytics } from '@vercel/analytics/react'
 import ConsentBanner from '@/components/ConsentBanner'
 import type { ReactNode } from 'react'
 import { Suspense } from 'react'
@@ -68,6 +69,7 @@ export default function RootLayout({ children }: { children: ReactNode }){
           <FbqRoute />
         </Suspense>
         <SpeedInsights />
+        <Analytics />
         <ConsentBanner />
       </body>
     </html>
