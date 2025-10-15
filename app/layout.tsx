@@ -57,8 +57,6 @@ export default function RootLayout({ children }: { children: ReactNode }){
         {/* Fixed brand logo header */}
         <header id="brand-header" className="fixed top-4 left-4 md:top-6 md:left-6 z-50">
           <div className="bg-white/15 backdrop-blur rounded-xl border border-white/30 px-3 py-2 shadow-soft inline-flex items-center gap-3">
-            <img src="/images/logohlx.png" alt="Helexia" className="h-4 md:h-5 w-auto" />
-            <span className="text-white/80 text-sm">×</span>
             <img src="/images/logosion.png" alt="Sion" className="h-14 md:h-16 w-auto" />
           </div>
         </header>

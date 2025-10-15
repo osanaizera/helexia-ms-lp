@@ -6,7 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://helexia-ms.example/sitemap.xml',
+    sitemap: 'https://suacontamenor.com.br/sitemap.xml',
   }
 }
-

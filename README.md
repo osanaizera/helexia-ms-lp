@@ -1,6 +1,6 @@
-# Helexia MS LP — Next.js 14 + TypeScript
+# Sion MS LP — Next.js 14 + TypeScript
 
-Landing page unificada para captação de leads de energia com desconto no Mato Grosso do Sul, com simulador baseado na fatura, planos, form multi‑step, GTM e integração HubSpot (mockável em dev).
+Landing page unificada (Sion) para captação de leads de energia com desconto no Mato Grosso do Sul, com simulador baseado na fatura, planos, form multi‑step, GTM e integração HubSpot (mockável em dev).
 
 ## Stack
 - Next.js 14 (App Router) + TypeScript
@@ -74,4 +74,3 @@ git push -u origin main
 - GTM é injetado via `NEXT_PUBLIC_GTM_ID`.
 - O simulador exibe economia considerando desconto apenas sobre TE+TUSD (impostos fixos ~22%).
 - As integrações reais (HubSpot, upload) estão preparadas para produção; em dev funcionam com mock/UI simples.
-

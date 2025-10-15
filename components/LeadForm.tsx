@@ -7,7 +7,7 @@ import { LeadSchema, type Lead } from '@/lib/validators'
 import { estimate, type Plan } from './Simulator'
 import { gtmPush } from '@/lib/gtm'
 
-const STORAGE_KEY = 'helexia_lp_lead'
+const STORAGE_KEY = 'sion_lp_lead'
 
 function formatBRL(n:number){ return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) }
 
@@ -398,7 +398,7 @@ export default function LeadForm(props: { initialPlan?: Plan }){
               <div className="mt-10">
                 <div className="bg-white border border-line rounded-2xl p-6 flex items-start gap-4">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[color:var(--brand-accent)]"><path d="M3 11l9-8 9 8v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V13H9v6a2 2 0 0 1-2 2H3z"/></svg>
-                  <p className="text-sm text-ink/80">Helexia e Sion já comercializam energia nesse modelo em todo o Brasil, com produção suficiente para atender o equivalente a <b>250 mil casas</b>, ou uma <b>cidade de 750 mil habitantes</b>. São mais de <b>200 MWp</b> de usinas solares já em operação.</p>
+                  <p className="text-sm text-ink/80">A Sion já comercializa energia nesse modelo em diversas regiões do Brasil, com capacidade para atender o equivalente a <b>250 mil casas</b>, ou uma <b>cidade de 750 mil habitantes</b>. São mais de <b>200 MWp</b> de usinas solares em operação.</p>
                         </div>
                         {/* Removida barra extra para manter foco e simplicidade */}
                 

@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Política de Privacidade — Helexia & Sion',
-  description: 'Política de privacidade e proteção de dados (LGPD) para a LP Helexia & Sion no Mato Grosso do Sul.'
+  title: 'Política de Privacidade — Sion',
+  description: 'Política de privacidade e proteção de dados (LGPD) para a LP Sion no Mato Grosso do Sul.'
 }
 
 export default function Privacy(){
@@ -8,16 +8,16 @@ export default function Privacy(){
     <main className="container-pad py-12">
       <style dangerouslySetInnerHTML={{__html:'#brand-header{display:none !important;}'}} />
       <h1 className="section-title">Política de Privacidade</h1>
-      <p className="section-sub">Helexia & Sion — Geração Compartilhada (MS)</p>
+      <p className="section-sub">Sion — Geração Compartilhada (MS)</p>
 
       <section className="mt-6 space-y-4 text-sm leading-7">
         <p>
-          Esta Política de Privacidade descreve como Helexia e Sion ("nós") coletam, utilizam, compartilham e protegem dados pessoais dos interessados em aderir à energia com desconto por meio de geração compartilhada no Mato Grosso do Sul. Cumprimos a Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018 — LGPD) e demais normas aplicáveis ao setor elétrico.
+          Esta Política de Privacidade descreve como a Sion ("nós") coleta, utiliza, compartilha e protege dados pessoais dos interessados em aderir à energia com desconto por meio de geração compartilhada no Mato Grosso do Sul. Cumprimos a Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018 — LGPD) e demais normas aplicáveis ao setor elétrico.
         </p>
 
         <h2 className="text-lg font-bold mt-8">1. Controladores e Escopo</h2>
         <p>
-          A Helexia é responsável pela geração de energia (usinas), enquanto a Sion administra o consórcio/cooperativa e a comercialização junto à distribuidora. Para fins de LGPD, Helexia e Sion podem atuar como <b>controladoras conjuntas</b> quando definirem, em conjunto, as finalidades e os meios de tratamento desta Landing Page e do fluxo de qualificação de leads.
+          A Sion é responsável pela estruturação e gestão do consórcio/cooperativa e pela comercialização junto à distribuidora, incluindo atendimento aos participantes e coordenação operacional. 
         </p>
 
         <h2 className="text-lg font-bold mt-8">2. Dados Pessoais Coletados</h2>
@@ -52,7 +52,7 @@ export default function Privacy(){
 
         <h2 className="text-lg font-bold mt-8">6. Compartilhamento</h2>
         <ul className="list-disc pl-5">
-          <li><b>Helexia e Sion</b>: operação do consórcio/cooperativa e comercialização.</li>
+          <li><b>Sion</b>: operação do consórcio/cooperativa e comercialização.</li>
           <li><b>CRM e automação</b> (ex.: HubSpot): gestão de leads e comunicações.</li>
           <li><b>Hospedagem/infra</b> (ex.: Vercel, provedores cloud): disponibilização do site e serviços de backend.</li>
           <li><b>Google</b> (GA4, Tag Manager, reCAPTCHA, Google Sheets Apps Script): mensuração, antispam e roteamento seguro de dados (quando aplicável).</li>
@@ -108,7 +108,7 @@ export default function Privacy(){
 
         <h2 className="text-lg font-bold mt-8">14. Contato do Encarregado (DPO)</h2>
         <p>
-          Para exercer seus direitos ou esclarecer dúvidas, entre em contato: <a className="underline" href="mailto:dpo@helexia-sion.example">dpo@helexia-sion.example</a>.
+          Para exercer seus direitos ou esclarecer dúvidas, entre em contato: <a className="underline" href="mailto:dpo@sion.example">dpo@sion.example</a>.
         </p>
 
         <div className="mt-8 text-xs text-muted">

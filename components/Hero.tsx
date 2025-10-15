@@ -7,7 +7,7 @@ export default function Hero({ onPrimaryCTAClick }: { onPrimaryCTAClick?: () => 
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       }}
-      aria-label="Helexia — Energia solar no MS"
+      aria-label="Sion — Energia solar no MS"
     >
       <div className="highlight-gradient absolute inset-0" aria-hidden="true" />
       <div className="container-pad pt-24 pb-16 md:pt-32 md:pb-24 relative z-10">

@@ -69,35 +69,7 @@ export default function WhoWeAre(){
     <section className="bg-white" aria-labelledby="about-heading">
       <div className="container-pad py-12">
         <h2 id="about-heading" className="section-title">Quem Somos</h2>
-        <p className="section-sub">Helexia e Sion: solidez global e gestão local para sua economia</p>
-
-        {/* Helexia */}
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          <div>
-            <h3 className="text-xl font-bold">Sobre a Helexia</h3>
-            <p className="mt-3 text-sm text-ink/80">
-              A Helexia é uma multinacional francesa fundada em 2010, integrante do Grupo Mulliez, o mesmo que controla marcas globais como Leroy Merlin e Decathlon. Atuamos em mais de 10 países e fazemos parte do grupo energético Voltalia, com presença relevante no setor de energias renováveis.
-            </p>
-            <p className="mt-3 text-sm text-ink/80">
-              No Brasil, investimos em usinas próprias no Mato Grosso do Sul, oferecendo energia limpa, sem investimento inicial e com economia imediata para empresas e consumidores.
-            </p>
-            <ul className="mt-4 space-y-2 text-sm">
-              <li className="flex items-start gap-2"><IGlobe className="text-[color:var(--brand-accent)]" /><span>Solidez global e presença em diversos países</span></li>
-              <li className="flex items-start gap-2"><IPin className="text-[color:var(--brand-accent)]" /><span>Operação local no MS com usinas próprias</span></li>
-              <li className="flex items-start gap-2"><IBolt className="text-[color:var(--brand-accent)]" /><span>Energia limpa com desconto imediato</span></li>
-              <li className="flex items-start gap-2"><ICheck className="text-[color:var(--brand-accent)]" /><span>Experiência apoiando marcas líderes</span></li>
-            </ul>
-          </div>
-          <div className="flex flex-col items-center gap-4">
-            <img src="/images/logohlx.png" alt="Helexia" className="h-10 w-auto" />
-            <div className="text-xs text-muted">do mesmo grupo que</div>
-            <div className="flex flex-wrap items-center justify-center gap-8">
-              <img src="/images/logoleroy.png" alt="Leroy Merlin" className="h-36 w-auto" />
-              <img src="/images/logodecathlon.png" alt="Decathlon" className="h-36 w-auto" />
-              <img src="/images/logovoltalia.png" alt="Voltalia" className="h-36 w-auto" />
-            </div>
-          </div>
-        </div>
+        <p className="section-sub">Sion: geração compartilhada e gestão local para sua economia</p>
 
         {/* Sion Energia */}
         <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
@@ -105,12 +77,9 @@ export default function WhoWeAre(){
             <img src="/images/logosion.png" alt="Sion Energia" className="w-full max-w-[18rem] h-auto" />
           </div>
           <div className="order-1 md:order-2 rounded-2xl p-6" style={{ background: 'linear-gradient(135deg, rgba(32,178,142,0.08), rgba(15,42,47,0.06))' }}>
-            <h3 className="text-xl font-bold">Sobre a Sion Energia</h3>
+            <h3 className="text-xl font-bold">Sobre a Sion</h3>
             <p className="mt-3 text-sm text-ink/80">
-              A Sion Energia é uma empresa brasileira especializada na gestão e comercialização de energia. Atuamos no modelo de consórcio/cooperativa, administrando cadastros, alocação de energia e relacionamento direto com distribuidoras.
-            </p>
-            <p className="mt-3 text-sm text-ink/80">
-              Somos o parceiro local que garante que a energia gerada nas usinas da Helexia chegue até você de forma simples, eficiente e transparente. Cuidamos da operação e da gestão contratual para que sua única preocupação seja aproveitar a economia.
+              A Sion é especializada na estruturação e gestão de projetos de geração compartilhada. Atuamos no modelo de consórcio/cooperativa, administrando cadastros, alocação de energia e relacionamento com distribuidoras para viabilizar sua economia com simplicidade e transparência.
             </p>
             <ul className="mt-4 space-y-2 text-sm">
               <li className="flex items-start gap-2"><IHandshake className="text-[color:var(--brand-accent)]" /><span>Gestão local e atendimento próximo no MS</span></li>
@@ -119,13 +88,13 @@ export default function WhoWeAre(){
               <li className="flex items-start gap-2"><IClock className="text-[color:var(--brand-accent)]" /><span>Agilidade operacional para empresas e residenciais</span></li>
             </ul>
             <div className="mt-4 text-xs text-muted bg-white/70 border border-line rounded-2xl p-3">
-              Na prática: a Helexia gera a energia em suas usinas, e a Sion garante que ela seja gerida e distribuída até a sua fatura.
+              Na prática: a Sion organiza tudo para que os créditos de energia sejam aplicados na sua fatura, sem você precisar instalar nada no imóvel.
             </div>
           </div>
         </div>
-
+        
         <div className="mt-10 text-center text-sm text-ink/80">
-          Helexia e Sion juntas: energia limpa, gestão transparente, economia com responsabilidade.
+          Sion: energia limpa, gestão transparente e economia com responsabilidade.
         </div>
       </div>
     </section>

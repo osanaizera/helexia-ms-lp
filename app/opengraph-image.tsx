@@ -34,13 +34,8 @@ export default function OgImage() {
         />
         <div style={{ position:'absolute', top: 48, left: 64, display:'flex', alignItems:'center', gap: 16 }}>
           <div style={{ display:'flex', alignItems:'center', gap: 12 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background:'#fff' }} />
-            <div style={{ fontSize: 28, fontWeight: 700 }}>Helexia</div>
-          </div>
-          <div style={{ opacity: 0.7, fontSize: 24 }}>×</div>
-          <div style={{ display:'flex', alignItems:'center', gap: 12 }}>
             <div style={{ width: 72, height: 24, background:'#fff', borderRadius: 6 }} />
-            <div style={{ fontSize: 22, fontWeight: 600 }}>Sion</div>
+            <div style={{ fontSize: 28, fontWeight: 700 }}>Sion</div>
           </div>
         </div>
 
@@ -59,7 +54,7 @@ export default function OgImage() {
         </div>
 
         <div style={{ position:'absolute', bottom: 48, left: 64, right: 64, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-          <div style={{ fontSize: 22, opacity: 0.9 }}>helexia-ms.example</div>
+          <div style={{ fontSize: 22, opacity: 0.9 }}>suacontamenor.com.br</div>
           <div style={{
             background: '#fff', color: brand, padding: '12px 20px', borderRadius: 999,
             fontSize: 22, fontWeight: 700
@@ -72,4 +67,3 @@ export default function OgImage() {
     { ...size }
   )
 }
-

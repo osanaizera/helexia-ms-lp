@@ -6,7 +6,7 @@ export default function Footer(){
       <div className="container-pad py-10">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <img src="/images/logohlx.png" alt="Helexia" className="h-8 w-auto" onError={(e)=>{ (e.currentTarget as HTMLImageElement).style.display='none' }} />
+            <img src="/images/logosion.png" alt="Sion" className="h-8 w-auto" onError={(e)=>{ (e.currentTarget as HTMLImageElement).style.display='none' }} />
           </div>
           <nav className="flex gap-4 text-sm text-white/80">
             <Link href="/privacidade" className="hover:text-white" aria-label="Política de Privacidade">Política de Privacidade</Link>

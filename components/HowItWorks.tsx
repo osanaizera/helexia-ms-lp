@@ -1,12 +1,12 @@
 export default function HowItWorks(){
   const steps = [
     {
-      title: 'Geração local (Helexia)',
-      body: 'A Helexia projeta, constrói e opera usinas solares no Mato Grosso do Sul. As usinas já estão prontas e gerando energia — você não precisa investir em equipamentos ou obras.'
+      title: 'Geração local (Sion)',
+      body: 'A Sion estrutura e opera a geração compartilhada de energia no Mato Grosso do Sul. As usinas estão em operação — você não precisa investir em equipamentos ou obras.'
     },
     {
-      title: 'Gestão do consórcio/cooperativa (Sion)',
-      body: 'A Sion administra o consórcio/cooperativa: realiza o cadastro, gerencia os participantes e a alocação da energia gerada, além de organizar a comercialização junto à distribuidora.'
+      title: 'Gestão do consórcio/cooperativa',
+      body: 'A Sion realiza o cadastro, gerencia os participantes e a alocação da energia gerada, além de organizar a comercialização junto à distribuidora.'
     },
     {
       title: 'Créditos de energia na sua fatura',
@@ -22,14 +22,12 @@ export default function HowItWorks(){
     <section className="bg-white" aria-labelledby="how-heading">
       <div className="container-pad py-12">
         <h2 id="how-heading" className="section-title">Como funciona a sua economia</h2>
-        <p className="section-sub">Helexia + Sion: geração local e gestão do consórcio/cooperativa</p>
+        <p className="section-sub">Sion: geração local e gestão do consórcio/cooperativa</p>
 
         <div className="mt-6 relative flex items-center justify-center">
           {/* Energy glow orb background */}
           <div className="energy-orb" style={{ left:'50%', transform:'translateX(-50%)', top:'-2rem' }} aria-hidden />
           <div className="relative z-10 flex items-center gap-3 sm:gap-4">
-            <img src="/images/logohlx.png" alt="Helexia" className="h-8 sm:h-9 md:h-10 lg:h-12 max-w-full object-contain" />
-            <span className="text-muted text-sm">parceria</span>
             <img src="/images/logosion.png" alt="Sion" className="h-24 sm:h-28 md:h-32 lg:h-36 max-w-full object-contain" />
           </div>
         </div>
@@ -48,7 +46,7 @@ export default function HowItWorks(){
 
         <div className="mt-8 text-sm text-muted max-w-3xl">
           <p>
-            Este modelo é conhecido como geração compartilhada (consórcio/cooperativa), regulamentado no Brasil. A energia é gerada nas usinas da Helexia e a Sion faz a gestão dos participantes e da comercialização, enquanto a distribuidora lança os créditos diretamente na sua fatura. Assim, você passa a pagar menos, sem instalar nada no seu imóvel.
+            Este modelo é conhecido como geração compartilhada (consórcio/cooperativa), regulamentado no Brasil. A Sion faz a gestão dos participantes e da comercialização, enquanto a distribuidora lança os créditos diretamente na sua fatura. Assim, você passa a pagar menos, sem instalar nada no seu imóvel.
           </p>
         </div>
 

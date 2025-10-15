@@ -24,8 +24,8 @@ export default function Page(){
         dangerouslySetInnerHTML={{ __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'Organization',
-          name: 'Helexia',
-          url: 'https://helexia-ms.example',
+          name: 'Sion',
+          url: 'https://suacontamenor.com.br',
         }) }}
       />
       <Hero onPrimaryCTAClick={()=>{
@@ -61,7 +61,7 @@ export default function Page(){
           <details className="card">
             <summary className="p-4 font-medium">Preciso investir em placas solares?</summary>
             <div className="card-body pt-0 space-y-2 text-sm text-ink/90">
-              <p>Não. Este é um modelo de <b>geração compartilhada</b> (consórcio/cooperativa): a energia é gerada em <b>usinas da Helexia</b> no MS e a <b>Sion</b> faz a gestão dos participantes. Você não precisa instalar nada no seu imóvel.</p>
+              <p>Não. Este é um modelo de <b>geração compartilhada</b> (consórcio/cooperativa): a energia é gerada e gerida pela <b>Sion</b> no MS, que organiza a alocação entre os participantes. Você não precisa instalar nada no seu imóvel.</p>
               <p>Os <b>créditos de energia</b> são lançados diretamente na sua fatura oficial da distribuidora, reduzindo o valor que você pagaria à tarifa cheia.</p>
             </div>
           </details>
@@ -90,7 +90,7 @@ export default function Page(){
           <details className="card">
             <summary className="p-4 font-medium">De onde vem a energia e onde aparece o desconto?</summary>
             <div className="card-body pt-0 space-y-2 text-sm text-ink/90">
-              <p>A energia vem de <b>usinas solares no Mato Grosso do Sul</b>. A Helexia gera, a Sion gerencia a alocação e a distribuidora lança os <b>créditos</b> na sua fatura.</p>
+              <p>A energia vem de <b>usinas solares no Mato Grosso do Sul</b>. A Sion organiza a alocação e a distribuidora lança os <b>créditos</b> na sua fatura.</p>
               <p>O desconto incide sobre a <b>parte de energia (TE+TUSD)</b>. <b>Impostos</b> como ICMS e PIS/COFINS <b>não sofrem redução</b>. Por isso mostramos a economia sobre a energia, e não sobre a fatura inteira.</p>
               <p>A forma exata de cobrança do plano e a visualização dos créditos são detalhadas na proposta e podem variar conforme distribuidora e modalidade contratada.</p>
             </div>

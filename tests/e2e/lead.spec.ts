@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 
-test.describe('LP Helexia MS', () => {
+test.describe('LP Sion MS', () => {
   test('fluxo completo (>=1000, Premium36, submit ok)', async ({ page }) => {
     await page.goto('/')
     await expect(page.getByTestId('cta-simular')).toBeVisible()
@@ -44,4 +44,3 @@ test.describe('LP Helexia MS', () => {
     await page.getByTestId('lead-submit').click()
   })
 })
-
