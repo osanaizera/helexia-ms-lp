@@ -193,6 +193,9 @@ export async function createDealForLead(contactId: string, lead: Lead){
   // Campos customizados do Deal (v1 aceita array com custom_field_id/value)
   const cfMap = buildDealCustomFields(lead)
   const deal_custom_fields = Object.entries(cfMap).map(([custom_field_id, value])=>({ custom_field_id, value }))
+  if(RDCRM_DEBUG){
+    console.log('[rdcrm][cf]', { count: deal_custom_fields.length, ids: deal_custom_fields.map(c=>c.custom_field_id) })
+  }
   // Idempotência: evita duplicar negócio aberto nas últimas 2h
   const existing = await findRecentDealByContactStage(contactId, stageId)
   if(existing) return existing
@@ -210,18 +213,37 @@ export async function createDealForLead(contactId: string, lead: Lead){
   const created = await res.json()
   const dealId = created?.id || created?._id
   if(dealId){
-    // 2) Atualiza valores e campos customizados com wrapper deal{...}
-    const updateBody = {
-      deal: {
-        amount_total: value,
-        amount_unique: value,
-        deal_custom_fields_attributes: deal_custom_fields,
-        contact_ids: [contactId],
+    async function putDeal(body:any){
+      return await fetchRDCRM(`/deals/${encodeURIComponent(dealId)}`, { method:'PUT', body: JSON.stringify(body) })
+    }
+    // 2a) Atualiza valores e contato
+    const baseBody = { deal: { amount_total: value, amount_unique: value, contact_ids: [contactId] } }
+    const updBase = await putDeal(baseBody)
+    if(RDCRM_DEBUG){ console.log('[rdcrm][update-base]', { status: updBase.status }) }
+
+    // 2b) Tenta todos os custom fields de uma vez
+    if(deal_custom_fields.length){
+      const cfBody = { deal: { deal_custom_fields_attributes: deal_custom_fields } }
+      const updCf = await putDeal(cfBody)
+      if(RDCRM_DEBUG){ console.log('[rdcrm][update-cf-all]', { status: updCf.status, count: deal_custom_fields.length }) }
+      if(!updCf.ok){
+        // Fallback: enviar em pequenos lotes
+        const chunkSize = 3
+        for(let i=0;i<deal_custom_fields.length;i+=chunkSize){
+          const chunk = deal_custom_fields.slice(i, i+chunkSize)
+          const chunkBody = { deal: { deal_custom_fields_attributes: chunk } }
+          const r = await putDeal(chunkBody)
+          if(RDCRM_DEBUG){ console.log('[rdcrm][update-cf-chunk]', { status: r.status, ids: chunk.map(c=>c.custom_field_id) }) }
+          if(!r.ok){
+            for(const single of chunk){
+              const sBody = { deal: { deal_custom_fields_attributes: [single] } }
+              const rs = await putDeal(sBody)
+              if(RDCRM_DEBUG){ console.log('[rdcrm][update-cf-single]', { status: rs.status, id: single.custom_field_id, value: single.value }) }
+            }
+          }
+        }
       }
     }
-    const upd = await fetchRDCRM(`/deals/${encodeURIComponent(dealId)}`, { method:'PUT', body: JSON.stringify(updateBody) })
-    // mesmo se falhar a atualização, retornamos o created para não bloquear o fluxo
-    try{ await upd.json().catch(()=> ({})) }catch{}
   }
   return created
 }
