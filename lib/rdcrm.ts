@@ -1,4 +1,4 @@
-import { Lead, sanitizePhone } from './validators'
+import { Lead, sanitizePhone, sanitizeDoc } from './validators'
 
 const RDCRM_BASE = process.env.RDCRM_BASE || 'https://crm.rdstation.com/api/v1'
 
@@ -160,8 +160,8 @@ function buildDealCustomFields(lead: Lead){
   add('RDCRM_FIELD_PLAN', getPlanFieldValue(lead.plan))
   // Contatos/identificação
   add('RDCRM_FIELD_EMAIL', lead.email)
-  if(lead.documentType === 'CNPJ' && lead.document){
-    add('RDCRM_FIELD_CNPJ', lead.document)
+  if(lead.document){
+    add('RDCRM_FIELD_CNPJ', sanitizeDoc(lead.document))
   }
   // Telefones (repete phone em PHONE1 se configurado)
   const phone = normalizeMobilePhone(lead.phone)
