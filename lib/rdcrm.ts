@@ -21,6 +21,34 @@ function safePreviewBody(body: any): string | undefined{
   }catch{ return undefined }
 }
 
+function getPlanFieldValue(plan: string){
+  const key = (plan || '').toUpperCase()
+  const custom = process.env[`RDCRM_PLAN_VALUE_${key}`]
+  if(custom) return custom
+  // Fallbacks comuns
+  if(plan === 'Economico12') return 'Econômico 12'
+  if(plan === 'Premium36') return 'Premium 36'
+  if(plan === 'Flex') return 'Flex'
+  return plan
+}
+
+function formatBillValue(v: number){
+  const mode = (process.env.RDCRM_BILL_FORMAT || 'number').toLowerCase()
+  if(mode === 'currency_br'){
+    try{ return new Intl.NumberFormat('pt-BR',{ style:'currency', currency:'BRL'}).format(v) }catch{ return String(v) }
+  }
+  if(mode === 'text') return String(v)
+  return Number(v)
+}
+
+function formatDiscount(v: number){
+  const mode = (process.env.RDCRM_DISCOUNT_FORMAT || 'number').toLowerCase()
+  if(mode === 'percent') return `${v}%`
+  if(mode === 'fraction') return v/100
+  if(mode === 'text') return String(v)
+  return Number(v)
+}
+
 async function fetchRDCRM(path: string, init: RequestInit = {}, attempt = 0): Promise<Response>{
   const token = process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN
   if(!token) throw new Error('Missing RDCRM_API_TOKEN')
@@ -127,9 +155,9 @@ function buildDealCustomFields(lead: Lead){
   add('RDCRM_FIELD_LANDING_URL', lead.landingUrl)
   add('RDCRM_FIELD_BILL_URL', lead.fileUrl)
   // Métricas da fatura
-  add('RDCRM_FIELD_ESTIMATED_DISCOUNT', lead.estimatedDiscountPct)
-  add('RDCRM_FIELD_BILL_VALUE', lead.avgBillValue)
-  add('RDCRM_FIELD_PLAN', lead.plan)
+  add('RDCRM_FIELD_ESTIMATED_DISCOUNT', formatDiscount(lead.estimatedDiscountPct || 0))
+  add('RDCRM_FIELD_BILL_VALUE', formatBillValue(lead.avgBillValue || 0))
+  add('RDCRM_FIELD_PLAN', getPlanFieldValue(lead.plan))
   // Contatos/identificação
   add('RDCRM_FIELD_EMAIL', lead.email)
   if(lead.documentType === 'CNPJ' && lead.document){
