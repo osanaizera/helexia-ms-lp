@@ -3,10 +3,11 @@ import { LeadSchema, type Lead } from '@/lib/validators'
 import { verifyRecaptcha } from '@/lib/recaptcha'
 import { isAllowedRequest } from '@/lib/origin'
 import { clientKeyFromRequest, rateLimit } from '@/lib/rateLimit'
-import { createOrUpdateContact } from '@/lib/hubspot'
 import { sendGA4Event } from '@/lib/ga4'
 import { estimate, type Plan as ServerPlan } from '@/lib/estimate'
 import { sendFbCapiEvent } from '@/lib/fbCapi'
+// RD Marketing desativado — somente CRM
+import { sendToRdCrm } from '@/lib/rdcrm'
 
 export const runtime = 'nodejs'
 
@@ -39,14 +40,44 @@ export async function POST(req: Request){
     }
     const lead = parsed.data
 
-    const mockEnabled = process.env.MOCK_LEAD === '1' || !process.env.HUBSPOT_PRIVATE_APP_TOKEN
+    const mockEnabled = process.env.MOCK_LEAD === '1'
     if (mockEnabled){
-      // Dev/unlocked path: do not call HubSpot, return mock id
-      console.warn('[lead] MOCK_LEAD enabled or HUBSPOT token missing — returning mocked id')
+      // Dev/unlocked path: do not call HubSpot, but optionally fire non-blocking integrations
+      console.warn('[lead] MOCK_LEAD enabled or HUBSPOT token missing — skipping HubSpot, firing non-blocking events')
+      // Fire GA4 server-side events (best-effort)
+      try{
+        const bill = lead.avgBillValue || 0
+        const plan = lead.plan as ServerPlan
+        const r = estimate(bill, plan)
+        const clientId = undefined
+        await sendGA4Event('generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan, bill_value: bill }, { clientId })
+        await sendGA4Event('lead_submit_success', { plan, bill_value: bill }, { clientId })
+      }catch{}
+      // Fire Meta CAPI (best-effort) — sem contexto de req específico; omite fbp/fbc
+      try{
+        const bill = lead.avgBillValue || 0
+        const plan = lead.plan as ServerPlan
+        const r = estimate(bill, plan)
+        await sendFbCapiEvent({
+          eventName: 'Lead',
+          eventSourceUrl: lead.landingUrl,
+          value: r.saving,
+          currency: 'BRL',
+          email: lead.email,
+          phone: lead.phone,
+        })
+      }catch{}
+      // RD Marketing desativado
+      // RD CRM (allow in mock when flag is set)
+      try{
+        if((process.env.ALLOW_RDCRM_IN_MOCK === '1') && (process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN)){
+          await sendToRdCrm(lead)
+        }
+      }catch(e){ console.warn('[rdcrm] crm error (mock path)', e) }
       return NextResponse.json({ id: `mock_${Date.now()}`, status: partial ? 'partial' : 'complete', mocked: true })
     }
 
-    const result = await createOrUpdateContact(lead, { partial })
+    // Sem HubSpot: seguimos direto para integrações não-bloqueantes e respondemos sucesso
     // Fire GA4 server-side events (Measurement Protocol) for reliability
     try{
       const bill = lead.avgBillValue || 0
@@ -79,7 +110,18 @@ export async function POST(req: Request){
         fbp, fbc,
       })
     }catch{}
-    return NextResponse.json({ id: result.id, status: partial ? 'partial' : 'complete' })
+    // RD Marketing desativado
+    // RD CRM (contato + negócio) — não bloqueante
+    try{
+      if(process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN){
+        await sendToRdCrm(lead)
+      } else {
+        console.warn('[rdcrm] RDCRM_API_TOKEN not set — skipping')
+      }
+    }catch(e){
+      console.warn('[rdcrm] crm error', e)
+    }
+    return NextResponse.json({ id: `ok_${Date.now()}`, status: partial ? 'partial' : 'complete' })
   }catch(e:any){
     console.error('lead api error', e)
     return NextResponse.json({ error: 'internal_error' }, { status: 500 })
