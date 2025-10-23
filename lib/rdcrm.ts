@@ -22,13 +22,7 @@ function safePreviewBody(body: any): string | undefined{
 }
 
 function getPlanFieldValue(plan: string){
-  const key = (plan || '').toUpperCase()
-  const custom = process.env[`RDCRM_PLAN_VALUE_${key}`]
-  if(custom) return custom
-  // Fallbacks comuns
-  if(plan === 'Economico12') return 'Econômico 12'
-  if(plan === 'Premium36') return 'Premium 36'
-  if(plan === 'Flex') return 'Flex'
+  // Campo do RD configurado como texto: enviar exatamente o valor do formulário
   return plan
 }
 
@@ -265,13 +259,7 @@ export async function createDealForLead(contactId: string, lead: Lead){
           if(!r.ok){
             for(const single of chunk){
               const sBody = { deal: { deal_custom_fields_attributes: [single] } }
-              let rs = await putDeal(sBody)
-              // Se for o campo de Plano e falhar, tentar com label normalizado (ex.: Economico12 -> "Econômico 12")
-              if(!rs.ok && process.env.RDCRM_FIELD_PLAN && single.custom_field_id === process.env.RDCRM_FIELD_PLAN){
-                const alt = { ...single, value: normalizePlanLabel(String(single.value||'')) }
-                const altBody = { deal: { deal_custom_fields_attributes: [alt] } }
-                rs = await putDeal(altBody)
-              }
+              const rs = await putDeal(sBody)
               if(RDCRM_DEBUG){ console.log('[rdcrm][update-cf-single]', { status: rs.status, id: single.custom_field_id, value: single.value }) }
             }
           }
