@@ -265,7 +265,13 @@ export async function createDealForLead(contactId: string, lead: Lead){
           if(!r.ok){
             for(const single of chunk){
               const sBody = { deal: { deal_custom_fields_attributes: [single] } }
-              const rs = await putDeal(sBody)
+              let rs = await putDeal(sBody)
+              // Se for o campo de Plano e falhar, tentar com label normalizado (ex.: Economico12 -> "Econômico 12")
+              if(!rs.ok && process.env.RDCRM_FIELD_PLAN && single.custom_field_id === process.env.RDCRM_FIELD_PLAN){
+                const alt = { ...single, value: normalizePlanLabel(String(single.value||'')) }
+                const altBody = { deal: { deal_custom_fields_attributes: [alt] } }
+                rs = await putDeal(altBody)
+              }
               if(RDCRM_DEBUG){ console.log('[rdcrm][update-cf-single]', { status: rs.status, id: single.custom_field_id, value: single.value }) }
             }
           }
