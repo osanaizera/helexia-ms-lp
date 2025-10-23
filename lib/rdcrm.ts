@@ -26,21 +26,13 @@ function getPlanFieldValue(plan: string){
   return plan
 }
 
+// Always send Bill/Discount as text (RD fields are free text)
 function formatBillValue(v: number){
-  const mode = (process.env.RDCRM_BILL_FORMAT || 'number').toLowerCase()
-  if(mode === 'currency_br'){
-    try{ return new Intl.NumberFormat('pt-BR',{ style:'currency', currency:'BRL'}).format(v) }catch{ return String(v) }
-  }
-  if(mode === 'text') return String(v)
-  return Number(v)
+  return String(v ?? '')
 }
 
 function formatDiscount(v: number){
-  const mode = (process.env.RDCRM_DISCOUNT_FORMAT || 'number').toLowerCase()
-  if(mode === 'percent') return `${v}%`
-  if(mode === 'fraction') return v/100
-  if(mode === 'text') return String(v)
-  return Number(v)
+  return String(v ?? '')
 }
 
 async function fetchRDCRM(path: string, init: RequestInit = {}, attempt = 0): Promise<Response>{
