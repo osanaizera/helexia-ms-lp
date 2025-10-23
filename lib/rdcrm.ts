@@ -231,7 +231,14 @@ export async function createDealForLead(contactId: string, lead: Lead){
       return await fetchRDCRM(`/deals/${encodeURIComponent(dealId)}`, { method:'PUT', body: JSON.stringify(body) })
     }
     // 2a) Atualiza valores e contato
-    const baseBody = { deal: { amount_total: value, amount_unique: value, contact_ids: [contactId] } }
+    // Enviar também o campo obrigatório "Valor da Conta" caso esteja configurado
+    const billFieldId = process.env.RDCRM_FIELD_BILL_VALUE
+    const billValue = (cfMap[billFieldId||''] ?? formatBillValue(lead.avgBillValue || 0))
+    const baseDeal:any = { amount_total: value, amount_unique: value, contact_ids: [contactId] }
+    if(billFieldId){
+      baseDeal.deal_custom_fields_attributes = [{ custom_field_id: billFieldId, value: billValue }]
+    }
+    const baseBody = { deal: baseDeal }
     const updBase = await putDeal(baseBody)
     if(RDCRM_DEBUG){ console.log('[rdcrm][update-base]', { status: updBase.status }) }
 
