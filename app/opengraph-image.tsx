@@ -39,7 +39,7 @@ export default function OgImage() {
           </div>
         </div>
 
-        <div style={{ position:'relative', zIndex:1, textAlign:'center', padding: '0 64px' }}>
+        <div style={{ position:'relative', zIndex:1, textAlign:'center', padding: '0 64px', display:'flex', flexDirection:'column', alignItems:'center' }}>
           <div style={{
             fontSize: 60,
             fontWeight: 800,

@@ -25,7 +25,7 @@ export default function TwitterImage() {
           fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, sans-serif'
         }}
       >
-        <div style={{ position:'relative', zIndex:1, textAlign:'center', padding: '0 64px' }}>
+        <div style={{ position:'relative', zIndex:1, textAlign:'center', padding: '0 64px', display:'flex', flexDirection:'column', alignItems:'center' }}>
           <div style={{
             fontSize: 58,
             fontWeight: 800,
@@ -43,4 +43,3 @@ export default function TwitterImage() {
     { ...size }
   )
 }
-

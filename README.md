@@ -30,6 +30,8 @@ Defina no projeto (Vercel → Settings → Environment Variables):
 - `RDCRM_API_TOKEN` — token da API do RD CRM (v1), usado apenas no backend
 - `RDCRM_STAGE_ID` — ID da etapa do funil onde criar a Negociação
 - `RDCRM_FIELD_*` — mapeamento dos campos customizados do negócio (IDs)
+- `RDCRM_DEBUG` — `1` para logs detalhados da integração (apenas para troubleshooting), caso contrário `0`
+- `RDCRM_INSPECT_SECRET` — opcional; segredo para a rota `/api/rdcrm/inspect` (ver abaixo)
 
 Em dev local, ajuste `.env.local` conforme necessário.
 
@@ -42,6 +44,9 @@ Em dev local, ajuste `.env.local` conforme necessário.
 
 ### Debug do payload de Negócio
 - `POST /api/lead/debug` — retorna um preview do payload do Deal (title, value, stage_id, custom_fields) sem chamar a API do RD. Útil para validar o mapeamento antes de ativar em produção.
+
+### Inspeção de negócio no RD (opcional)
+- `GET /api/rdcrm/inspect?email=<email>&secret=<RDCRM_INSPECT_SECRET>` — retorna o contato e a última negociação aberta no estágio configurado, incluindo `deal_custom_fields` conforme armazenado no RD. Use somente em ambientes controlados e com `RDCRM_INSPECT_SECRET` definido.
 
 Observação: `mobile_phone` é normalizado para formato com código do país (ex.: `55<DDD><número>`). Integrações com HubSpot e RD Marketing foram removidas; apenas RD CRM permanece ativo.
 
