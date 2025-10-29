@@ -1,10 +1,10 @@
 "use client"
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 function formatBRL(n:number){ return n.toLocaleString('pt-BR',{ style:'currency', currency:'BRL' }) }
 
-export default function NaoElegivelPage(){
+function NaoElegivelContent(){
   const sp = useSearchParams()
   const bill = Number(sp.get('bill')||0)
 
@@ -40,3 +40,10 @@ export default function NaoElegivelPage(){
   )
 }
 
+export default function NaoElegivelPage(){
+  return (
+    <Suspense fallback={<div className="container-pad py-12"><div className="max-w-md mx-auto rounded-2xl bg-white p-6 text-center">Carregando…</div></div>}>
+      <NaoElegivelContent />
+    </Suspense>
+  )
+}
