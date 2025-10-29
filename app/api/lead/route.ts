@@ -39,6 +39,7 @@ export async function POST(req: Request){
       return NextResponse.json({ error:'validation_error', details: parsed.error.flatten() }, { status: 400 })
     }
     const lead = parsed.data
+    const eligible = (lead.avgBillValue || 0) >= 500
 
     const mockEnabled = process.env.MOCK_LEAD === '1'
     if (mockEnabled){
@@ -46,82 +47,92 @@ export async function POST(req: Request){
       console.warn('[lead] MOCK_LEAD enabled or HUBSPOT token missing — skipping HubSpot, firing non-blocking events')
       // Fire GA4 server-side events (best-effort)
       try{
-        const bill = lead.avgBillValue || 0
-        const plan = lead.plan as ServerPlan
-        const r = estimate(bill, plan)
-        const clientId = undefined
-        await sendGA4Event('generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan, bill_value: bill }, { clientId })
-        await sendGA4Event('lead_submit_success', { plan, bill_value: bill }, { clientId })
+        if(eligible){
+          const bill = lead.avgBillValue || 0
+          const plan = lead.plan as ServerPlan
+          const r = estimate(bill, plan)
+          const clientId = undefined
+          await sendGA4Event('generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan, bill_value: bill }, { clientId })
+          await sendGA4Event('lead_submit_success', { plan, bill_value: bill }, { clientId })
+        }
       }catch{}
       // Fire Meta CAPI (best-effort) — sem contexto de req específico; omite fbp/fbc
       try{
-        const bill = lead.avgBillValue || 0
-        const plan = lead.plan as ServerPlan
-        const r = estimate(bill, plan)
-        await sendFbCapiEvent({
-          eventName: 'Lead',
-          eventSourceUrl: lead.landingUrl,
-          value: r.saving,
-          currency: 'BRL',
-          email: lead.email,
-          phone: lead.phone,
-        })
+        if(eligible){
+          const bill = lead.avgBillValue || 0
+          const plan = lead.plan as ServerPlan
+          const r = estimate(bill, plan)
+          await sendFbCapiEvent({
+            eventName: 'Lead',
+            eventSourceUrl: lead.landingUrl,
+            value: r.saving,
+            currency: 'BRL',
+            email: lead.email,
+            phone: lead.phone,
+          })
+        }
       }catch{}
       // RD Marketing desativado
       // RD CRM (allow in mock when flag is set)
       try{
-        if((process.env.ALLOW_RDCRM_IN_MOCK === '1') && (process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN)){
+        if(eligible && (process.env.ALLOW_RDCRM_IN_MOCK === '1') && (process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN)){
           await sendToRdCrm(lead)
         }
       }catch(e){ console.warn('[rdcrm] crm error (mock path)', e) }
-      return NextResponse.json({ id: `mock_${Date.now()}`, status: partial ? 'partial' : 'complete', mocked: true })
+      return NextResponse.json({ id: `mock_${Date.now()}`, status: eligible ? (partial ? 'partial' : 'complete') : 'unqualified', mocked: true })
     }
 
     // Sem HubSpot: seguimos direto para integrações não-bloqueantes e respondemos sucesso
     // Fire GA4 server-side events (Measurement Protocol) for reliability
     try{
-      const bill = lead.avgBillValue || 0
-      const plan = lead.plan as ServerPlan
-      const r = estimate(bill, plan)
-      const clientId = undefined // could be passed from client; fallback to random in sendGA4Event
-      await sendGA4Event('generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan, bill_value: bill }, { clientId })
-      await sendGA4Event('lead_submit_success', { plan, bill_value: bill }, { clientId })
+      if(eligible){
+        const bill = lead.avgBillValue || 0
+        const plan = lead.plan as ServerPlan
+        const r = estimate(bill, plan)
+        const clientId = undefined // could be passed from client; fallback to random in sendGA4Event
+        await sendGA4Event('generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan, bill_value: bill }, { clientId })
+        await sendGA4Event('lead_submit_success', { plan, bill_value: bill }, { clientId })
+      }
     }catch{}
     // Fire Meta Conversions API (server-side) for reliability
     try{
-      const url = new URL(req.url)
-      const cookies = req.headers.get('cookie') || ''
-      const fbp = (cookies.match(/_fbp=([^;]+)/)?.[1]) || undefined
-      const fbc = (cookies.match(/_fbc=([^;]+)/)?.[1]) || undefined
-      const ua = req.headers.get('user-agent') || undefined
-      const ip = (req.headers.get('x-forwarded-for')||'').split(',')[0]?.trim() || undefined
-      const bill = lead.avgBillValue || 0
-      const plan = lead.plan as ServerPlan
-      const r = estimate(bill, plan)
-      await sendFbCapiEvent({
-        eventName: 'Lead',
-        eventSourceUrl: lead.landingUrl || url.origin,
-        value: r.saving,
-        currency: 'BRL',
-        email: lead.email,
-        phone: lead.phone,
-        clientIpAddress: ip,
-        clientUserAgent: ua,
-        fbp, fbc,
-      })
+      if(eligible){
+        const url = new URL(req.url)
+        const cookies = req.headers.get('cookie') || ''
+        const fbp = (cookies.match(/_fbp=([^;]+)/)?.[1]) || undefined
+        const fbc = (cookies.match(/_fbc=([^;]+)/)?.[1]) || undefined
+        const ua = req.headers.get('user-agent') || undefined
+        const ip = (req.headers.get('x-forwarded-for')||'').split(',')[0]?.trim() || undefined
+        const bill = lead.avgBillValue || 0
+        const plan = lead.plan as ServerPlan
+        const r = estimate(bill, plan)
+        await sendFbCapiEvent({
+          eventName: 'Lead',
+          eventSourceUrl: lead.landingUrl || url.origin,
+          value: r.saving,
+          currency: 'BRL',
+          email: lead.email,
+          phone: lead.phone,
+          clientIpAddress: ip,
+          clientUserAgent: ua,
+          fbp, fbc,
+        })
+      }
     }catch{}
     // RD Marketing desativado
     // RD CRM (contato + negócio) — não bloqueante
     try{
-      if(process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN){
-        await sendToRdCrm(lead)
-      } else {
-        console.warn('[rdcrm] RDCRM_API_TOKEN not set — skipping')
+      if(eligible){
+        if(process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN){
+          await sendToRdCrm(lead)
+        } else {
+          console.warn('[rdcrm] RDCRM_API_TOKEN not set — skipping')
+        }
       }
     }catch(e){
       console.warn('[rdcrm] crm error', e)
     }
-    return NextResponse.json({ id: `ok_${Date.now()}`, status: partial ? 'partial' : 'complete' })
+    return NextResponse.json({ id: `ok_${Date.now()}`, status: eligible ? (partial ? 'partial' : 'complete') : 'unqualified' })
   }catch(e:any){
     console.error('lead api error', e)
     return NextResponse.json({ error: 'internal_error' }, { status: 500 })

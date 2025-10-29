@@ -222,29 +222,73 @@ export default function LeadForm(props: { initialPlan?: Plan }){
       const res = await fetch('/api/lead',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
       if(!res.ok) throw new Error(await res.text())
       const json = await res.json().catch(()=>({}))
+      const billVal = form.getValues('avgBillValue')||0
+      const planVal = form.getValues('plan')
+      const r = estimate(billVal, planVal)
+      const isUnqualified = json?.status === 'unqualified' || billVal < 500 || r.pct === 0
+
+      if(isUnqualified){
+        // Unqualified flow: do not fire success conversions
+        try {
+          const dbg = process.env.NEXT_PUBLIC_GA_DEBUG === '1'
+          ;(window as any)?.gtag?.('event','lead_unqualified', { reason:'low_bill', bill_value: billVal, plan: planVal, ...(dbg ? { debug_mode: true } : {}) })
+        } catch {}
+        gtmPush({ event:'lead_unqualified_low_bill' })
+        try{
+          router.push(`/nao-elegivel?bill=${encodeURIComponent(String(billVal))}`)
+        }catch{}
+        localStorage.removeItem(STORAGE_KEY)
+        setSubmitProgress(100)
+        // Still forward to Sheets (non-blocking), to registrar o lead
+        try{
+          const valuesAll = form.getValues()
+          const payloadSheets = {
+            lead: {
+              fullname: valuesAll.fullname,
+              email: valuesAll.email,
+              phone: valuesAll.phone,
+              documentType: valuesAll.documentType,
+              document: valuesAll.document,
+              avgBillValue: valuesAll.avgBillValue,
+              segment: valuesAll.segment,
+              plan: valuesAll.plan,
+              estimatedDiscountPct: valuesAll.estimatedDiscountPct,
+              estimatedSaving: valuesAll.estimatedSaving,
+              cep: valuesAll.cep,
+              city: valuesAll.city,
+              utm: valuesAll.utm,
+              gclid: valuesAll.gclid,
+              fbclid: (valuesAll as any).fbclid,
+              msclkid: (valuesAll as any).msclkid,
+              referrer: (valuesAll as any).referrer,
+              landingUrl: (valuesAll as any).landingUrl,
+              leadSource: (valuesAll as any).leadSource,
+            },
+            file: billFileBase64 ? { base64: billFileBase64, name: billFileName, contentType: billFileType } : undefined,
+            recaptchaToken
+          }
+          console.log('[sheets] forward start (unqualified)')
+          fetch('/api/sheets', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payloadSheets) })
+            .then(async (r)=>{ const t = await r.text(); if(!r.ok){ gtmPush({ event:'sheets_forward_error', status:r.status }); throw new Error(t||String(r.status)) } console.log('[sheets] forward ok'); gtmPush({ event:'sheets_forward_ok' }) })
+            .catch((err)=>{ console.error('[sheets] forward error', err); if(process.env.NODE_ENV==='production'){ setSubmitError('Recebemos seus dados, mas não foi possível registrar no Sheets. Nossa equipe verificará.'); } })
+        }catch(err){ console.warn('sheets forward error', err) }
+        return
+      }
+
+      // Qualified success flow
       gtmPush({ event:'lead_submit_success' })
       console.log('[lead] submit success', json)
-      // Calculate result for analytics and UI
-      const r = estimate(form.getValues('avgBillValue')||0, form.getValues('plan'))
       try {
         const dbg = process.env.NEXT_PUBLIC_GA_DEBUG === '1'
-        const planVal = form.getValues('plan')
-        const billVal = form.getValues('avgBillValue')||0
         ;(window as any)?.gtag?.('event','generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan: planVal, bill_value: billVal, ...(dbg ? { debug_mode: true } : {}) })
         ;(window as any)?.gtag?.('event','lead_submit_success', { plan: planVal, bill_value: billVal, ...(dbg ? { debug_mode: true } : {}) })
         ;(window as any)?.gtag?.('event','page_view', { page_location: `${window.location.origin}/sucesso`, page_title: 'Formulário Enviado', ...(dbg ? { debug_mode: true } : {}) })
       } catch {}
-      // Show persuasive simulation result after submit
-      const v = form.getValues('avgBillValue')||0
-      const faixa = v < 500 ? '<500' : v <= 999 ? '500-999' : v <= 1999 ? '1000-1999' : v <= 5999 ? '2000-5999' : v <= 9999 ? '6000-9999' : '>=10000'
-      gtmPush({ event:'simulator_calculated', plan: form.getValues('plan'), faixa_fatura: faixa, discountPct: r.pct })
-      // Redirect to success page (simpler GA conversion via page_view)
+      const faixa = billVal < 500 ? '<500' : billVal <= 999 ? '500-999' : billVal <= 1999 ? '1000-1999' : billVal <= 5999 ? '2000-5999' : billVal <= 9999 ? '6000-9999' : '>=10000'
+      gtmPush({ event:'simulator_calculated', plan: planVal, faixa_fatura: faixa, discountPct: r.pct })
       try{
-        const planVal = form.getValues('plan')
-        const billVal = form.getValues('avgBillValue')||0
         router.push(`/sucesso?plan=${encodeURIComponent(planVal)}&bill=${encodeURIComponent(String(billVal))}&pct=${encodeURIComponent(String(r.pct))}`)
       }catch{
-        // Fallback: show inline success if navigation fails
         setSubmitted({ id: json?.id, pct: r.pct, saving: r.saving, newBill: r.newBill })
       }
       localStorage.removeItem(STORAGE_KEY)
