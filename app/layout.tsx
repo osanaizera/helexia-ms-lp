@@ -31,7 +31,15 @@ export const metadata = {
   }
 }
 
-export default function RootLayout({ children }: { children: ReactNode }){
+import { Montserrat } from 'next/font/google'
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-montserrat',
+  display: 'swap',
+})
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-XMNXWQXQJZ'
   const fbId = process.env.NEXT_PUBLIC_FB_PIXEL_ID || '1305029297374794'
@@ -42,7 +50,8 @@ export default function RootLayout({ children }: { children: ReactNode }){
         <GA4HeadScript id={gaId} />
         <FbPixelHeadScript id={fbId} />
         <script
-          dangerouslySetInnerHTML={{ __html: `
+          dangerouslySetInnerHTML={{
+            __html: `
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);} 
           gtag('consent', 'default', {
@@ -55,11 +64,12 @@ export default function RootLayout({ children }: { children: ReactNode }){
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body className="has-sticky-cta">
+      <body className={`${montserrat.variable} font-sans has-sticky-cta`}>
         {/* Fixed brand logo header */}
         <header id="brand-header" className="fixed top-4 left-4 md:top-6 md:left-6 z-50">
-          <div className="bg-white/15 backdrop-blur rounded-xl border border-white/30 px-3 py-2 shadow-soft inline-flex items-center gap-3">
-            <img src="/images/logosion.png" alt="Sion" className="h-14 md:h-16 w-auto" />
+          <div className="bg-white/80 backdrop-blur rounded-xl border border-white/30 px-4 py-3 shadow-soft inline-flex items-center gap-3">
+            {/* Placeholder for new logo - using text for now if image not ready, but keeping img tag structure */}
+            <img src="/images/logosion.png" alt="Sion Energia" className="h-10 md:h-12 w-auto" />
           </div>
         </header>
         <GtmNoScript id={gtmId} />

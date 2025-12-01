@@ -1,64 +1,68 @@
 "use client"
 import { useRef } from 'react'
 
-const PLANTS = [
-  {name:'Cassilândia I',       city:'Cassilândia',  img:'/images/CassilandiaI.jpeg'},
-  {name:'Cassilândia II',      city:'Cassilândia',  img:'/images/CassilandiaII.jpeg'},
-  {name:'Bacuri',              city:'Paranaíba',    img:'/images/Bacuri.jpeg'},
-  {name:'Barro Branco',        city:'Paranaíba',    img:'/images/BarroBranco.jpeg'},
-  {name:'Paraíso das Águas',   city:'Paraíso das Águas', img:'/images/paraisoDasAguas.jpeg'},
-]
+export default function Plants() {
+  const plants = [
+    { name: 'Cassilândia I', loc: 'Cassilândia, MS', src: '/images/CassilandiaI.jpeg' },
+    { name: 'Cassilândia II', loc: 'Cassilândia, MS', src: '/images/CassilandiaII.jpeg' },
+    { name: 'Paranaíba', loc: 'Paranaíba, MS', src: '/images/Bacuri.jpeg' },
+    { name: 'Barro Branco', loc: 'Paranaíba, MS', src: '/images/BarroBranco.jpeg' },
+  ]
 
-export default function Plants(){
-  const trackRef = useRef<HTMLDivElement>(null)
-  const scrollByCards = (dir: 'prev'|'next') => {
-    const el = trackRef.current
-    if(!el) return
-    const amount = el.clientWidth * 0.45 // ~2.2 cards per viewport
-    el.scrollBy({ left: dir==='next' ? amount : -amount, behavior: 'smooth' })
-  }
   return (
-    <section className="container-pad py-12" aria-labelledby="plants-heading">
-      <h2 id="plants-heading" className="section-title">Nossas Usinas no MS</h2>
-      <p className="section-sub">Energia 100% gerada em Mato Grosso do Sul</p>
-      <p className="mt-2 text-sm text-muted max-w-3xl">Nossas usinas em Cassilândia, Paranaíba e Paraíso das Águas garantem fornecimento local, limpo e renovável.</p>
-
-      <div className="relative mt-6">
-        <button
-          type="button"
-          aria-label="Anterior"
-          className="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/90 border border-line shadow-soft absolute -left-3 top-1/2 -translate-y-1/2 z-10"
-          onClick={()=>scrollByCards('prev')}
-        >
-          <span className="text-xl">‹</span>
-        </button>
-        <div ref={trackRef} className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth">
-          {PLANTS.map(p => (
-            <article key={p.name} className="card overflow-hidden relative flex-shrink-0 basis-[85%] sm:basis-[60%] md:basis-[48%] lg:basis-[44%] snap-start">
-              <div className="h-56 sm:h-64 bg-line relative">
-                <img src={p.img} alt={`Usina ${p.name} — ${p.city} - MS`} className="w-full h-full object-cover" loading="lazy" />
-                <div className="absolute inset-0 bg-[color:var(--brand)]/5" aria-hidden />
-              </div>
-              <span className="absolute top-3 left-3 text-xs bg-[color:var(--brand-accent)] text-white px-3 py-1 rounded-full shadow-soft">100% energia do MS</span>
-              <div className="card-body">
-                <h3 className="text-base font-semibold">{p.name}</h3>
-                <p className="text-xs text-muted">{p.city} - MS</p>
-              </div>
-            </article>
-          ))}
+    <section className="py-16 bg-white">
+      <div className="container-pad">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <h2 className="section-title">Energia produzida aqui, no Mato Grosso do Sul</h2>
+          <p className="mt-4 text-muted text-lg">
+            Usinas em Cassilândia I e II, Paranaíba e Bacuri geram energia 100% limpa e renovável.
+            A economia movimenta a economia local e fortalece a região.
+          </p>
         </div>
-        <button
-          type="button"
-          aria-label="Próximo"
-          className="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/90 border border-line shadow-soft absolute -right-3 top-1/2 -translate-y-1/2 z-10"
-          onClick={()=>scrollByCards('next')}
-        >
-          <span className="text-xl">›</span>
-        </button>
-      </div>
 
-      <div className="mt-8 text-center">
-        <a href="#leadform" className="btn btn-primary px-7 py-3">Veja como nossa energia local pode reduzir sua conta</a>
+        <div className="relative flex w-full overflow-hidden mask-linear-gradient">
+          <div className="flex animate-scroll min-w-full shrink-0 items-center justify-around gap-16 px-8">
+            {plants.map((p, i) => (
+              <div key={i} className="snap-center shrink-0 w-[280px] rounded-3xl overflow-hidden shadow-soft group relative aspect-[4/3]">
+                <img src={p.src} alt={p.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                  <h3 className="text-xl font-bold">{p.name}</h3>
+                  <p className="text-sm opacity-90 mt-1">{p.loc}</p>
+                  <div className="mt-3 inline-flex items-center gap-2 text-xs font-medium bg-white/20 backdrop-blur px-3 py-1 rounded-full">
+                    <span className="w-2 h-2 rounded-full bg-[color:var(--brand-accent)]" />
+                    Em operação
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex animate-scroll min-w-full shrink-0 items-center justify-around gap-16 px-8" aria-hidden="true">
+            {plants.map((p, i) => (
+              <div key={i} className="snap-center shrink-0 w-[280px] rounded-3xl overflow-hidden shadow-soft group relative aspect-[4/3]">
+                <img src={p.src} alt={p.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                  <h3 className="text-xl font-bold">{p.name}</h3>
+                  <p className="text-sm opacity-90 mt-1">{p.loc}</p>
+                  <div className="mt-3 inline-flex items-center gap-2 text-xs font-medium bg-white/20 backdrop-blur px-3 py-1 rounded-full">
+                    <span className="w-2 h-2 rounded-full bg-[color:var(--brand-accent)]" />
+                    Em operação
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => { document.getElementById('leadform')?.scrollIntoView({ behavior: 'smooth' }) }}
+            className="btn btn-outline-blue px-8 py-3 rounded-full hover:bg-[color:var(--brand-accent)] hover:border-[color:var(--brand-accent)] hover:text-white transition-all"
+          >
+            Ver se atendemos sua cidade
+          </button>
+        </div>
       </div>
     </section>
   )

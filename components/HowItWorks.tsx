@@ -1,57 +1,54 @@
-export default function HowItWorks(){
-  const steps = [
-    {
-      title: 'Geração local (Sion)',
-      body: 'A Sion estrutura e opera a geração compartilhada de energia no Mato Grosso do Sul. As usinas estão em operação — você não precisa investir em equipamentos ou obras.'
-    },
-    {
-      title: 'Gestão do consórcio/cooperativa',
-      body: 'A Sion realiza o cadastro, gerencia os participantes e a alocação da energia gerada, além de organizar a comercialização junto à distribuidora.'
-    },
-    {
-      title: 'Créditos de energia na sua fatura',
-      body: 'A energia gerada é convertida em créditos e lançada na sua fatura oficial da distribuidora (TE+TUSD). Isso reduz o valor que você pagaria à tarifa cheia.'
-    },
-    {
-      title: 'Você paga menos — sem investimento',
-      body: 'Você paga pela energia com um desconto predefinido no plano escolhido. A diferença entre a tarifa cheia e o valor com desconto é a sua economia mensal.'
-    }
-  ]
-
+export default function HowItWorks() {
   return (
-    <section className="bg-white" aria-labelledby="how-heading">
-      <div className="container-pad py-12">
-        <h2 id="how-heading" className="section-title">Como funciona a sua economia</h2>
-        <p className="section-sub">Sion: geração local e gestão do consórcio/cooperativa</p>
+    <section className="py-16 bg-bg">
+      <div className="container-pad">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <h2 className="section-title">Como você economiza sem complicação</h2>
+          <p className="section-sub text-lg">Em 3 passos simples, sua empresa começa a pagar menos:</p>
+        </div>
 
-        <div className="mt-6 relative flex items-center justify-center">
-          {/* Energy glow orb background */}
-          <div className="energy-orb" style={{ left:'50%', transform:'translateX(-50%)', top:'-2rem' }} aria-hidden />
-          <div className="relative z-10 flex items-center gap-3 sm:gap-4">
-            <img src="/images/logosion.png" alt="Sion" className="h-24 sm:h-28 md:h-32 lg:h-36 max-w-full object-contain" />
+        <div className="grid md:grid-cols-3 gap-8 relative">
+          {/* Connecting line for desktop */}
+          <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-[color:var(--brand)]/20 via-[color:var(--brand-accent)]/40 to-[color:var(--brand)]/20 -z-0" />
+
+          <div className="relative flex flex-col items-center text-center group">
+            <div className="w-24 h-24 rounded-2xl bg-white border border-line shadow-soft flex items-center justify-center mb-6 z-10 group-hover:scale-110 transition-transform duration-300">
+              <span className="text-4xl">☀️</span>
+            </div>
+            <h3 className="text-xl font-bold mb-3">1. Geramos energia limpa</h3>
+            <p className="text-muted text-sm leading-relaxed">
+              Usinas da Sion no MS injetam energia na rede da Energisa normalmente.
+            </p>
+          </div>
+
+          <div className="relative flex flex-col items-center text-center group">
+            <div className="w-24 h-24 rounded-2xl bg-white border border-line shadow-soft flex items-center justify-center mb-6 z-10 group-hover:scale-110 transition-transform duration-300">
+              <span className="text-4xl">📄</span>
+            </div>
+            <h3 className="text-xl font-bold mb-3">2. Você recebe créditos</h3>
+            <p className="text-muted text-sm leading-relaxed">
+              Créditos de energia reduzem automaticamente sua fatura mensal.
+            </p>
+          </div>
+
+          <div className="relative flex flex-col items-center text-center group">
+            <div className="w-24 h-24 rounded-2xl bg-white border border-line shadow-soft flex items-center justify-center mb-6 z-10 group-hover:scale-110 transition-transform duration-300">
+              <span className="text-4xl">💰</span>
+            </div>
+            <h3 className="text-xl font-bold mb-3">3. Você economiza</h3>
+            <p className="text-muted text-sm leading-relaxed">
+              Sem equipamentos, sem obras, sem trocar de distribuidora.
+            </p>
           </div>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-4 gap-6">
-          {steps.map((s, i) => (
-            <article key={s.title} className="card rounded-3xl p-6 h-full">
-              <div className="w-8 h-8 rounded-full bg-[color:var(--brand-accent)] text-white flex items-center justify-center font-semibold mb-4">
-                {i+1}
-              </div>
-              <h3 className="text-lg font-bold mb-2">{s.title}</h3>
-              <p className="text-sm text-ink/80">{s.body}</p>
-            </article>
-          ))}
-        </div>
-
-        <div className="mt-8 text-sm text-muted max-w-3xl">
-          <p>
-            Este modelo é conhecido como geração compartilhada (consórcio/cooperativa), regulamentado no Brasil. A Sion faz a gestão dos participantes e da comercialização, enquanto a distribuidora lança os créditos diretamente na sua fatura. Assim, você passa a pagar menos, sem instalar nada no seu imóvel.
-          </p>
-        </div>
-
-        <div className="mt-8 text-center">
-          <a href="#leadform" className="btn btn-primary px-7 py-3 rounded-full">Quero participar e economizar</a>
+        <div className="mt-12 text-center">
+          <button
+            onClick={() => { document.getElementById('leadform')?.scrollIntoView({ behavior: 'smooth' }) }}
+            className="btn btn-outline-blue px-8 py-3 rounded-full hover:bg-[color:var(--brand-accent)] hover:border-[color:var(--brand-accent)] hover:text-white transition-all"
+          >
+            Ver quanto posso economizar
+          </button>
         </div>
       </div>
     </section>

@@ -23,7 +23,16 @@ export default {
         soft: '0 8px 20px rgba(0,0,0,0.08)'
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+        sans: ['var(--font-montserrat)', 'sans-serif']
+      },
+      keyframes: {
+        scroll: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-100%)' },
+        }
+      },
+      animation: {
+        scroll: 'scroll 30s linear infinite',
       }
     },
   },

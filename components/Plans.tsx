@@ -1,229 +1,132 @@
 "use client"
-type PlanKey = 'Flex'|'Economico12'|'Premium36'
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useState, useRef } from 'react'
 
-function IconClock(){
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <circle cx="12" cy="12" r="10"></circle>
-      <polyline points="12 6 12 12 16 14"></polyline>
-    </svg>
-  )
-}
-function IconCalendar(){
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-      <line x1="16" y1="2" x2="16" y2="6"></line>
-      <line x1="8" y1="2" x2="8" y2="6"></line>
-      <line x1="3" y1="10" x2="21" y2="10"></line>
-    </svg>
-  )
-}
-function IconMedal(){
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M9 3h6l1 5-4 2-4-2 1-5Z"></path>
-      <circle cx="12" cy="17" r="4"></circle>
-    </svg>
-  )
-}
+type PlanKey = 'Livre' | 'Prata' | 'Ouro'
 
-const PLANS: { key: PlanKey; title: string; desc: string; badge?: string; range: string; color: string; icon: JSX.Element }[] = [
-  { key:'Flex', title:'Flex', desc:'25% de desconto, sem fidelidade', badge:'Sem fidelidade', range:'25%', color:'from-gray-100 to-brand-accent text-brand', icon:<IconClock/> },
-  { key:'Economico12', title:'Econômico 12', desc:'28–30% de desconto, fidelidade de 12 meses', range:'28–30%', color:'from-blue to-brand-accent text-blue', icon:<IconCalendar/> },
-  { key:'Premium36', title:'Premium 24', desc:'30–35% de desconto, fidelidade de 24 meses', badge:'Melhor preço', range:'30–35%', color:'from-brand to-brand-accent text-brand', icon:<IconMedal/> },
+const PLANS = [
+  {
+    key: 'Livre',
+    title: 'Plano Livre',
+    maxDiscount: '35%',
+    fidelity: 'Sem fidelidade',
+    popular: true,
+    tiers: [
+      { color: 'text-green-600', val: '25% de desconto' },
+      { color: 'text-yellow-500', val: '27% de desconto' },
+      { color: 'text-orange-500', val: '30% de desconto' },
+      { color: 'text-red-600', val: '35% de desconto' },
+    ],
+    // Using Sion Brand (Dark) for the "Free" plan as it's the standard/base
+    headerColor: 'text-[color:var(--brand)]',
+    btnColor: 'bg-[color:var(--brand)] text-white hover:bg-black',
+    badgeColor: 'bg-[color:var(--brand)]'
+  },
+  {
+    key: 'Prata',
+    title: 'Plano Prata',
+    maxDiscount: '37%',
+    fidelity: 'Fidelidade de 12 meses',
+    popular: false,
+    tiers: [
+      { color: 'text-green-600', val: '28% de desconto' },
+      { color: 'text-yellow-500', val: '30% de desconto' },
+      { color: 'text-orange-500', val: '33% de desconto' },
+      { color: 'text-red-600', val: '37% de desconto' },
+    ],
+    // Using Grey for Silver
+    headerColor: 'text-[#7a7a7a]',
+    btnColor: 'bg-[#999999] text-white hover:bg-[#7a7a7a]',
+    badgeColor: 'bg-[#999999]'
+  },
+  {
+    key: 'Ouro',
+    title: 'Plano Ouro',
+    maxDiscount: '40%',
+    fidelity: 'Fidelidade de 24 meses',
+    popular: false,
+    tiers: [
+      { color: 'text-green-600', val: '30% de desconto' },
+      { color: 'text-yellow-500', val: '32% de desconto' },
+      { color: 'text-orange-500', val: '35% de desconto' },
+      { color: 'text-red-600', val: '40% de desconto' },
+    ],
+    // Using Gold
+    headerColor: 'text-[#C5A02F]',
+    btnColor: 'bg-[#C5A02F] text-white hover:bg-[#b08d26]',
+    badgeColor: 'bg-[#C5A02F]'
+  },
 ]
 
-export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) => void, selected?: PlanKey }){
-  const trackRef = useRef<HTMLDivElement>(null)
-  const [activeIdx, setActiveIdx] = useState(0)
-  function scrollToForm(){
-    try{ document.getElementById('leadform')?.scrollIntoView({ behavior:'smooth', block:'start' }) }catch{}
+export default function Plans({ onSelect, selected }: { onSelect?: (p: PlanKey) => void, selected?: string }) {
+  const handleSelect = (key: string) => {
+    if (onSelect) onSelect(key as PlanKey)
+    const el = document.getElementById('leadform')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
-  function handleKey(e: KeyboardEvent, plan: PlanKey){
-    if(e.key === 'Enter' || e.key === ' '){
-      e.preventDefault();
-      // If pressing on the already selected plan, also scroll to form
-      if(selected === plan){ scrollToForm() }
-      onSelect?.(plan)
-    }
-  }
-  useEffect(()=>{
-    const el = trackRef.current
-    if(!el) return
-    const onScroll = () => {
-      const { scrollLeft, clientWidth } = el
-      const center = scrollLeft + clientWidth/2
-      let best = 0; let bestDist = Infinity
-      const children = Array.from(el.children) as HTMLElement[]
-      children.forEach((ch, i) => {
-        const left = ch.offsetLeft
-        const w = ch.offsetWidth
-        const c = left + w/2
-        const d = Math.abs(c - center)
-        if(d < bestDist){ bestDist = d; best = i }
-      })
-      setActiveIdx(best)
-    }
-    onScroll()
-    el.addEventListener('scroll', onScroll, { passive: true } as any)
-    const RO = (globalThis as any).ResizeObserver
-    const ro = RO ? new RO(onScroll) : null
-    if(ro && el) ro.observe(el)
-    return ()=>{ el.removeEventListener('scroll', onScroll); ro && ro.disconnect && ro.disconnect() }
-  },[])
 
   return (
-    <section className="py-12 bg-bg" aria-labelledby="plans-heading">
+    <section className="py-20 bg-bg" id="plans">
       <div className="container-pad">
-        <h2 id="plans-heading" className="section-title">Nossos Planos</h2>
-        <p className="section-sub">Escolha o que combina com seu perfil</p>
-        <div className="mt-6 md:mt-8 relative">
-          {/* Mobile: stacked compact cards (no carousel) */}
-          <div className="md:hidden space-y-3" role="radiogroup" aria-label="Seleção de planos (mobile)">
-            {PLANS.map((pl)=>{
-              const isSel = selected === pl.key
-              return (
-                <article
-                  key={pl.key}
-                  onClick={()=>{ onSelect?.(pl.key as PlanKey); scrollToForm() }}
-                  role="radio"
-                  aria-checked={isSel}
-                  tabIndex={0}
-                  className={`rounded-2xl border transition-colors p-4 flex items-center justify-between ${isSel ? 'border-[color:var(--brand-accent)] bg-white' : 'border-line bg-white'} `}
-                >
-                  <div className="flex-1 pr-3">
-                    <h3 className="text-base font-semibold">{pl.title}</h3>
-                    <p className="text-xs text-ink/70 mt-1 line-clamp-2">{pl.desc}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xl font-bold text-[color:var(--brand-accent)] leading-none">{pl.range}</div>
-                    <div className="text-[11px] text-muted mt-1">toque para selecionar</div>
-                  </div>
-                </article>
-              )
-            })}
-          </div>
-
-          {/* Desktop/Tablet: 3-column grid with full cards */}
-          <div ref={trackRef} className="hidden md:grid md:grid-cols-3 gap-8" role="radiogroup" aria-label="Seleção de planos">
-          {/* Plano Sem Compromisso (Flex) */}
-          <article
-            className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[360px] sm:min-h-[440px] md:min-h-[520px] p-5 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[calc(100%-2rem)] sm:min-w-[70%] md:min-w-0 break-words touch-pan-y ${selected==='Flex' ? 'bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] text-white border-transparent ring-2 ring-white/20 shadow-2xl' : 'bg-white border-line text-ink shadow-soft'}`}
-            role="radio" aria-checked={selected==='Flex'} tabIndex={0}
-            onKeyDown={(e)=>handleKey(e,'Flex')}
-            onClick={()=>{ if(selected==='Flex'){ scrollToForm() } onSelect?.('Flex') }}
-            aria-label="Plano Sem Compromisso"
-          >
-            
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-2xl font-bold">Plano Sem Compromisso</h3>
-                <p className={`text-sm mt-1 ${selected==='Flex' ? 'text-white/80' : 'text-ink/60'}`}>Liberdade total</p>
-              </div>
-              {selected==='Flex' && (
-                <span className="text-xs text-[color:var(--brand-accent)]">Selecionado</span>
-              )}
-            </div>
-            <div className="mt-5">
-              <div className={`text-sm ${selected==='Flex' ? 'text-white/80' : 'text-muted'}`}>Desconto</div>
-              <div className={`text-5xl font-bold leading-tight ${selected==='Flex' ? 'text-white' : 'text-[color:var(--brand-accent)]'}`}>25%</div>
-              <div className={`text-sm mt-2 ${selected==='Flex' ? 'text-white/80' : 'text-ink/70'}`}>Prazo: sem fidelidade</div>
-            </div>
-            <p className={`mt-5 text-base ${selected==='Flex' ? 'text-white/90' : 'text-ink/80'}`}>Economize 25% hoje mesmo. Cancele quando quiser.</p>
-            <div className={`mt-5 flex gap-2 text-xs ${selected==='Flex' ? 'text-white/80' : 'text-ink/70'}`}>
-              <span className={`${selected==='Flex' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Liberdade total</span>
-              <span className={`${selected==='Flex' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Sem multa</span>
-            </div>
-            <div className="mt-auto">
-              <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Flex'); scrollToForm() }} data-testid={`select-plan-Flex`}>
-                Quero economizar 25% agora
-              </button>
-            </div>
-          </article>
-
-          {/* Plano Inteligente (Economico12) */}
-          <article
-            className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[360px] sm:min-h-[440px] md:min-h-[560px] p-5 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[calc(100%-2rem)] sm:min-w-[70%] md:min-w-0 break-words touch-pan-y ${selected==='Economico12' ? 'bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] text-white border-transparent ring-2 ring-white/20 shadow-2xl' : 'bg-white border-line text-ink shadow-soft'} `}
-            role="radio" aria-checked={selected==='Economico12'} tabIndex={0}
-            onKeyDown={(e)=>handleKey(e,'Economico12')}
-            onClick={()=>{ if(selected==='Economico12'){ scrollToForm() } onSelect?.('Economico12') }}
-            aria-label="Plano Inteligente (Mais popular)"
-          >
-            
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-2xl font-bold">Plano Inteligente</h3>
-                <p className={`text-sm mt-1 ${selected==='Economico12' ? 'text-white/80' : 'text-ink/60'}`}>Bom desconto, baixa fidelidade</p>
-              </div>
-              {selected==='Economico12' && (
-                <span className="text-xs text-[color:var(--brand-accent)]">Selecionado</span>
-              )}
-            </div>
-            <div className="mt-5">
-              <div className={`text-sm ${selected==='Economico12' ? 'text-white/80' : 'text-muted'}`}>Desconto</div>
-              <div className={`text-5xl font-bold leading-tight ${selected==='Economico12' ? 'text-white' : 'text-[color:var(--brand-accent)]'}`}>até 30%</div>
-              <div className={`text-sm mt-2 ${selected==='Economico12' ? 'text-white/80' : 'text-ink/70'}`}>Prazo: 12 meses</div>
-            </div>
-            <p className={`mt-5 text-base ${selected==='Economico12' ? 'text-white/90' : 'text-ink/80'}`}>Ganhe até 30% de desconto com fidelidade de 12 meses.</p>
-            <div className={`mt-5 flex gap-2 text-xs ${selected==='Economico12' ? 'text-white/80' : 'text-ink/70'}`}>
-              <span className={`${selected==='Economico12' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Melhor custo-benefício</span>
-              <span className={`${selected==='Economico12' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Adesão rápida</span>
-            </div>
-            <div className="mt-5 text-sm space-y-1">
-              <div className={`${selected==='Economico12' ? 'text-white/90' : 'text-ink/90'}`}><b>Desconto:</b> 28% a 30%</div>
-              <div className={`${selected==='Economico12' ? 'text-white/90' : 'text-ink/90'}`}><b>Prazo:</b> 12 meses</div>
-            </div>
-            <div className="mt-auto">
-              <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Economico12'); scrollToForm() }} data-testid={`select-plan-Economico12`}>
-                Quero até 30% de desconto
-              </button>
-            </div>
-          </article>
-
-          {/* Plano Premium (Premium36) */}
-          <article
-            className={`group rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[360px] sm:min-h-[440px] md:min-h-[520px] p-5 md:p-8 lg:p-10 flex flex-col snap-center shrink-0 min-w-[calc(100%-2rem)] sm:min-w-[70%] md:min-w-0 break-words touch-pan-y ${selected==='Premium36' ? 'bg-gradient-to-br from-[color:var(--brand)] to-[color:var(--brand-accent)] text-white border-transparent ring-2 ring-white/20 shadow-2xl' : 'bg-white border-line text-ink shadow-soft'} `}
-            role="radio" aria-checked={selected==='Premium36'} tabIndex={0}
-            onKeyDown={(e)=>handleKey(e,'Premium36')}
-            onClick={()=>{ if(selected==='Premium36'){ scrollToForm() } onSelect?.('Premium36') }}
-            aria-label="Plano Premium (Melhor preço)"
-          >
-            
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-2xl font-bold">Plano Premium</h3>
-                <p className={`text-sm mt-1 ${selected==='Premium36' ? 'text-white/80' : 'text-ink/60'}`}>Máximo desconto, fidelidade longa</p>
-              </div>
-              {selected==='Premium36' && (
-                <span className="text-xs text-[color:var(--brand-accent)]">Selecionado</span>
-              )}
-            </div>
-            <div className="mt-5">
-              <div className={`text-sm ${selected==='Premium36' ? 'text-white/80' : 'text-muted'}`}>Desconto</div>
-              <div className={`text-5xl font-bold leading-tight ${selected==='Premium36' ? 'text-white' : 'text-[color:var(--brand-accent)]'}`}>até 35%</div>
-              <div className={`text-sm mt-2 ${selected==='Premium36' ? 'text-white/80' : 'text-ink/70'}`}>Prazo: 24 meses (fidelidade)</div>
-            </div>
-            <p className={`mt-5 text-base ${selected==='Premium36' ? 'text-white/90' : 'text-ink/80'}`}>Até 35% de desconto garantido para quem quer o máximo de economia.</p>
-            <div className={`mt-5 flex gap-2 text-xs ${selected==='Premium36' ? 'text-white/80' : 'text-ink/70'}`}>
-              <span className={`${selected==='Premium36' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Máxima economia</span>
-              <span className={`${selected==='Premium36' ? 'px-2 py-1 rounded-full bg-white/10 border border-white/20 text-white/90' : 'px-2 py-1 rounded-full bg-line/60'}`}>Previsibilidade</span>
-            </div>
-            <div className="mt-5 text-sm space-y-1">
-              <div className={`${selected==='Premium36' ? 'text-white/90' : 'text-ink/90'}`}><b>Desconto:</b> 30% a 35%*</div>
-              <div className={`${selected==='Premium36' ? 'text-white/90' : 'text-ink/90'}`}><b>Prazo:</b> 24 meses (fidelidade)</div>
-            </div>
-            <div className="mt-auto">
-              <button className="btn btn-primary mt-8 w-full" onClick={(e)=>{e.stopPropagation(); onSelect?.('Premium36'); scrollToForm() }} data-testid={`select-plan-Premium36`}>
-                Quero até 35% de economia
-              </button>
-            </div>
-          </article>
-          </div>
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <h2 className="section-title">Escolha o plano ideal para sua empresa</h2>
+          <p className="section-sub text-lg text-muted mt-4">
+            Quanto maior o tempo de parceria, maior o desconto garantido na sua fatura.
+          </p>
         </div>
-        <div className="mt-8 text-center">
-          <a href="#leadform" className="btn btn-primary px-7 py-3">Descubra quanto você pode economizar</a>
+
+        <div className="grid md:grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
+          {PLANS.map((p) => {
+            const isSelected = selected === p.key
+            return (
+              <div
+                key={p.key}
+                onClick={() => handleSelect(p.key)}
+                className={`relative flex flex-col rounded-3xl bg-white transition-all duration-300 cursor-pointer group
+                  ${p.popular ? 'shadow-2xl scale-105 z-10 border-2 border-[color:var(--brand)]' : 'shadow-lg hover:shadow-xl border border-line hover:border-[color:var(--brand-accent)]'}
+                  ${isSelected ? 'ring-4 ring-[color:var(--brand-accent)] ring-opacity-50' : ''}
+                `}
+              >
+                {p.popular && (
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[color:var(--brand)] text-white py-2 px-6 rounded-full font-bold text-sm uppercase tracking-wider shadow-lg">
+                    Mais Popular
+                  </div>
+                )}
+
+                <div className={`p-8 flex flex-col h-full items-center text-center ${p.popular ? 'pt-10' : ''}`}>
+                  <h3 className={`text-2xl font-bold mb-2 ${p.headerColor}`}>
+                    {p.title}
+                  </h3>
+
+                  <div className="my-6 w-16 h-1 bg-line rounded-full" />
+
+                  <div className="flex items-baseline justify-center gap-1 mb-8">
+                    <span className="text-sm text-muted font-medium">Até</span>
+                    <span className={`text-5xl font-extrabold ${p.headerColor}`}>
+                      {p.maxDiscount}
+                    </span>
+                    <span className="text-sm text-muted font-medium">OFF</span>
+                  </div>
+
+                  <ul className="space-y-4 w-full mb-8 text-left pl-4">
+                    {p.tiers.map((t, i) => (
+                      <li key={i} className="flex items-center gap-3 text-sm font-medium text-ink/80">
+                        <svg className={`w-5 h-5 shrink-0 ${t.color}`} viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M5 21h2v-8h14l-2-5 2-5H5v18z" />
+                        </svg>
+                        {t.val}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button
+                    className={`w-full py-4 rounded-xl font-bold transition-all transform group-hover:scale-[1.02] active:scale-95 shadow-md ${p.btnColor}`}
+                  >
+                    {isSelected ? 'Plano Selecionado' : p.fidelity}
+                  </button>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>

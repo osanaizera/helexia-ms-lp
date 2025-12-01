@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 :root{
-  --brand:#0F2A2F;        /* azul petróleo (heading/escuro) */
-  --brand-accent:#20B28E; /* verde vibrante (CTAs/destaques) */
-  --blue:#0095D9;         /* azul claro (links/hover) */
-  /* Tons mais saturados para CTAs destacados */
-  --blue-strong:#00C2FF;      /* ciano saturado */
-  --accent-strong:#22E3B1;    /* verde-água saturado */
-  --ink:#0F172A;          /* texto escuro */
-  --muted:#334155;        /* texto secundário */
-  --line:#E2E8F0;         /* linhas/bordas */
-  --bg:#F8FAFC;           /* fundo cinza-claro */
+  --brand:#2f2f2f;        /* Preto Neutro (Institucional/Seriedade) */
+  --brand-accent:#384974; /* Azul Profundo (Tecnologia/Energia) */
+  --blue:#384974;         /* Azul Profundo (Links/Destaques) */
+  /* Variações para hover/active baseadas na paleta */
+  --blue-strong:#2a385a;      /* Azul mais escuro para hover */
+  --accent-strong:#24304d;    /* Azul mais profundo para hover */
+  --ink:#2f2f2f;          /* Texto Principal (Preto Neutro) */
+  --muted:#999999;        /* Texto de Apoio (Cinza Médio) */
+  --line:#e5e5e5;         /* Linhas (Cinza Claro) */
+  --bg:#f4f4f4;           /* Fundo (Cinza Claro/Respiro) */
 }
 
 html, body {
