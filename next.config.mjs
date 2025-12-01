@@ -20,7 +20,7 @@ const nextConfig = {
     const csp = [
       "default-src 'self'",
       `script-src ${scriptSrc}`,
-      "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://www.google.com https://vitals.vercel-insights.com https://vitals.vercel-analytics.com https://www.facebook.com https://connect.facebook.net",
+      "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://www.google.com https://vitals.vercel-insights.com https://vitals.vercel-analytics.com https://www.facebook.com https://connect.facebook.net https://mpc2-prod-1-is5qnl632q-uc.a.run.app https://demo-1.conversionsapigateway.com",
       "img-src 'self' data: https:",
       "style-src 'self' 'unsafe-inline' https:",
       "font-src 'self' data: https:",
