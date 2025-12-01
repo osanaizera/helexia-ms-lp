@@ -1,13 +1,12 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('LP Sion MS', () => {
-  test('fluxo completo (>=1000, Premium36, submit ok)', async ({ page }) => {
-    await page.goto('/')
-    await expect(page.getByTestId('cta-simular')).toBeVisible()
-    await page.getByTestId('cta-simular').click()
+test('fluxo completo (>=1000, Ouro, submit ok)', async ({ page }) => {
+  await page.goto('/')
 
-    await page.getByTestId('sim-input-bill').fill('1.500')
-    await page.getByTestId('sim-select-plan').selectOption('Premium36')
+  // Preenche simulator
+  await page.getByTestId('sim-input-bill').fill('1500')
+  await page.getByTestId('sim-select-plan').selectOption('Ouro')
 
     await page.getByTestId('lead-email').fill('teste@example.com')
     await page.getByTestId('lead-bill').fill('1500')

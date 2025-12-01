@@ -61,12 +61,12 @@ function formatBRL(n: number){
 function SuccessModal(){
   const router = useRouter()
   const sp = useSearchParams()
-  const plan = (sp.get('plan')||'').toString() as 'Flex'|'Economico12'|'Premium36'
+  const plan = (sp.get('plan')||'').toString() as 'Livre'|'Prata'|'Ouro'
   const bill = Number(sp.get('bill')||0)
   const qPct = Number(sp.get('pct')||0)
   const pct = useMemo(()=> qPct>0 ? qPct : (bill>0 && plan ? getDiscountPct(plan, bill) : 0), [qPct, bill, plan])
 
-  const planLabel = plan === 'Flex' ? 'Sem fidelidade' : plan === 'Economico12' ? '12 meses' : plan === 'Premium36' ? '24 meses' : ''
+  const planLabel = plan === 'Livre' ? 'Sem fidelidade' : plan === 'Prata' ? '12 meses' : plan === 'Ouro' ? '24 meses' : ''
 
   const icmsShare = 0.17
   const pisShare = 0.05

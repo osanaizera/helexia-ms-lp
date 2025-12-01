@@ -16,7 +16,7 @@ import { useEffect, useState } from 'react'
 import { gtmPush } from '@/lib/gtm'
 
 export default function Page() {
-  const [selectedPlan, setSelectedPlan] = useState<'Flex' | 'Economico12' | 'Premium36'>('Economico12')
+  const [selectedPlan, setSelectedPlan] = useState<'Livre' | 'Prata' | 'Ouro'>('Prata')
 
   useEffect(() => { gtmPush({ event: 'lp_view' }) }, [])
 

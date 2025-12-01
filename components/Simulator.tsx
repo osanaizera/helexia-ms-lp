@@ -2,21 +2,36 @@
 import { useEffect, useMemo, useState } from 'react'
 import { gtmPush } from '@/lib/gtm'
 
-export type Plan = 'Flex'|'Economico12'|'Premium36'
+export type Plan = 'Livre'|'Prata'|'Ouro'
 
 export function getDiscountPct(plan: Plan, value:number){
   if(value < 500) return 0;
-  // Nova regra:
-  // Flex: 25%
-  // Econômico 12: 28% até 5999; 30% acima
-  // Premium 24: 30% até 5999; 33% até 9999; 35% acima
-  if(plan === 'Flex') return 25;
-  if(plan === 'Economico12') return value <= 5999 ? 28 : 30;
-  // Premium (24 meses)
-  if(value <= 5999) return 30;
-  if(value <= 9999) return 33;
-  return 35;
+  
+  // Tiers based on bill value:
+  // 0: 500 - 1999
+  // 1: 2000 - 5999
+  // 2: 6000 - 9999
+  // 3: >= 10000
+  
+  let tier = 0;
+  if(value >= 10000) tier = 3;
+  else if(value >= 6000) tier = 2;
+  else if(value >= 2000) tier = 1;
+  else tier = 0;
+
+  if(plan === 'Livre') {
+    const tiers = [25, 27, 30, 35];
+    return tiers[tier];
+  }
+  if(plan === 'Prata') {
+    const tiers = [28, 30, 33, 37];
+    return tiers[tier];
+  }
+  // Ouro
+  const tiers = [30, 32, 35, 40];
+  return tiers[tier];
 }
+
 export function estimate(value:number, plan: Plan){
   const pct = getDiscountPct(plan, value);
   const saving = Math.round(value * (pct/100));
@@ -28,7 +43,7 @@ function formatBRL(n: number){
   return n.toLocaleString('pt-BR',{ style:'currency', currency:'BRL' })
 }
 
-export default function Simulator({ initialPlan='Premium36', onPlanChange, onCalculated }:{ initialPlan?: Plan, onPlanChange?: (p:Plan)=>void, onCalculated?: (v: { value:number; plan:Plan; pct:number })=>void }){
+export default function Simulator({ initialPlan='Prata', onPlanChange, onCalculated }:{ initialPlan?: Plan, onPlanChange?: (p:Plan)=>void, onCalculated?: (v: { value:number; plan:Plan; pct:number })=>void }){
   const [bill, setBill] = useState<string>('')
   const [plan, setPlan] = useState<Plan>(initialPlan)
   const numericBill = useMemo(()=> Number((bill||'').replace(/\D+/g,'')||0),[bill])
@@ -64,9 +79,9 @@ export default function Simulator({ initialPlan='Premium36', onPlanChange, onCal
 
           <label className="block text-sm font-medium mt-4" htmlFor="plan">Plano</label>
           <select id="plan" data-testid="sim-select-plan" value={plan} onChange={(e)=> setPlan(e.target.value as Plan)} className="mt-2 w-full rounded-2xl border border-line px-4 py-3">
-            <option value="Flex">Flex</option>
-            <option value="Economico12">Econômico 12</option>
-            <option value="Premium36">Premium 24</option>
+            <option value="Livre">Plano Livre</option>
+            <option value="Prata">Plano Prata</option>
+            <option value="Ouro">Plano Ouro</option>
           </select>
         </div></div>
         <div className="md:col-span-2 card"><div className="card-body">

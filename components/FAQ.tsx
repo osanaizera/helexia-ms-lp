@@ -27,17 +27,15 @@ export default function FAQ() {
                     </div>
                 </details>
 
-                <details className="card group">
-                    <summary className="p-6 font-bold cursor-pointer list-none flex justify-between items-center">
-                        Posso cancelar quando quiser?
-                        <span className="transition-transform group-open:rotate-180">
-                            <svg className="w-6 h-6 text-[color:var(--brand-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-                        </span>
-                    </summary>
-                    <div className="px-6 pb-6 pt-0 text-muted leading-relaxed">
-                        Depende do plano escolhido. No <strong>Plano Flex</strong>, não há fidelidade e você pode cancelar a qualquer momento sem multa, apenas com aviso prévio. Nos planos com fidelidade (Econômico e Premium), há um período mínimo de permanência em troca de descontos maiores.
-                    </div>
-                </details>
+          <details className="group border border-line rounded-2xl bg-white overflow-hidden">
+            <summary className="p-6 font-bold cursor-pointer list-none flex justify-between items-center">
+              <span>Existe fidelidade no contrato?</span>
+              <span className="transition-transform group-open:rotate-180">▼</span>
+            </summary>
+            <div className="p-6 pt-0 text-muted leading-relaxed">
+              Depende do plano escolhido. No <strong>Plano Livre</strong>, não há fidelidade e você pode cancelar a qualquer momento sem multa, apenas com aviso prévio. Nos planos com fidelidade (Prata e Ouro), há um período mínimo de permanência em troca de descontos maiores.
+            </div>
+          </details>
 
                 <details className="card group">
                     <summary className="p-6 font-bold cursor-pointer list-none flex justify-between items-center">

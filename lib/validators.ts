@@ -9,7 +9,7 @@ export const LeadSchema = z.object({
   // Permitir < 500 para leads fora de escopo; regra de bloqueio é feita no front
   avgBillValue: z.number().min(0),
   segment: z.enum(['Residencial','Comercial','Industrial','Serviços','Outros']).optional(),
-  plan: z.enum(['Flex','Economico12','Premium36']),
+  plan: z.enum(['Livre','Prata','Ouro']),
   estimatedDiscountPct: z.number().min(0).max(100),
   estimatedSaving: z.number().min(0),
   cep: z.string().optional(),

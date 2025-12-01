@@ -68,7 +68,7 @@ function AnimatedBar({ bill, pct }: { bill: number; pct: number }) {
 
 export default function LeadForm(props: { initialPlan?: Plan }) {
   const router = useRouter()
-  const initialPlan: Plan = props.initialPlan ?? 'Economico12'
+  const initialPlan: Plan = props.initialPlan ?? 'Prata'
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [billFileName, setBillFileName] = useState('')
   const [billFileBase64, setBillFileBase64] = useState('')
@@ -478,7 +478,7 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                         <div>
                           <label className="block text-sm font-medium">Plano (opcional)</label>
                           <div className="mt-2 inline-flex w-full gap-2">
-                            {(['Flex', 'Economico12', 'Premium36'] as const).map((p) => {
+                            {(['Livre', 'Prata', 'Ouro'] as const).map((p) => {
                               const isSel = form.getValues('plan') === p
                               return (
                                 <button
@@ -488,7 +488,7 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                                   className={`flex-1 px-3 py-2 rounded-xl border text-sm transition-colors ${isSel ? 'border-transparent text-white bg-[color:var(--brand-accent)] shadow-sm font-semibold' : 'border-line bg-white text-ink hover:border-[color:var(--brand-accent)]'}`}
                                   aria-pressed={isSel}
                                 >
-                                  {p === 'Flex' ? 'Sem fidelidade' : p === 'Economico12' ? '12 meses' : '24 meses'}
+                                  {p === 'Livre' ? 'Sem fidelidade' : p === 'Prata' ? '12 meses' : '24 meses'}
                                 </button>
                               )
                             })}
