@@ -176,7 +176,7 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
         // Debug listener for loaded
         widget.on('loaded', () => console.log('Clicksign Widget Loaded'))
     }
-  }, [signatureKey])
+  }, [signatureKey, clicksignHost])
 
   const handleNext = async () => {
     let valid = false
