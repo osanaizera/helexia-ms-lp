@@ -1,570 +1,513 @@
 "use client"
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import Script from 'next/script'
+import { useForm, UseFormReturn } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LeadSchema, type Lead } from '@/lib/validators'
 import { estimate, type Plan } from './Simulator'
 import { gtmPush } from '@/lib/gtm'
 
-const STORAGE_KEY = 'sion_lp_lead'
-
-function formatBRL(n: number) { return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }
-
-function CountUp({ value, format = (v: number) => String(v), duration = 800 }: { value: number; format?: (v: number) => string; duration?: number }) {
-  const [display, setDisplay] = useState(0)
-  useEffect(() => {
-    let raf = 0
-    const start = performance.now()
-    const from = display
-    const to = value
-    const delta = to - from
-    const tick = (t: number) => {
-      const p = Math.min((t - start) / duration, 1)
-      const eased = 1 - Math.pow(1 - p, 3)
-      setDisplay(from + delta * eased)
-      if (p < 1) raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
-  return <span>{format(Math.round(display))}</span>
+// --- Helpers ---
+function formatBRL(n: number) {
+  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
-function AnimatedBar({ bill, pct }: { bill: number; pct: number }) {
-  const icmsShare = 0.17
-  const pisShare = 0.05
-  const taxes = Math.max(Math.round(bill * (icmsShare + pisShare)), 0)
-  const energyBase = Math.max(bill - taxes, 0)
-  const discountValue = Math.max(Math.round(energyBase * (pct / 100)), 0)
-  const targetTaxes = bill ? (taxes / bill) * 100 : 0
-  const targetEnergy = bill ? (energyBase / bill) * 100 : 0
-  const targetDiscount = bill ? (discountValue / bill) * 100 : 0
-  const [w, setW] = useState({ taxes: 0, energy: 0, discount: 0 })
-  useEffect(() => {
-    // animate to targets
-    const id = requestAnimationFrame(() => setW({ taxes: targetTaxes, energy: targetEnergy, discount: targetDiscount }))
-    return () => cancelAnimationFrame(id)
-  }, [targetTaxes, targetEnergy, targetDiscount])
+// --- Components ---
+
+function StepIndicator({ current, total }: { current: number; total: number }) {
   return (
-    <div className="mt-6">
-      <div className="relative w-full h-5 md:h-6 rounded-full bg-line overflow-hidden" aria-label="Composição da sua fatura">
-        {/* Energia base (azul mais claro para contraste) */}
-        <div className="absolute inset-y-0 left-0 transition-all duration-700 ease-out" style={{ width: `${Math.max(w.energy, 0)}%`, background: 'rgba(0,149,217,0.5)' }} title="Energia (TE+TUSD) — parte variável" />
-        {/* Impostos (cinza claro) */}
-        <div className="absolute inset-y-0 right-0 transition-all duration-700 ease-out" style={{ width: `${Math.max(w.taxes, 0)}%`, background: 'rgba(226,232,240,1)' }} title="Impostos (ICMS+PIS/COFINS) — parte fixa" />
-        {/* Desconto aplicado (verde sólido sobre energia) */}
-        <div className="absolute inset-y-0 left-0 transition-all duration-700 ease-out" style={{ width: `${Math.max(w.discount, 0)}%`, background: 'var(--brand-accent)', boxShadow: 'inset -1px 0 0 rgba(255,255,255,0.7)' }} title={`Desconto aplicado (estimativa): ${formatBRL(discountValue)}`} />
+    <div className="flex items-center gap-1.5 mb-6">
+      {Array.from({ length: total }).map((_, i) => {
+        const step = i + 1
+        const isActive = step === current
+        const isCompleted = step < current
+        return (
+          <div key={i} className="flex-1 h-1 rounded-full bg-white/20 overflow-hidden relative">
+            <div
+              className={`absolute inset-0 bg-white transition-all duration-500 ease-out ${isActive || isCompleted ? 'w-full' : 'w-0'}`}
+              style={{ opacity: isActive ? 1 : isCompleted ? 0.6 : 0 }}
+            />
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function InputField({
+  label, name, register, error, placeholder, type = "text", disabled = false, prefix, onChangeCustom
+}: {
+  label: string, name: any, register: any, error?: any, placeholder?: string, type?: string, disabled?: boolean, prefix?: string, onChangeCustom?: (e: any) => void
+}) {
+  return (
+    <div className="group">
+      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1 ml-1 transition-colors group-focus-within:text-[color:var(--brand)]">
+        {label}
+      </label>
+      <div className={`relative flex items-center bg-gray-50 border border-gray-200 rounded-lg transition-all duration-200 ease-in-out ${error ? 'border-red-300 bg-red-50' : 'hover:border-gray-300 focus-within:border-[color:var(--brand)] focus-within:bg-white focus-within:shadow-md'}`}>
+        {prefix && <span className="pl-3 text-gray-400 font-medium text-sm">{prefix}</span>}
+        <input
+          {...register(name)}
+          type={type}
+          disabled={disabled}
+          placeholder={placeholder}
+          className={`w-full bg-transparent px-3 py-2.5 outline-none text-sm text-ink font-medium placeholder:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed ${prefix ? 'pl-1' : ''}`}
+          onChange={(e) => {
+            register(name).onChange(e)
+            if (onChangeCustom) onChangeCustom(e)
+          }}
+        />
+        {error && (
+          <div className="pr-3 text-red-500 animate-pulse">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+        )}
       </div>
-      <div className="mt-3 flex flex-wrap items-center justify-center gap-5 text-xs">
-        <span className="inline-flex items-center gap-2"><span className="inline-block w-3 h-3 rounded" style={{ background: 'var(--brand-accent)' }} /> Desconto sobre energia ({pct}%)</span>
-        <span className="inline-flex items-center gap-2"><span className="inline-block w-3 h-3 rounded" style={{ background: 'rgba(0,149,217,0.5)' }} /> Energia (TE+TUSD)</span>
-        <span className="inline-flex items-center gap-2"><span className="inline-block w-3 h-3 rounded" style={{ background: 'rgba(226,232,240,1)' }} /> Impostos</span>
+      {error && <p className="mt-1 ml-1 text-[10px] text-red-500 font-medium animate-fadeIn">{error.message}</p>}
+    </div>
+  )
+}
+
+function SelectField({ label, name, register, options }: { label: string, name: any, register: any, options: { val: string, label: string }[] }) {
+  return (
+    <div>
+      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1 ml-1">
+        {label}
+      </label>
+      <div className="relative">
+        <select {...register(name)} className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-ink font-medium outline-none transition-all hover:border-gray-300 focus:border-[color:var(--brand)] focus:bg-white focus:shadow-md cursor-pointer">
+          {options.map(o => <option key={o.val} value={o.val}>{o.label}</option>)}
+        </select>
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+        </div>
       </div>
     </div>
   )
 }
 
+// --- Main Component ---
+
 export default function LeadForm(props: { initialPlan?: Plan }) {
   const router = useRouter()
   const initialPlan: Plan = props.initialPlan ?? 'Prata'
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [billFileName, setBillFileName] = useState('')
-  const [billFileBase64, setBillFileBase64] = useState('')
-  const [billFileType, setBillFileType] = useState('')
-  const [submitted, setSubmitted] = useState<{ id?: string; pct: number; saving: number; newBill: number } | null>(null)
+  const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState<string>('')
-  const [submitProgress, setSubmitProgress] = useState(0)
-  const submitIntervalRef = useRef<number | undefined>(undefined)
-  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY as string | undefined
+  
+  // Clicksign States
+  const [signatureKey, setSignatureKey] = useState<string | null>(null)
+  const [clicksignHost, setClicksignHost] = useState<string>('https://sandbox.clicksign.com')
+  const [loadingSigner, setLoadingSigner] = useState(false)
+  const widgetTargetRef = useRef<HTMLDivElement>(null)
+
   const form = useForm<Lead>({
     resolver: zodResolver(LeadSchema),
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: {
-      fullname: '', email: '', phone: '', documentType: 'CPF', document: '',
+      fullname: '', email: '', phone: '',
+      personType: 'PF', documentType: 'CPF', document: '',
       avgBillValue: 0, segment: 'Residencial', plan: initialPlan,
-      estimatedDiscountPct: 0, estimatedSaving: 0,
-      cep: '', city: '', acceptLGPD: false, utm: {}, fileUrl: undefined as any, gclid: '', fbclid: '', msclkid: '', referrer: '', landingUrl: '', leadSource: '', outsideScope: false
+      cep: '', city: '', endereco: '', numero: '', complemento: '', bairro: '',
+      distribuidora: 'Energisa MS', unidadeConsumidora: '',
+      razaoSocial: '', nomeFantasia: '', responsavel: '', apelido: '',
+      acceptLGPD: false
     }
   })
 
   const values = form.watch()
   const { errors } = form.formState
   const calc = useMemo(() => estimate(values.avgBillValue || 0, values.plan), [values.avgBillValue, values.plan])
-  // removed sheets status UI; keeping logs only
 
   useEffect(() => {
-    // restore autosave
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      try { form.reset(JSON.parse(saved)) } catch { }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    const el = document.getElementById('leadform')
+    if (el && step > 1) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [step])
 
-  // Capture UTM and source on first load
-  useEffect(() => {
+  // Clicksign Integration Logic
+  const initClicksign = async () => {
+    setLoadingSigner(true)
     try {
-      const url = new URL(window.location.href)
-      const sp = url.searchParams
-      const utm: Record<string, string> = {}
-      const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as const
-      utmKeys.forEach(k => { const v = sp.get(k); if (v) utm[k] = v })
-      const gclid = sp.get('gclid') || ''
-      const fbclid = sp.get('fbclid') || ''
-      const msclkid = sp.get('msclkid') || ''
-      const ref = sp.get('ref') || ''
-      const referrer = document.referrer || ''
-      const landingUrl = url.toString()
-
-      function inferSource() {
-        if (utm.utm_source) return utm.utm_source
-        if (gclid) return 'google_ads'
-        if (fbclid) return 'facebook_ads'
-        if (msclkid) return 'microsoft_ads'
-        if (ref) return ref
-        if (/facebook|instagram\.com/i.test(referrer)) return 'meta_organic'
-        if (/google\./i.test(referrer)) return 'google_organic'
-        if (/bing\./i.test(referrer)) return 'bing_organic'
-        if (referrer) return 'referral'
-        return 'direct'
-      }
-
-      const alreadySource = form.getValues('leadSource')
-      if (!alreadySource) {
-        form.setValue('utm', Object.keys(utm).length ? utm : {}, { shouldDirty: true })
-        if (gclid) form.setValue('gclid', gclid, { shouldDirty: true })
-        if (fbclid) form.setValue('fbclid', fbclid, { shouldDirty: true })
-        if (msclkid) form.setValue('msclkid', msclkid, { shouldDirty: true })
-        if (referrer) form.setValue('referrer', referrer, { shouldDirty: true })
-        form.setValue('landingUrl', landingUrl, { shouldDirty: true })
-        form.setValue('leadSource', inferSource(), { shouldDirty: true })
-      }
-    } catch { }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    const v = form.getValues()
-    // keep estimates in sync
-    form.setValue('estimatedDiscountPct', calc.pct, { shouldDirty: true })
-    form.setValue('estimatedSaving', calc.saving, { shouldDirty: true })
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...v, estimatedDiscountPct: calc.pct, estimatedSaving: calc.saving }))
-  }, [calc.pct, calc.saving])
-
-  // single-step: no partial send or step navigation
-
-  async function onSubmit(data: Lead) {
-    try {
-      setSubmitting(true)
-      setSubmitError('')
-      console.log('[lead] submit start')
-      try {
-        const dbg = process.env.NEXT_PUBLIC_GA_DEBUG === '1'
-          ; (window as any)?.gtag?.('event', 'lead_form_start', {
-            form_id: 'leadform', form_name: 'Lead Form', form_destination: window?.location?.href,
-            ...(dbg ? { debug_mode: true } : {})
-          })
-      } catch { }
-      // start progress animation
-      setSubmitProgress(5)
-      if (submitIntervalRef.current) window.clearInterval(submitIntervalRef.current)
-      submitIntervalRef.current = window.setInterval(() => {
-        setSubmitProgress((p) => Math.min(90, p + Math.floor(Math.random() * 6) + 2))
-      }, 280)
-      // reCAPTCHA v3 token
-      let recaptchaToken = ''
-      if (siteKey) {
-        recaptchaToken = await new Promise<string>((resolve) => {
-          let settled = false
-          const finish = (tok: string = '') => { if (!settled) { settled = true; resolve(tok) } }
-          const timer = window.setTimeout(() => finish(''), 3000) // fallback em 3s
-          function ready() {
-            try {
-              (window as any).grecaptcha.ready(() => {
-                (window as any).grecaptcha.execute(siteKey, { action: 'lead_submit' })
-                  .then((tok: string) => { window.clearTimeout(timer); finish(tok) })
-                  .catch(() => { window.clearTimeout(timer); finish('') })
-              })
-            } catch { window.clearTimeout(timer); finish('') }
-          }
-          if (!(window as any).grecaptcha) {
-            const s = document.createElement('script')
-            s.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`
-            s.async = true
-            s.onload = ready
-            s.onerror = () => { window.clearTimeout(timer); finish('') }
-            document.head.appendChild(s)
-          } else {
-            ready()
-          }
+        const response = await fetch('/api/clicksign', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(values)
         })
-        if (!recaptchaToken) {
-          console.warn('[recaptcha] empty token generated; check site key and domain whitelisting')
+        
+        if (!response.ok) {
+            const errData = await response.json()
+            console.error(errData)
+            throw new Error(errData.error || errData.details || 'Falha ao iniciar assinatura')
         }
-      } else {
-        console.warn('[recaptcha] NEXT_PUBLIC_RECAPTCHA_SITE_KEY not set')
-      }
-      const outsideScope = !!(data.city && !/\bMS\b|Mato Grosso do Sul/i.test(data.city))
-      // Try to fetch GA client ID for server-side Measurement Protocol (optional)
-      let gaClientId = ''
-      try {
-        const mid = (window as any)?.GA_MEASUREMENT_ID || (process as any)?.env?.NEXT_PUBLIC_GA_MEASUREMENT_ID
-        if ((window as any)?.gtag && mid) {
-          await new Promise<void>((resolve) => {
-            try { (window as any).gtag('get', mid, 'client_id', (cid: string) => { gaClientId = cid || ''; resolve() }) } catch { resolve() }
-          })
+        
+        const data = await response.json()
+        if (data.requestSignatureKey) {
+            setSignatureKey(data.requestSignatureKey)
+            if (data.clicksignHost) {
+                setClicksignHost(data.clicksignHost)
+            }
+        } else {
+            throw new Error('Chave de assinatura não retornada')
         }
-      } catch { }
-      const payload = { ...data, outsideScope, recaptchaToken, gaClientId }
-      const res = await fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-      if (!res.ok) throw new Error(await res.text())
-      const json = await res.json().catch(() => ({}))
-      const billVal = form.getValues('avgBillValue') || 0
-      const planVal = form.getValues('plan')
-      const r = estimate(billVal, planVal)
-      const isUnqualified = json?.status === 'unqualified' || billVal < 500 || r.pct === 0
-
-      if (isUnqualified) {
-        // Unqualified flow: do not fire success conversions
-        try {
-          const dbg = process.env.NEXT_PUBLIC_GA_DEBUG === '1'
-            ; (window as any)?.gtag?.('event', 'lead_unqualified', { reason: 'low_bill', bill_value: billVal, plan: planVal, ...(dbg ? { debug_mode: true } : {}) })
-        } catch { }
-        gtmPush({ event: 'lead_unqualified_low_bill' })
-        try {
-          router.push(`/nao-elegivel?bill=${encodeURIComponent(String(billVal))}`)
-        } catch { }
-        localStorage.removeItem(STORAGE_KEY)
-        setSubmitProgress(100)
-        // Still forward to Sheets (non-blocking), to registrar o lead
-        try {
-          const valuesAll = form.getValues()
-          const payloadSheets = {
-            lead: {
-              fullname: valuesAll.fullname,
-              email: valuesAll.email,
-              phone: valuesAll.phone,
-              documentType: valuesAll.documentType,
-              document: valuesAll.document,
-              avgBillValue: valuesAll.avgBillValue,
-              segment: valuesAll.segment,
-              plan: valuesAll.plan,
-              estimatedDiscountPct: valuesAll.estimatedDiscountPct,
-              estimatedSaving: valuesAll.estimatedSaving,
-              cep: valuesAll.cep,
-              city: valuesAll.city,
-              utm: valuesAll.utm,
-              gclid: valuesAll.gclid,
-              fbclid: (valuesAll as any).fbclid,
-              msclkid: (valuesAll as any).msclkid,
-              referrer: (valuesAll as any).referrer,
-              landingUrl: (valuesAll as any).landingUrl,
-              leadSource: (valuesAll as any).leadSource,
-            },
-            file: billFileBase64 ? { base64: billFileBase64, name: billFileName, contentType: billFileType } : undefined,
-            recaptchaToken
-          }
-          console.log('[sheets] forward start (unqualified)')
-          fetch('/api/sheets', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadSheets) })
-            .then(async (r) => { const t = await r.text(); if (!r.ok) { gtmPush({ event: 'sheets_forward_error', status: r.status }); throw new Error(t || String(r.status)) } console.log('[sheets] forward ok'); gtmPush({ event: 'sheets_forward_ok' }) })
-            .catch((err) => { console.error('[sheets] forward error', err); if (process.env.NODE_ENV === 'production') { setSubmitError('Recebemos seus dados, mas não foi possível registrar no Sheets. Nossa equipe verificará.'); } })
-        } catch (err) { console.warn('sheets forward error', err) }
-        return
-      }
-
-      // Qualified success flow
-      gtmPush({ event: 'lead_submit_success' })
-      console.log('[lead] submit success', json)
-      try {
-        const dbg = process.env.NEXT_PUBLIC_GA_DEBUG === '1'
-          ; (window as any)?.gtag?.('event', 'generate_lead', { currency: 'BRL', value: r.saving, method: 'lead_form', plan: planVal, bill_value: billVal, ...(dbg ? { debug_mode: true } : {}) })
-          ; (window as any)?.gtag?.('event', 'lead_submit_success', { plan: planVal, bill_value: billVal, ...(dbg ? { debug_mode: true } : {}) })
-          ; (window as any)?.gtag?.('event', 'page_view', { page_location: `${window.location.origin}/sucesso`, page_title: 'Formulário Enviado', ...(dbg ? { debug_mode: true } : {}) })
-      } catch { }
-      const faixa = billVal < 500 ? '<500' : billVal <= 999 ? '500-999' : billVal <= 1999 ? '1000-1999' : billVal <= 5999 ? '2000-5999' : billVal <= 9999 ? '6000-9999' : '>=10000'
-      gtmPush({ event: 'simulator_calculated', plan: planVal, faixa_fatura: faixa, discountPct: r.pct })
-      try {
-        router.push(`/sucesso?plan=${encodeURIComponent(planVal)}&bill=${encodeURIComponent(String(billVal))}&pct=${encodeURIComponent(String(r.pct))}`)
-      } catch {
-        setSubmitted({ id: json?.id, pct: r.pct, saving: r.saving, newBill: r.newBill })
-      }
-      localStorage.removeItem(STORAGE_KEY)
-      setSubmitProgress(100)
-      // Forward to Google Sheets Apps Script (non-blocking)
-      try {
-        const valuesAll = form.getValues()
-        const payloadSheets = {
-          lead: {
-            fullname: valuesAll.fullname,
-            email: valuesAll.email,
-            phone: valuesAll.phone,
-            documentType: valuesAll.documentType,
-            document: valuesAll.document,
-            avgBillValue: valuesAll.avgBillValue,
-            segment: valuesAll.segment,
-            plan: valuesAll.plan,
-            estimatedDiscountPct: valuesAll.estimatedDiscountPct,
-            estimatedSaving: valuesAll.estimatedSaving,
-            cep: valuesAll.cep,
-            city: valuesAll.city,
-            utm: valuesAll.utm,
-            gclid: valuesAll.gclid,
-            fbclid: (valuesAll as any).fbclid,
-            msclkid: (valuesAll as any).msclkid,
-            referrer: (valuesAll as any).referrer,
-            landingUrl: (valuesAll as any).landingUrl,
-            leadSource: (valuesAll as any).leadSource,
-          },
-          file: billFileBase64 ? { base64: billFileBase64, name: billFileName, contentType: billFileType } : undefined,
-          recaptchaToken
-        }
-        console.log('[sheets] forward start')
-        fetch('/api/sheets', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadSheets) })
-          .then(async (r) => { const t = await r.text(); if (!r.ok) { gtmPush({ event: 'sheets_forward_error', status: r.status }); throw new Error(t || String(r.status)) } console.log('[sheets] forward ok'); gtmPush({ event: 'sheets_forward_ok' }) })
-          .catch((err) => { console.error('[sheets] forward error', err); if (process.env.NODE_ENV === 'production') { setSubmitError('Recebemos seus dados, mas não foi possível registrar no Sheets. Nossa equipe verificará.'); } })
-      } catch (err) { console.warn('sheets forward error', err) }
-    } catch (e: any) {
-      console.error(e)
-      gtmPush({ event: 'lead_submit_error' })
-      try {
-        const dbg = process.env.NEXT_PUBLIC_GA_DEBUG === '1'
-          ; (window as any)?.gtag?.('event', 'lead_submit_error', { message: String(e?.message || e), ...(dbg ? { debug_mode: true } : {}) })
-      } catch { }
-      setSubmitError('Não foi possível enviar. Verifique os dados e tente novamente.')
-      setSubmitProgress(0)
-    }
-    finally {
-      setSubmitting(false)
-      if (submitIntervalRef.current) { window.clearInterval(submitIntervalRef.current); submitIntervalRef.current = undefined }
+    } catch (err: any) {
+        console.error(err)
+        alert(`Erro: ${err.message || 'Erro ao carregar documento.'}`)
+    } finally {
+        setLoadingSigner(false)
     }
   }
 
-  function onInvalid() {
-    const el = document.getElementById('leadform'); el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  // Effect to mount widget when key is available
+  useEffect(() => {
+    if (signatureKey && widgetTargetRef.current && (window as any).Clicksign) {
+        console.log('Mounting Clicksign widget with key:', signatureKey);
+        const widget = new (window as any).Clicksign(signatureKey)
+        
+        // Dynamically set endpoint based on API response
+        widget.endpoint = clicksignHost
+        // widget.origin = window.location.origin // Commenting out to check if it fixes 404
+        
+        widget.mount(widgetTargetRef.current.id)
+        widget.on('signed', (signature: any) => {
+            console.log('Document signed:', signature);
+            router.push('/sucesso')
+        })
+        
+        // Debug listener for loaded
+        widget.on('loaded', () => console.log('Clicksign Widget Loaded'))
+    }
+  }, [signatureKey])
+
+  const handleNext = async () => {
+    let valid = false
+    if (step === 1) {
+      valid = await form.trigger(['fullname', 'email', 'phone', 'avgBillValue', 'plan'])
+    } else if (step === 2) {
+      const common = ['document', 'cep', 'city', 'endereco', 'numero', 'bairro', 'unidadeConsumidora'] as const
+      const pj = ['razaoSocial', 'nomeFantasia', 'responsavel'] as const
+      const fields = values.personType === 'PJ' ? [...common, ...pj] : [...common]
+      valid = await form.trigger(fields as any)
+    }
+
+    if (valid) {
+      setStep(s => s + 1)
+      if (step === 2) {
+          // Transitioning to Step 3: Trigger Clicksign
+          initClicksign()
+      }
+    }
+  }
+
+  const handleBack = () => setStep(s => s - 1)
+
+  // Fallback submit (only if needed or for manual bypass)
+  async function onSubmit(data: Lead) {
+     if (signatureKey) return // Already handled by widget
+     alert("Aguarde o carregamento do documento.")
   }
 
   return (
-    <section className="py-12 bg-bg" aria-labelledby="leadform-heading" id="leadform">
+    <section className="py-12 bg-bg" id="leadform">
+      <Script src="https://cdn-public-library.clicksign.com/embedded/embedded.min-2.1.0.js" strategy="lazyOnload" />
+
       <div className="container-pad">
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[color:var(--brand-accent)] shadow-2xl">
-          <div className="relative z-10 p-6 md:p-8">
-            <div className="grid md:grid-cols-5 gap-6 md:gap-8 items-start">
-              {/* Persuasive message */}
-              <aside className="md:col-span-2 text-white flex flex-col justify-center md:min-h-[360px]">
-                <h2 id="leadform-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">Quero obter desconto na minha conta de energia</h2>
-                <ul className="mt-4 space-y-2 text-white/90 text-sm list-disc pl-5">
-                  <li>Sem investimento inicial</li>
-                  <li>Energia renovável</li>
-                  <li>Energia gerada no MS</li>
-                </ul>
-              </aside>
-              <div className="md:col-span-3 relative rounded-2xl overflow-hidden bg-white/80 backdrop-blur-md border border-white/20">
+        <div className="relative max-w-5xl mx-auto rounded-[2rem] overflow-hidden bg-white shadow-2xl border border-white/20 ring-1 ring-black/5">
+          <div className="grid lg:grid-cols-12 min-h-[500px]">
 
-                {/* Result after submit */}
-                {submitted ? (
-                  <div className="mt-6">
-                    <div className="glass rounded-2xl p-6 bg-white/10 border border-white/20">
-                      <div className="card-body">
-                        {(() => {
-                          const name = (form.getValues('fullname') || '').trim()
-                          const first = name ? name.split(' ')[0].toUpperCase() : ''
-                          const bill = form.getValues('avgBillValue') || 0
-                          const pct = submitted.pct
-                          const icmsShare = 0.17
-                          const pisShare = 0.05
-                          const taxes = Math.round(bill * (icmsShare + pisShare))
-                          const energyBase = Math.max(bill - taxes, 0)
-                          const discountValue = Math.round(energyBase * (pct / 100))
-                          return (
-                            <div className="text-center">
-                              <h3 className="text-2xl md:text-3xl font-bold">{first ? `Parabéns, ${first}!` : 'Parabéns!'} Você pode economizar até {formatBRL(discountValue)} por mês.</h3>
-                            </div>
-                          )
-                        })()}
-                        {(() => {
-                          const bill = form.getValues('avgBillValue') || 0
-                          const pct = submitted.pct
-                          // Impostos fixos: ICMS 17% e PIS/COFINS 5%
-                          const icmsShare = 0.17
-                          const pisShare = 0.05
-                          const taxShare = icmsShare + pisShare // 22%
-                          const icms = Math.round(bill * icmsShare)
-                          const pis = Math.round(bill * pisShare)
-                          const taxes = icms + pis
-                          const energyBase = Math.max(bill - taxes, 0)
-                          const discountValue = Math.round(energyBase * (pct / 100))
-                          const annualSaving = discountValue * 12
-                          // Larguras relativas para as barras
-                          const energyWidth = bill ? (energyBase / bill) * 100 : 0
-                          const icmsWidth = bill ? (icms / bill) * 100 : 0
-                          const pisWidth = bill ? (pis / bill) * 100 : 0
-                          const discountWidth = energyWidth * (pct / 100)
-                          return (
-                            <>
-                              <div className="mt-6 flex flex-wrap items-center justify-center gap-8 text-center">
-                                <div className="relative">
-                                  <div className="px-5 py-3 rounded-full bg-white text-[color:var(--brand-accent)] text-xl md:text-2xl font-bold shadow-soft">
-                                    {pct}%
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-sm text-muted">Economia mensal</div>
-                                  <div className="text-4xl font-bold text-[color:var(--brand-accent)]"><CountUp value={discountValue} format={formatBRL} /></div>
-                                </div>
-                                <div>
-                                  <div className="text-sm text-muted">Economia anual</div>
-                                  <div className="text-4xl font-bold text-[color:var(--brand-accent)]"><CountUp value={annualSaving} format={formatBRL} /></div>
-                                </div>
-                              </div>
+            {/* Sidebar / Context Area */}
+            <aside className="lg:col-span-4 bg-[color:var(--brand)] text-white p-6 md:p-8 flex flex-col justify-between relative overflow-hidden">
+              {/* Abstract Background Shapes */}
+              <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-[color:var(--brand-accent)]/20 rounded-full blur-2xl translate-y-1/3 -translate-x-1/3" />
 
-                              {/* Gráfico circular interativo e comparativo simples */}
-                              {/* Comparativo simples: hoje, com desconto e economia estimada */}
-                              {/* Removido comparativo Hoje/Depois para reduzir ruído e manter foco na economia mensal */}
+              <div className="relative z-10">
+                <StepIndicator current={step} total={3} />
 
-                              <AnimatedBar bill={bill} pct={pct} />
-                              {/* Removido breakdown numérico detalhado para simplificar a visualização */}
-                              <p className="mt-2 text-xs text-muted text-center">O desconto é aplicado apenas sobre a parte de energia (TE+TUSD). Impostos como ICMS e PIS/COFINS não sofrem redução.</p>
+                <div className="space-y-4">
+                  <h2 className="text-2xl md:text-3xl font-bold leading-tight tracking-tight">
+                    {step === 1 && "Simule sua economia"}
+                    {step === 2 && "Cadastro rápido"}
+                    {step === 3 && "Assinatura digital"}
+                  </h2>
 
-                              {/* Removido comparativo Antes/Depois para focar na economia mensal */}
-                            </>
-                          )
-                        })()}
-                        {/* Mensagem de sucesso e rodapé */}
-                        <div className="mt-6 flex flex-wrap items-center gap-3">
-                          <p className="text-sm text-ink/80"><span className="text-green-700 font-medium">Formulário enviado com sucesso.</span> Nossa equipe vai entrar em contato por telefone ou WhatsApp em breve para enviar sua proposta.</p>
-                          <button className="btn btn-ghost" onClick={() => setSubmitted(null)}>Revisar informações</button>
-                        </div>
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    {step === 1 && "Veja o quanto você vai economizar sem investir nada."}
+                    {step === 2 && "Dados seguros para validar sua unidade na Energisa."}
+                    {step === 3 && "Processo com validade jurídica, 100% online."}
+                  </p>
+                </div>
+              </div>
 
-                        {/* Prova social e selos */}
-                        <div className="mt-10">
-                          <div className="bg-white border border-line rounded-2xl p-6 flex items-start gap-4">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[color:var(--brand-accent)]"><path d="M3 11l9-8 9 8v8a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V13H9v6a2 2 0 0 1-2 2H3z" /></svg>
-                            <p className="text-sm text-ink/80">A Sion já comercializa energia nesse modelo em diversas regiões do Brasil, com capacidade para atender o equivalente a <b>250 mil casas</b>, ou uma <b>cidade de 750 mil habitantes</b>. São mais de <b>200 MWp</b> de usinas solares em operação.</p>
+              {/* Dynamic Trust Badge */}
+              <div className="relative z-10 mt-8 bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    {step === 1 && <span className="text-lg">⚡</span>}
+                    {step === 2 && <span className="text-lg">🔒</span>}
+                    {step === 3 && <span className="text-lg">✍️</span>}
+                  </div>
+                  <h3 className="font-bold text-xs uppercase tracking-wide opacity-90">
+                    {step === 1 ? "Energia Garantida" : step === 2 ? "Dados Protegidos" : "Validade Jurídica"}
+                  </h3>
+                </div>
+                <p className="text-[10px] text-white/70 leading-relaxed">
+                  {step === 1 ? "Sem obras e sem fidelidade abusiva." :
+                    step === 2 ? "Criptografia de ponta a ponta." :
+                      "Assinatura certificada digitalmente."}
+                </p>
+              </div>
+            </aside>
+
+            {/* Form Area */}
+            <div className="lg:col-span-8 bg-white p-6 md:p-8 relative">
+              <form onSubmit={(e) => e.preventDefault()} className="h-full flex flex-col justify-center">
+
+                {/* STEP 1: SIMULATION */}
+                {step === 1 && (
+                  <div className="space-y-5 animate-fadeIn">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <InputField label="Nome Completo" name="fullname" register={form.register} error={errors.fullname} placeholder="Como está na sua conta de luz" />
+                      </div>
+                      <InputField label="WhatsApp" name="phone" register={form.register} error={errors.phone} placeholder="(00) 00000-0000" type="tel" />
+                      <InputField label="E-mail Corporativo" name="email" register={form.register} error={errors.email} placeholder="seu@empresa.com" type="email" />
+
+                      <div className="md:col-span-2">
+                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between gap-4">
+                          <label className="text-xs font-bold text-gray-700 whitespace-nowrap">Valor médio da fatura:</label>
+                          <div className="relative w-full max-w-[180px]">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">R$</span>
+                            <input
+                              className="w-full text-right text-lg font-bold bg-white border border-gray-200 rounded-lg py-2 px-4 outline-none focus:border-[color:var(--brand)] focus:shadow-sm transition-all text-[color:var(--brand)]"
+                              placeholder="0,00"
+                              value={values.avgBillValue ? values.avgBillValue.toLocaleString('pt-BR') : ''}
+                              onChange={(e) => {
+                                const digits = e.target.value.replace(/\D+/g, '')
+                                form.setValue('avgBillValue', Number(digits) || 0, { shouldValidate: true })
+                              }}
+                            />
                           </div>
-                          {/* Removida barra extra para manter foco e simplicidade */}
+                        </div>
+                        {errors.avgBillValue && <p className="text-right text-red-500 text-[10px] mt-1">{errors.avgBillValue.message}</p>}
+                      </div>
 
+                      <div className="md:col-span-2">
+                        <SelectField
+                          label="Plano Desejado"
+                          name="plan"
+                          register={form.register}
+                          options={[
+                            { val: 'Livre', label: 'Plano Livre (Sem fidelidade) - Popular' },
+                            { val: 'Prata', label: 'Plano Prata (12 meses) - Maior desconto' },
+                            { val: 'Ouro', label: 'Plano Ouro (24 meses) - Desconto máximo' }
+                          ]}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Live Calc Preview */}
+                    {calc.pct > 0 && (
+                      <div className="bg-green-50 rounded-xl p-4 border border-green-100 flex items-center justify-between shadow-sm">
+                        <div>
+                          <p className="text-[10px] font-bold text-green-800 uppercase tracking-wider mb-0.5">Economia Estimada</p>
+                          <p className="text-2xl font-bold text-green-700 tracking-tight">{formatBRL(calc.saving)}<span className="text-xs font-medium text-green-600">/mês</span></p>
+                        </div>
+                        <div className="text-right">
+                          <div className="inline-block bg-green-200 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded-full mb-0.5">Até</div>
+                          <p className="text-2xl font-bold text-green-700">{calc.pct}% OFF</p>
                         </div>
                       </div>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="w-full py-3.5 rounded-full text-white font-bold bg-gradient-to-r from-[color:var(--brand)] to-[color:var(--brand-accent)] shadow-lg shadow-brand/20 transition-all hover:shadow-xl hover:scale-[1.01] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 group text-sm"
+                    >
+                      <span className="group-hover:mr-1 transition-all">Verificar Disponibilidade</span>
+                      <svg className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all -ml-4 group-hover:ml-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                    </button>
+                  </div>
+                )}
+
+                {/* STEP 2: REGISTRATION */}
+                {step === 2 && (
+                  <div className="space-y-5 animate-fadeIn">
+                    {/* Person Type Toggle */}
+                    <div className="flex p-1 bg-gray-100 rounded-lg w-full max-w-xs mx-auto">
+                      {(['PF', 'PJ'] as const).map(t => (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => form.setValue('personType', t)}
+                          className={`flex-1 py-2 rounded-md text-xs font-bold transition-all duration-300 ${values.personType === t ? 'bg-white shadow-sm text-[color:var(--brand)]' : 'text-gray-400 hover:text-gray-600'}`}
+                        >
+                          {t === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica'}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {values.personType === 'PJ' ? (
+                        <>
+                          <div className="md:col-span-2">
+                            <InputField label="Razão Social" name="razaoSocial" register={form.register} error={errors.razaoSocial} />
+                          </div>
+                          <div className="md:col-span-2">
+                            <InputField label="Nome Fantasia" name="nomeFantasia" register={form.register} />
+                          </div>
+                          <InputField label="CNPJ" name="document" register={form.register} error={errors.document} placeholder="00.000.000/0000-00" />
+                          <InputField label="Responsável Legal" name="responsavel" register={form.register} error={errors.responsavel} />
+                        </>
+                      ) : (
+                        <>
+                          <div className="md:col-span-2">
+                            <InputField label="Nome Completo" name="fullname" register={form.register} disabled />
+                          </div>
+                          <InputField label="CPF" name="document" register={form.register} error={errors.document} placeholder="000.000.000-00" />
+                          <InputField label="Apelido" name="apelido" register={form.register} placeholder="Opcional" />
+                        </>
+                      )}
+
+                      {/* Address Divider */}
+                      <div className="md:col-span-2 pt-2 pb-1">
+                        <div className="flex items-center gap-3">
+                          <div className="h-px bg-gray-200 flex-1" />
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Endereço da Instalação</span>
+                          <div className="h-px bg-gray-200 flex-1" />
+                        </div>
+                      </div>
+
+                      <InputField label="CEP" name="cep" register={form.register} error={errors.cep} placeholder="00000-000" />
+                      <InputField label="Cidade" name="city" register={form.register} error={errors.city} />
+                      <div className="md:col-span-2">
+                        <InputField label="Endereço (Rua/Av)" name="endereco" register={form.register} error={errors.endereco} />
+                      </div>
+                      <InputField label="Número" name="numero" register={form.register} error={errors.numero} />
+                      <InputField label="Bairro" name="bairro" register={form.register} error={errors.bairro} />
+                      <div className="md:col-span-2">
+                        <InputField label="Complemento" name="complemento" register={form.register} />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <InputField label="Unidade Consumidora (UC)" name="unidadeConsumidora" register={form.register} error={errors.unidadeConsumidora} placeholder="Número da UC na conta" />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <button type="button" onClick={handleBack} className="w-1/3 py-3.5 rounded-full text-sm text-ink font-bold hover:bg-gray-100 transition-colors">Voltar</button>
+                      <button type="button" onClick={handleNext} className="w-2/3 py-3.5 rounded-full text-sm text-white font-bold bg-gradient-to-r from-[color:var(--brand)] to-[color:var(--brand-accent)] shadow-lg shadow-brand/20 transition-all hover:shadow-xl hover:scale-[1.01] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">Revisar e Assinar</button>
                     </div>
                   </div>
-                ) : (
-                  <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="mt-6 glass rounded-2xl p-4 sm:p-6 bg-white/10 border border-white/20">
-                    <div className="space-y-6 text-ink">
-                      <div className="grid md:grid-cols-2 gap-x-6 md:gap-x-8 gap-y-7">
-                        <div>
-                          <label className="block text-sm font-medium">Telefone (WhatsApp) *</label>
-                          <input {...form.register('phone', { required: true })} inputMode="tel" className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-phone" placeholder="(67) 9 9999-9999" />
-                          {errors.phone && <p className="mt-1 text-xs text-red-600">Informe um telefone válido.</p>}
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium">Nome completo *</label>
-                          <input {...form.register('fullname', { required: true })} className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-name" placeholder="Seu nome completo" />
-                          {errors.fullname && <p className="mt-1 text-xs text-red-600">Informe seu nome completo.</p>}
-                        </div>
-                        <div className="md:col-span-2">
-                          <label className="block text-sm font-medium">CPF/CNPJ *</label>
-                          <div className="flex flex-col sm:flex-row gap-2 mt-2">
-                            <select {...form.register('documentType', { required: true })} className="w-full sm:w-auto rounded-2xl border border-line px-4 py-3 bg-white">
-                              <option>CPF</option>
-                              <option>CNPJ</option>
-                            </select>
-                            <input {...form.register('document', { required: true })} className="w-full sm:flex-1 rounded-2xl border border-line px-4 py-3 bg-white" placeholder="000.000.000-00" />
-                          </div>
-                          {errors.document && <p className="mt-1 text-xs text-red-600">Informe CPF/CNPJ.</p>}
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium">Plano (opcional)</label>
-                          <div className="mt-2 inline-flex w-full gap-2">
-                            {(['Livre', 'Prata', 'Ouro'] as const).map((p) => {
-                              const isSel = form.getValues('plan') === p
-                              return (
-                                <button
-                                  type="button"
-                                  key={p}
-                                  onClick={() => form.setValue('plan', p, { shouldDirty: true })}
-                                  className={`flex-1 px-3 py-2 rounded-xl border text-sm transition-colors ${isSel ? 'border-transparent text-white bg-[color:var(--brand-accent)] shadow-sm font-semibold' : 'border-line bg-white text-ink hover:border-[color:var(--brand-accent)]'}`}
-                                  aria-pressed={isSel}
-                                >
-                                  {p === 'Livre' ? 'Sem fidelidade' : p === 'Prata' ? '12 meses' : '24 meses'}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium">Valor médio da sua fatura (R$) *</label>
-                          <input inputMode="numeric" className="mt-2 w-full sm:w-48 md:w-56 rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-bill" placeholder="Ex: 2.500"
-                            value={form.getValues('avgBillValue') ? Number(form.getValues('avgBillValue')).toLocaleString('pt-BR') : ''}
-                            onChange={(e) => {
-                              const digits = e.target.value.replace(/\D+/g, '')
-                              form.setValue('avgBillValue', Number(digits) || 0, { shouldDirty: true })
-                            }} />
-                          {errors.avgBillValue && <p className="mt-1 text-xs text-red-600">Informe o valor médio da fatura.</p>}
-                          {/* Nota removida conforme solicitação */}
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium">E-mail *</label>
-                          <input {...form.register('email', { required: true })} required type="email" className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" data-testid="lead-email" placeholder="seunome@email.com" />
-                          {errors.email && <p className="mt-1 text-xs text-red-600">Informe um e-mail válido.</p>}
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium">CEP</label>
-                          <input {...form.register('cep')} className="mt-2 w-full rounded-2xl border border-line px-4 py-3 bg-white" placeholder="79000-000" />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium">Selecionar fatura (PNG/JPG/PDF) — opcional</label>
-                        <div className="mt-2 rounded-2xl border-2 border-dashed border-line bg-white p-6">
-                          <div className="mt-1 flex items-center gap-3">
-                            <button type="button" className="btn btn-primary" onClick={() => fileInputRef.current?.click()}>Selecionar fatura</button>
-                            {values.fileUrl && (
-                              <button type="button" className="btn btn-ghost" onClick={() => { const prev = form.getValues('fileUrl'); if (prev) try { URL.revokeObjectURL(prev) } catch { }; form.setValue('fileUrl', '', { shouldDirty: true }); setBillFileName('') }}>Remover</button>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted mt-3">{values.fileUrl ? `Fatura selecionada${billFileName ? `: ${billFileName}` : ''}` : 'Fatura opcional — nenhuma selecionada'}</p>
-                          <input ref={fileInputRef} id="bill-file" name="bill-file" type="file" accept="image/*,.pdf" className="hidden" aria-hidden="true"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0]; if (file) {
-                                const allowed = ['image/png', 'image/jpeg', 'application/pdf']
-                                if (!allowed.includes(file.type || '')) { alert('Tipo de arquivo inválido. Envie PNG, JPG ou PDF.'); return }
-                                const maxBytes = 5 * 1024 * 1024; if (file.size > maxBytes) { alert('Arquivo muito grande (máx. 5MB).'); return }
-                                const url = URL.createObjectURL(file); form.setValue('fileUrl', url, { shouldDirty: true }); setBillFileName(file.name); setBillFileType(file.type || 'application/octet-stream');
-                                const reader = new FileReader(); reader.onload = () => { try { const res = String(reader.result || ''); const comma = res.indexOf(','); const b64 = comma >= 0 ? res.slice(comma + 1) : res; setBillFileBase64(b64) } catch { } }; reader.readAsDataURL(file)
-                              } else { form.setValue('fileUrl', undefined as any, { shouldDirty: true }); setBillFileName(''); setBillFileBase64(''); setBillFileType('') }
-                            }} />
-                        </div>
-                      </div>
-
-                      <div>
-                        <button
-                          type="submit"
-                          className="w-full px-6 py-4 rounded-2xl text-white font-semibold shadow-xl disabled:opacity-60 bg-[color:var(--brand)] transition-[shadow,transform,opacity] hover:opacity-100 hover:shadow-lg hover:scale-[1.01] focus:shadow-xl"
-                          disabled={submitting}
-                          data-testid="lead-submit"
-                        >
-                          {submitting ? `Enviando... ${submitProgress}%` : 'Enviar dados e descobrir meu desconto simulado'}
-                        </button>
-                        {submitError && (<p className="mt-2 text-sm text-red-600">{submitError}</p>)}
-                        <p className="text-xs text-muted mt-2">
-                          Este site é protegido por reCAPTCHA e aplicam-se a
-                          {' '}<a className="underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>
-                          {' '}e os{' '}
-                          <a className="underline" href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Termos de Serviço</a> do Google.
-                        </p>
-                      </div>
-                      <p className="text-xs text-muted">Ao enviar, você concorda que entremos em contato por telefone, e-mail e WhatsApp conforme nossa <a className="underline" href="/privacidade">Política de Privacidade</a>.</p>
-                    </div>
-                  </form>
                 )}
-              </div>
+
+                {/* STEP 3: SIGNATURE */}
+                {step === 3 && (
+                  <div className="space-y-6 animate-fadeIn h-full flex flex-col">
+                    <div className="bg-blue-50/50 p-5 rounded-xl border border-blue-100/50">
+                      <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2 text-sm">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Resumo da Adesão
+                      </h4>
+                      <div className="grid sm:grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <p className="text-blue-800/60 text-[10px] uppercase font-bold">Titular</p>
+                          <p className="font-medium text-blue-900">{values.personType === 'PJ' ? values.razaoSocial : values.fullname}</p>
+                        </div>
+                        <div>
+                          <p className="text-blue-800/60 text-[10px] uppercase font-bold">Documento</p>
+                          <p className="font-medium text-blue-900">{values.document}</p>
+                        </div>
+                        <div className="sm:col-span-2">
+                          <p className="text-blue-800/60 text-[10px] uppercase font-bold">Endereço</p>
+                          <p className="font-medium text-blue-900">{values.endereco}, {values.numero} - {values.city}</p>
+                        </div>
+                        <div className="sm:col-span-2 pt-2 border-t border-blue-100">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium text-blue-900">Plano {values.plan}</span>
+                            <span className="font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded text-[10px]">Economia de {calc.pct}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors group">
+                        <div className="relative flex items-center mt-0.5">
+                          <input type="checkbox" className="peer sr-only" />
+                          <div className="w-4 h-4 border border-gray-300 rounded peer-checked:bg-[color:var(--brand)] peer-checked:border-[color:var(--brand)] transition-all" />
+                          <svg className="w-2.5 h-2.5 text-white absolute left-0.5 top-0.5 opacity-0 peer-checked:opacity-100 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                        </div>
+                        <span className="text-xs text-gray-600 group-hover:text-gray-900 transition-colors">Li e concordo com os Termos de Adesão e Política de Privacidade da Sion Energia.</span>
+                      </label>
+
+                      <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors group">
+                        <div className="relative flex items-center mt-0.5">
+                          <input type="checkbox" className="peer sr-only" />
+                          <div className="w-4 h-4 border border-gray-300 rounded peer-checked:bg-[color:var(--brand)] peer-checked:border-[color:var(--brand)] transition-all" />
+                          <svg className="w-2.5 h-2.5 text-white absolute left-0.5 top-0.5 opacity-0 peer-checked:opacity-100 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                        </div>
+                        <span className="text-xs text-gray-600 group-hover:text-gray-900 transition-colors">Autorizo o uso de assinatura eletrônica para formalização deste contrato de adesão.</span>
+                      </label>
+                    </div>
+
+                    {/* Clicksign Embed Area */}
+                    <div 
+                      id="clicksign-widget-container"
+                      ref={widgetTargetRef}
+                      className="flex-1 min-h-[400px] bg-gray-50 rounded-xl border border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 relative overflow-hidden group hover:border-gray-300 transition-colors"
+                    >
+                      {!signatureKey && !loadingSigner && (
+                           <div className="relative z-10 text-center p-6">
+                              <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-3">
+                                <svg className="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                              </div>
+                              <h5 className="font-bold text-gray-600 mb-1 text-sm">Carregando Contrato...</h5>
+                              <p className="text-xs max-w-xs mx-auto mb-3">Estamos preparando seu contrato digital.</p>
+                              <button onClick={initClicksign} className="text-xs text-[color:var(--brand)] underline hover:text-[color:var(--brand-accent)]">Tentar novamente</button>
+                           </div>
+                      )}
+                      
+                      {loadingSigner && (
+                           <div className="flex flex-col items-center gap-3">
+                               <svg className="animate-spin h-8 w-8 text-[color:var(--brand)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                               <span className="text-sm font-medium text-gray-500">Preparando documento seguro...</span>
+                           </div>
+                      )}
+                    </div>
+
+                    {!signatureKey && !loadingSigner && (
+                        <div className="flex gap-4 pt-4 mt-auto">
+                        <button type="button" onClick={handleBack} className="w-1/3 py-3.5 rounded-full text-sm text-ink font-bold hover:bg-gray-100 transition-colors">Voltar</button>
+                        <button
+                            type="button"
+                            onClick={initClicksign}
+                            className="w-2/3 py-3.5 rounded-full text-sm text-white font-bold bg-gradient-to-r from-[color:var(--brand)] to-[color:var(--brand-accent)] shadow-lg shadow-brand/20 transition-all hover:shadow-xl hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2"
+                        >
+                            Assinar Digitalmente
+                        </button>
+                        </div>
+                    )}
+                    
+                    {/* When widget is active, we can show just a back button or nothing */}
+                    {signatureKey && (
+                        <div className="flex justify-start pt-2">
+                             <button type="button" onClick={handleBack} className="text-xs text-gray-400 hover:text-gray-600 underline">Voltar para edição</button>
+                        </div>
+                    )}
+                  </div>
+                )}
+
+              </form>
             </div>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      `}</style>
     </section>
   )
 }

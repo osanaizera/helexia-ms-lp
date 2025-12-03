@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:clicksign": "playwright test tests/e2e/clicksign.spec.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "3.9.0",
