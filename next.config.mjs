@@ -14,20 +14,24 @@ const nextConfig = {
       'https://www.google-analytics.com',
       'https://www.google.com',
       'https://www.gstatic.com',
-      'https://connect.facebook.net'
+      'https://connect.facebook.net',
+      'https://widget.clicksign.com',
+      'https://cdn.clicksign.com',
+      'https://cdn-public-library.clicksign.com',
+      'https://va.vercel-scripts.com'
     ].filter(Boolean).join(' ')
 
     const csp = [
       "default-src 'self'",
       `script-src ${scriptSrc}`,
-      "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://www.google.com https://vitals.vercel-insights.com https://vitals.vercel-analytics.com https://www.facebook.com https://connect.facebook.net https://mpc2-prod-1-is5qnl632q-uc.a.run.app https://demo-1.conversionsapigateway.com",
+      "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://www.google.com https://vitals.vercel-insights.com https://vitals.vercel-analytics.com https://www.facebook.com https://connect.facebook.net https://mpc2-prod-1-is5qnl632q-uc.a.run.app https://demo-1.conversionsapigateway.com https://widget.clicksign.com https://cdn.clicksign.com https://cdn-public-library.clicksign.com",
       "img-src 'self' data: https:",
       "style-src 'self' 'unsafe-inline' https:",
       "font-src 'self' data: https:",
-      "frame-src https://www.googletagmanager.com https://www.google.com https://recaptcha.google.com https://tagassistant.google.com",
+      "frame-src https://www.googletagmanager.com https://www.google.com https://recaptcha.google.com https://tagassistant.google.com https://widget.clicksign.com https://cdn.clicksign.com https://cdn-public-library.clicksign.com https://www.facebook.com https://sandbox.clicksign.com https://app.clicksign.com",
       "object-src 'none'",
       "base-uri 'self'",
-      "form-action 'self'"
+      "form-action 'self' https://www.facebook.com"
     ].join('; ');
     return [
       {
