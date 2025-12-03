@@ -97,7 +97,7 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
   
   // Clicksign States
   const [signatureKey, setSignatureKey] = useState<string | null>(null)
-  const [clicksignHost, setClicksignHost] = useState<string>('https://sandbox.clicksign.com')
+  const [clicksignHost, setClicksignHost] = useState<string>('https://app.clicksign.com')
   const [loadingSigner, setLoadingSigner] = useState(false)
   const widgetTargetRef = useRef<HTMLDivElement>(null)
 

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { Lead } from '@/lib/validators';
 
 const CLICKSIGN_API_KEY = process.env.CLICKSIGN_API_KEY;
-const CLICKSIGN_HOST = process.env.CLICKSIGN_HOST || 'https://sandbox.clicksign.com';
+const CLICKSIGN_HOST = process.env.CLICKSIGN_HOST || 'https://app.clicksign.com';
 const API_BASE = `${CLICKSIGN_HOST}/api/v1`;
 
 // Map of templates based on Plan + PersonType
