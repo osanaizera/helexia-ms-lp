@@ -43,12 +43,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-XMNXWQXQJZ'
   const fbId = process.env.NEXT_PUBLIC_FB_PIXEL_ID || '1305029297374794'
+  const fbIds = [fbId, '828825756438581']
   return (
     <html lang="pt-BR">
       <head>
         <GtmHeadScript id={gtmId} />
         <GA4HeadScript id={gaId} />
-        <FbPixelHeadScript id={fbId} />
+        <FbPixelHeadScript ids={fbIds} />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -73,7 +74,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
         <GtmNoScript id={gtmId} />
-        <FbPixelNoScript id={fbId} />
+        <FbPixelNoScript ids={fbIds} />
         {children}
         <Suspense fallback={null}>
           <FbqRoute />

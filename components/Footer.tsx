@@ -33,7 +33,6 @@ export default function Footer() {
           <div>
             <h4 className="font-bold mb-4">Contato</h4>
             <ul className="space-y-2 text-sm text-white/70">
-              <li>0800 000 0000</li>
               <li>contato@sionenergia.com.br</li>
               <li className="pt-2">
                 <div className="flex gap-4">
