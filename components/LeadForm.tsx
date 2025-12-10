@@ -160,12 +160,15 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
   // Effect to mount widget when key is available
   useEffect(() => {
     if (signatureKey && widgetTargetRef.current && (window as any).Clicksign) {
-        console.log('Mounting Clicksign widget with key:', signatureKey);
+        // Sanitize host to remove trailing slash if present
+        const cleanHost = clicksignHost.replace(/\/$/, '')
+        console.log(`Mounting Widget -> Host: ${cleanHost}, Key: ${signatureKey}, Origin: ${window.location.origin}`);
+        
         const widget = new (window as any).Clicksign(signatureKey)
         
         // Dynamically set endpoint based on API response
-        widget.endpoint = clicksignHost
-        // widget.origin = window.location.origin // Commenting out to check if it fixes 404
+        widget.endpoint = cleanHost
+        widget.origin = window.location.origin
         
         widget.mount(widgetTargetRef.current.id)
         widget.on('signed', (signature: any) => {
@@ -208,7 +211,7 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
 
   return (
     <section className="py-12 bg-bg" id="leadform">
-      <Script src="https://cdn-public-library.clicksign.com/embedded/embedded.min-2.1.0.js" strategy="lazyOnload" />
+      <Script src="https://cdn-public-library.clicksign.com/embedded/embedded.min-1.0.0.js" strategy="lazyOnload" />
 
       <div className="container-pad">
         <div className="relative max-w-5xl mx-auto rounded-[2rem] overflow-hidden bg-white shadow-2xl border border-white/20 ring-1 ring-black/5">
