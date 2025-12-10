@@ -24,6 +24,7 @@ export const LeadSchema = z.object({
   // Address & Energy
   cep: z.string().min(8, "CEP inválido"),
   city: z.string().min(2, "Cidade obrigatória"),
+  uf: z.string().length(2, "UF inválida"),
   endereco: z.string().min(3, "Endereço obrigatório"),
   numero: z.string().min(1, "Número obrigatório"),
   complemento: z.string().optional(),
@@ -67,6 +68,7 @@ export const Step2Schema = LeadSchema.pick({
   apelido: true,
   cep: true,
   city: true,
+  uf: true,
   endereco: true,
   numero: true,
   complemento: true,

@@ -6,7 +6,6 @@ const CLICKSIGN_HOST = process.env.CLICKSIGN_HOST || 'https://app.clicksign.com'
 const API_BASE = `${CLICKSIGN_HOST}/api/v1`;
 
 // Map of templates based on Plan + PersonType
-// Using EMAIL templates as default per requirement
 const TEMPLATES = {
     Prata: {
         PF: process.env.CLICKSIGN_TEMPLATE_PRATA_CPF_EMAIL,
@@ -16,7 +15,6 @@ const TEMPLATES = {
         PF: process.env.CLICKSIGN_TEMPLATE_OURO_CPF_EMAIL,
         PJ: process.env.CLICKSIGN_TEMPLATE_OURO_CNPJ_EMAIL,
     },
-    // Fallback for 'Livre' to Prata if needed, or handle as error
     Livre: {
         PF: process.env.CLICKSIGN_TEMPLATE_PRATA_CPF_EMAIL,
         PJ: process.env.CLICKSIGN_TEMPLATE_PRATA_CNPJ_EMAIL,
@@ -31,13 +29,9 @@ export async function POST(request: Request) {
   try {
     const lead: Lead = await request.json();
 
-    // Determine Template ID
-    // Default to 'Prata' if plan is somehow missing or weird, but validation should catch it.
-    // Default to 'PF' if personType is missing.
     const plan = (lead.plan || 'Prata') as keyof typeof TEMPLATES;
     const type = (lead.personType || 'PF') as 'PF' | 'PJ';
     
-    // Select template group for plan (fallback to Prata if invalid plan name)
     const planTemplates = TEMPLATES[plan] || TEMPLATES['Prata'];
     const templateId = planTemplates[type];
 
@@ -47,16 +41,17 @@ export async function POST(request: Request) {
     }
 
     // 1. Create/Find Signer
+    const signerName = lead.personType === 'PJ' ? lead.responsavel : lead.fullname;
     const signerResponse = await fetch(`${API_BASE}/signers?access_token=${CLICKSIGN_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         signer: {
           email: lead.email,
-          name: lead.personType === 'PJ' ? lead.responsavel : lead.fullname,
+          name: signerName,
           auths: ['email'],
           has_documentation: false,
-          self_declared_credential: true // Potentially needed for simpler embedded flow
+          self_declared_credential: true
         }
       })
     });
@@ -71,20 +66,48 @@ export async function POST(request: Request) {
     const signerKey = signerData.signer.key;
 
     // 2. Create Document from Template
+    // Prepare Data - Sanitize and map correctly
+    // Removing non-digits helps avoid formatting issues in templates that expect raw numbers
+    // But some templates expect formatted. Sending as is (from form) usually works if form has mask.
+    // Form currently has placeholders but no strict mask enforcement in state, let's send as received but also clean versions if needed.
+    // Actually, based on issues, let's try to be verbose.
+
     const templateData = {
-        "Nome Completo": lead.fullname,
+        // Personal / Company Info
+        "Nome Completo": lead.fullname, // Nome do contato/cliente PF
+        "Nome Responsável": lead.responsavel || '', // Para PJ
+        "Nome": signerName, // Genérico
+        
         "Email": lead.email,
         "Telefone": lead.phone,
-        "CPF": lead.document, // Used for both CPF and CNPJ in some templates, or specific keys below
+        
+        // Documents - Mapeamento explícito para evitar conflito
+        "CPF": lead.personType === 'PF' ? lead.document : '', 
         "CNPJ": lead.personType === 'PJ' ? lead.document : '',
+        // Alguns templates podem usar "Documento" genérico
+        "Documento": lead.document,
+
         "Razão Social": lead.razaoSocial || '',
+        "Nome Fantasia": lead.nomeFantasia || '',
+        
+        // Address
         "Endereço": lead.endereco,
+        "Logradouro": lead.endereco,
+        "Rua": lead.endereco,
         "Número": lead.numero,
         "Bairro": lead.bairro,
         "Cidade": lead.city,
+        "Estado": lead.uf,
+        "UF": lead.uf,
         "CEP": lead.cep,
+        "Complemento": lead.complemento || '',
+
+        // Plan & Energy
         "Plano": lead.plan,
-        "Valor Conta": lead.avgBillValue
+        "Valor Conta": lead.avgBillValue ? lead.avgBillValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
+        "Unidade Consumidora": lead.unidadeConsumidora,
+        "UC": lead.unidadeConsumidora,
+        "Distribuidora": lead.distribuidora
     };
 
     const docResponse = await fetch(`${API_BASE}/templates/${templateId}/documents?access_token=${CLICKSIGN_API_KEY}`, {
@@ -109,7 +132,7 @@ export async function POST(request: Request) {
     const docData = await docResponse.json();
     const docKey = docData.document.key;
 
-    // 3. Add Signer to Document (Create List)
+    // 3. Add Signer to Document
     const listResponse = await fetch(`${API_BASE}/lists?access_token=${CLICKSIGN_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

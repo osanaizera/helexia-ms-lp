@@ -108,7 +108,7 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
       fullname: '', email: '', phone: '',
       personType: 'PF', documentType: 'CPF', document: '',
       avgBillValue: 0, segment: 'Residencial', plan: initialPlan,
-      cep: '', city: '', endereco: '', numero: '', complemento: '', bairro: '',
+      cep: '', city: '', uf: '', endereco: '', numero: '', complemento: '', bairro: '',
       distribuidora: 'Energisa MS', unidadeConsumidora: '',
       razaoSocial: '', nomeFantasia: '', responsavel: '', apelido: '',
       acceptLGPD: false
@@ -186,7 +186,7 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
     if (step === 1) {
       valid = await form.trigger(['fullname', 'email', 'phone', 'avgBillValue', 'plan'])
     } else if (step === 2) {
-      const common = ['document', 'cep', 'city', 'endereco', 'numero', 'bairro', 'unidadeConsumidora'] as const
+      const common = ['document', 'cep', 'city', 'uf', 'endereco', 'numero', 'bairro', 'unidadeConsumidora'] as const
       const pj = ['razaoSocial', 'nomeFantasia', 'responsavel'] as const
       const fields = values.personType === 'PJ' ? [...common, ...pj] : [...common]
       valid = await form.trigger(fields as any)
@@ -382,7 +382,14 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                       </div>
 
                       <InputField label="CEP" name="cep" register={form.register} error={errors.cep} placeholder="00000-000" />
-                      <InputField label="Cidade" name="city" register={form.register} error={errors.city} />
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                           <InputField label="Cidade" name="city" register={form.register} error={errors.city} />
+                        </div>
+                        <div className="w-24">
+                           <InputField label="UF" name="uf" register={form.register} error={errors.uf} placeholder="MS" />
+                        </div>
+                      </div>
                       <div className="md:col-span-2">
                         <InputField label="Endereço (Rua/Av)" name="endereco" register={form.register} error={errors.endereco} />
                       </div>
@@ -423,7 +430,7 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                         </div>
                         <div className="sm:col-span-2">
                           <p className="text-blue-800/60 text-[10px] uppercase font-bold">Endereço</p>
-                          <p className="font-medium text-blue-900">{values.endereco}, {values.numero} - {values.city}</p>
+                          <p className="font-medium text-blue-900">{values.endereco}, {values.numero} - {values.city}/{values.uf}</p>
                         </div>
                         <div className="sm:col-span-2 pt-2 border-t border-blue-100">
                           <div className="flex justify-between items-center">
