@@ -41,7 +41,13 @@ export async function POST(request: Request) {
     }
 
     // 1. Create/Find Signer
-    const signerName = lead.personType === 'PJ' ? lead.responsavel : lead.fullname;
+    const signerName = lead.personType === 'PJ' 
+        ? (lead.responsavel || lead.fullname) // Use responsavel, fallback to fullname for PJ
+        : lead.fullname; // Use fullname for PF
+
+    // Temporary logging for debugging Clicksign signer creation
+    console.log('Attempting to create Clicksign signer with:', { name: signerName, email: lead.email });
+
     const signerResponse = await fetch(`${API_BASE}/signers?access_token=${CLICKSIGN_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

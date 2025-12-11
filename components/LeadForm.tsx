@@ -315,10 +315,15 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                       <div className="bg-green-50 rounded-xl p-4 border border-green-100 flex items-center justify-between shadow-sm">
                         <div>
                           <p className="text-[10px] font-bold text-green-800 uppercase tracking-wider mb-0.5">Economia Estimada</p>
-                          <p className="text-2xl font-bold text-green-700 tracking-tight">{formatBRL(calc.saving)}<span className="text-xs font-medium text-green-600">/mês</span></p>
+                          <p className="text-xl font-bold text-green-700 tracking-tight">
+                            {calc.minSaving === calc.maxSaving ? formatBRL(calc.minSaving) : `${formatBRL(calc.minSaving)} a ${formatBRL(calc.maxSaving)}`}
+                            <span className="text-xs font-medium text-green-600">/mês</span>
+                          </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-green-700">{calc.pct}% a {calc.maxPct}% OFF</p>
+                          <p className="text-lg font-bold text-green-700">
+                             {calc.pct === calc.maxPct ? `${calc.pct}%` : `${calc.pct}% a ${calc.maxPct}%`} OFF
+                          </p>
                         </div>
                       </div>
                     )}
@@ -436,7 +441,9 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                         <div className="sm:col-span-2 pt-2 border-t border-blue-100">
                           <div className="flex justify-between items-center">
                             <span className="font-medium text-blue-900">Plano {values.plan}</span>
-                            <span className="font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded text-[10px]">Economia de {calc.pct}%</span>
+                            <span className="font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded text-[10px]">
+                                Economia de {calc.pct === calc.maxPct ? `${calc.pct}%` : `${calc.pct}% a ${calc.maxPct}%`}
+                            </span>
                           </div>
                         </div>
                       </div>

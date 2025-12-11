@@ -2,7 +2,9 @@ import { z } from 'zod'
 
 const BaseLeadSchema = z.object({
   // Step 1
-  fullname: z.string().min(3, "Nome muito curto"),
+  fullname: z.string()
+    .min(3, "Nome muito curto")
+    .regex(/(\w.+\s).+/, "Informe o nome e sobrenome"),
   email: z.string().email("E-mail inválido"),
   phone: z.string().min(10, "Telefone inválido").max(16),
   avgBillValue: z.number().min(1, "Informe o valor da fatura"),
