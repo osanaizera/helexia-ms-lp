@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const LeadSchema = z.object({
+const BaseLeadSchema = z.object({
   // Step 1
   fullname: z.string().min(3, "Nome muito curto"),
   email: z.string().email("E-mail inválido"),
@@ -46,7 +46,9 @@ export const LeadSchema = z.object({
   landingUrl: z.string().optional(),
   leadSource: z.string().optional(),
   outsideScope: z.boolean().optional(),
-}).superRefine((data, ctx) => {
+});
+
+export const LeadSchema = BaseLeadSchema.superRefine((data, ctx) => {
   if (data.personType === 'PJ') {
     if (!data.razaoSocial || data.razaoSocial.trim().length < 2) {
       ctx.addIssue({
@@ -68,7 +70,7 @@ export const LeadSchema = z.object({
 
 export type Lead = z.infer<typeof LeadSchema>;
 
-export const Step1Schema = LeadSchema.pick({
+export const Step1Schema = BaseLeadSchema.pick({
   fullname: true,
   email: true,
   phone: true,
@@ -76,7 +78,7 @@ export const Step1Schema = LeadSchema.pick({
   plan: true
 });
 
-export const Step2Schema = LeadSchema.pick({
+export const Step2Schema = BaseLeadSchema.pick({
   personType: true,
   documentType: true,
   document: true,
