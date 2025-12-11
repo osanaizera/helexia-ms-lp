@@ -20,13 +20,14 @@ export function getDiscountPct(plan: Plan, value:number){
 
 export function estimate(value:number, plan: Plan){
   const pct = getDiscountPct(plan, value);
+  const maxPct = Math.round(pct * 1.1); // Max discount is 10% higher than base (relative)
   
   // Discount is applied only to the energy portion of the bill
   const eligibleValue = value * ENERGY_ALLOCATION;
   const saving = Math.round(eligibleValue * (pct/100));
   
   const newBill = Math.max(value - saving, 0);
-  return { pct, saving, newBill };
+  return { pct, maxPct, saving, newBill };
 }
 
 function formatBRL(n: number){
@@ -81,7 +82,7 @@ export default function Simulator({ initialPlan='Prata', onPlanChange, onCalcula
             <div className="grid sm:grid-cols-3 gap-4">
               <div>
                 <div className="text-sm text-muted">Desconto estimado</div>
-                <div className="text-3xl font-bold">{result.pct}%</div>
+                <div className="text-3xl font-bold">{result.pct}% a {result.maxPct}%</div>
               </div>
               <div>
                 <div className="text-sm text-muted">Economia estimada</div>

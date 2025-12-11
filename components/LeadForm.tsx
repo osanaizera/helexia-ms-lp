@@ -318,8 +318,7 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                           <p className="text-2xl font-bold text-green-700 tracking-tight">{formatBRL(calc.saving)}<span className="text-xs font-medium text-green-600">/mês</span></p>
                         </div>
                         <div className="text-right">
-                          <div className="inline-block bg-green-200 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded-full mb-0.5">Até</div>
-                          <p className="text-2xl font-bold text-green-700">{calc.pct}% OFF</p>
+                          <p className="text-lg font-bold text-green-700">{calc.pct}% a {calc.maxPct}% OFF</p>
                         </div>
                       </div>
                     )}
