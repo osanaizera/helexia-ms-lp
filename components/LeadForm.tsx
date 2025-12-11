@@ -333,9 +333,12 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                       onClick={handleNext}
                       className="w-full py-3.5 rounded-full text-white font-bold bg-gradient-to-r from-[color:var(--brand)] to-[color:var(--brand-accent)] shadow-lg shadow-brand/20 transition-all hover:shadow-xl hover:scale-[1.01] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 group text-sm"
                     >
-                      <span className="group-hover:mr-1 transition-all">Verificar Disponibilidade</span>
+                      <span className="group-hover:mr-1 transition-all">Tenho interesse no desconto</span>
                       <svg className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all -ml-4 group-hover:ml-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                     </button>
+                    <p className="text-xs text-gray-500 text-center mt-3">
+                      Ao clicar, você concorda que a Sion Energia entre em contato por telefone ou e-mail.
+                    </p>
                   </div>
                 )}
 
