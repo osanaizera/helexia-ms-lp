@@ -86,6 +86,12 @@ export async function POST(request: Request) {
         "CNPJ": lead.personType === 'PJ' ? lead.document : '',
         // Alguns templates podem usar "Documento" genérico
         "Documento": lead.document,
+        "Nome do Signatário": signerName, // Alias extra para garantir
+        
+        // New explicit mappings requested
+        "Nome ou Razão Social": lead.personType === 'PJ' ? (lead.razaoSocial || lead.fullname) : lead.fullname,
+        "Nome Fantasia ou Apelido": lead.personType === 'PJ' ? (lead.nomeFantasia || '') : (lead.apelido || ''),
+        "Data de Adesão": new Date().toLocaleDateString('pt-BR'),
 
         "Razão Social": lead.razaoSocial || '',
         "Nome Fantasia": lead.nomeFantasia || '',
@@ -107,6 +113,8 @@ export async function POST(request: Request) {
         "Valor Conta": lead.avgBillValue ? lead.avgBillValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '',
         "Unidade Consumidora": lead.unidadeConsumidora,
         "UC": lead.unidadeConsumidora,
+        "Número da UC": lead.unidadeConsumidora, // Alias extra
+        "nº UC": lead.unidadeConsumidora, // Mapeamento específico solicitado
         "Distribuidora": lead.distribuidora
     };
 

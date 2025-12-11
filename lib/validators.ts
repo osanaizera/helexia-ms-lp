@@ -46,6 +46,24 @@ export const LeadSchema = z.object({
   landingUrl: z.string().optional(),
   leadSource: z.string().optional(),
   outsideScope: z.boolean().optional(),
+}).superRefine((data, ctx) => {
+  if (data.personType === 'PJ') {
+    if (!data.razaoSocial || data.razaoSocial.trim().length < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Razão Social é obrigatória",
+        path: ["razaoSocial"],
+      });
+    }
+    if (!data.responsavel || data.responsavel.trim().length < 3) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Nome do responsável é obrigatório",
+        path: ["responsavel"],
+      });
+    }
+    // Also validate document for PJ specifically if needed, but the main regex/length is usually enough
+  }
 });
 
 export type Lead = z.infer<typeof LeadSchema>;
