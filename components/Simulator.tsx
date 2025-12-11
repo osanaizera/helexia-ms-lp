@@ -8,26 +8,32 @@ export type Plan = 'Livre'|'Prata'|'Ouro'
 // The rest are fixed costs/taxes.
 const ENERGY_ALLOCATION = 0.8;
 
-export function getDiscountPct(plan: Plan, value:number){
-  if(value < 500) return 0;
-  
-  // Fixed discount rates per plan
-  if(plan === 'Livre') return 25;
-  if(plan === 'Prata') return 28;
+export function getDiscountRange(plan: Plan){
+  if(plan === 'Livre') return { min: 25, max: 35 };
+  if(plan === 'Prata') return { min: 28, max: 37 };
   // Ouro
-  return 30;
+  return { min: 30, max: 40 };
 }
 
 export function estimate(value:number, plan: Plan){
-  const pct = getDiscountPct(plan, value);
-  const maxPct = Math.round(pct * 1.1); // Max discount is 10% higher than base (relative)
+  if(value < 500) {
+    return { pct: 0, maxPct: 0, minSaving: 0, maxSaving: 0, minNewBill: value, maxNewBill: value };
+  }
+
+  const { min: pct, max: maxPct } = getDiscountRange(plan);
   
   // Discount is applied only to the energy portion of the bill
   const eligibleValue = value * ENERGY_ALLOCATION;
-  const saving = Math.round(eligibleValue * (pct/100));
   
-  const newBill = Math.max(value - saving, 0);
-  return { pct, maxPct, saving, newBill };
+  const minSaving = Math.round(eligibleValue * (pct/100));
+  const maxSaving = Math.round(eligibleValue * (maxPct/100));
+  
+  // Max new bill corresponds to min saving
+  const maxNewBill = Math.max(value - minSaving, 0);
+  // Min new bill corresponds to max saving
+  const minNewBill = Math.max(value - maxSaving, 0);
+
+  return { pct, maxPct, minSaving, maxSaving, minNewBill, maxNewBill };
 }
 
 function formatBRL(n: number){
@@ -82,15 +88,25 @@ export default function Simulator({ initialPlan='Prata', onPlanChange, onCalcula
             <div className="grid sm:grid-cols-3 gap-4">
               <div>
                 <div className="text-sm text-muted">Desconto estimado</div>
-                <div className="text-3xl font-bold">{result.pct}% a {result.maxPct}%</div>
+                <div className="text-3xl font-bold">
+                    {result.pct === result.maxPct ? `${result.pct}%` : `${result.pct}% a ${result.maxPct}%`}
+                </div>
               </div>
               <div>
                 <div className="text-sm text-muted">Economia estimada</div>
-                <div className="text-3xl font-bold">{formatBRL(result.saving)}</div>
+                <div className="text-3xl font-bold text-green-600">
+                    {result.minSaving === result.maxSaving 
+                        ? formatBRL(result.minSaving) 
+                        : <span className="text-2xl">{formatBRL(result.minSaving)} a {formatBRL(result.maxSaving)}</span>}
+                </div>
               </div>
               <div>
                 <div className="text-sm text-muted">Nova fatura</div>
-                <div className="text-3xl font-bold">{formatBRL(result.newBill)}</div>
+                <div className="text-3xl font-bold">
+                    {result.minNewBill === result.maxNewBill 
+                        ? formatBRL(result.minNewBill) 
+                        : <span className="text-2xl">{formatBRL(result.minNewBill)} a {formatBRL(result.maxNewBill)}</span>}
+                </div>
               </div>
             </div>
           )}
