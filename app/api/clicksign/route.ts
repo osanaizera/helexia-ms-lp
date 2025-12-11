@@ -16,8 +16,8 @@ const TEMPLATES = {
         PJ: process.env.CLICKSIGN_TEMPLATE_OURO_CNPJ_EMAIL,
     },
     Livre: {
-        PF: process.env.CLICKSIGN_TEMPLATE_PRATA_CPF_EMAIL,
-        PJ: process.env.CLICKSIGN_TEMPLATE_PRATA_CNPJ_EMAIL,
+        PF: process.env.CLICKSIGN_TEMPLATE_SEMFIDELIDADE_CPF_EMAIL,
+        PJ: process.env.CLICKSIGN_TEMPLATE_SEMFIDELIDADE_CNPJ_EMAIL,
     }
 };
 
