@@ -95,6 +95,10 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
   
+  // Consent States
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [acceptedAuth, setAcceptedAuth] = useState(false)
+  
   // Clicksign States
   const [signatureKey, setSignatureKey] = useState<string | null>(null)
   const [clicksignHost, setClicksignHost] = useState<string>('https://app.clicksign.com')
@@ -194,10 +198,8 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
 
     if (valid) {
       setStep(s => s + 1)
-      if (step === 2) {
-          // Transitioning to Step 3: Trigger Clicksign
-          initClicksign()
-      }
+      // Transitioning to Step 3: Do NOT trigger Clicksign automatically anymore.
+      // User must accept terms first.
     }
   }
 
@@ -444,7 +446,12 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                     <div className="space-y-3">
                       <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors group">
                         <div className="relative flex items-center mt-0.5">
-                          <input type="checkbox" className="peer sr-only" />
+                          <input 
+                            type="checkbox" 
+                            className="peer sr-only" 
+                            checked={acceptedTerms}
+                            onChange={(e) => setAcceptedTerms(e.target.checked)}
+                          />
                           <div className="w-4 h-4 border border-gray-300 rounded peer-checked:bg-[color:var(--brand)] peer-checked:border-[color:var(--brand)] transition-all" />
                           <svg className="w-2.5 h-2.5 text-white absolute left-0.5 top-0.5 opacity-0 peer-checked:opacity-100 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
                         </div>
@@ -453,7 +460,12 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
 
                       <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors group">
                         <div className="relative flex items-center mt-0.5">
-                          <input type="checkbox" className="peer sr-only" />
+                          <input 
+                            type="checkbox" 
+                            className="peer sr-only"
+                            checked={acceptedAuth}
+                            onChange={(e) => setAcceptedAuth(e.target.checked)}
+                          />
                           <div className="w-4 h-4 border border-gray-300 rounded peer-checked:bg-[color:var(--brand)] peer-checked:border-[color:var(--brand)] transition-all" />
                           <svg className="w-2.5 h-2.5 text-white absolute left-0.5 top-0.5 opacity-0 peer-checked:opacity-100 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
                         </div>
@@ -472,9 +484,8 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                               <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-3">
                                 <svg className="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                               </div>
-                              <h5 className="font-bold text-gray-600 mb-1 text-sm">Carregando Contrato...</h5>
-                              <p className="text-xs max-w-xs mx-auto mb-3">Estamos preparando seu contrato digital.</p>
-                              <button onClick={initClicksign} className="text-xs text-[color:var(--brand)] underline hover:text-[color:var(--brand-accent)]">Tentar novamente</button>
+                              <h5 className="font-bold text-gray-600 mb-1 text-sm">Contrato Pendente</h5>
+                              <p className="text-xs max-w-xs mx-auto mb-3">Aceite os termos acima para gerar seu contrato.</p>
                            </div>
                       )}
                       
@@ -492,7 +503,8 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                         <button
                             type="button"
                             onClick={initClicksign}
-                            className="w-2/3 py-3.5 rounded-full text-sm text-white font-bold bg-gradient-to-r from-[color:var(--brand)] to-[color:var(--brand-accent)] shadow-lg shadow-brand/20 transition-all hover:shadow-xl hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2"
+                            disabled={!acceptedTerms || !acceptedAuth}
+                            className="w-2/3 py-3.5 rounded-full text-sm text-white font-bold bg-gradient-to-r from-[color:var(--brand)] to-[color:var(--brand-accent)] shadow-lg shadow-brand/20 transition-all hover:shadow-xl hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                         >
                             Assinar Digitalmente
                         </button>
