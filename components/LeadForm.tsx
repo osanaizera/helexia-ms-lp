@@ -207,11 +207,17 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
       // Send partial lead data when completing Step 1
       if (step === 1) {
         const partialData = form.getValues()
+        console.log('[LeadForm] Sending partial lead (Step 1):', partialData)
         fetch('/api/lead?partial=1', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(partialData)
-        }).catch(err => console.error('Partial lead submit error:', err))
+        })
+        .then(async res => {
+            const json = await res.json().catch(()=>null)
+            console.log('[LeadForm] Partial lead response:', res.status, json)
+        })
+        .catch(err => console.error('[LeadForm] Partial lead submit error:', err))
       }
 
       setStep(s => s + 1)
