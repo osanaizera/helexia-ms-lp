@@ -51,6 +51,19 @@ export async function POST(req: Request){
     
     const eligible = (lead.avgBillValue || 0) >= 500
 
+    // Enrich lead with server-side estimates and defaults for integrations
+    const bill = lead.avgBillValue || 0
+    const plan = lead.plan as ServerPlan
+    const r = estimate(bill, plan)
+    
+    // Create an enriched lead object for integrations
+    const enrichedLead = {
+        ...lead,
+        estimatedSaving: r.saving,
+        estimatedDiscountPct: r.pct,
+        segment: lead.segment || 'Residencial'
+    }
+
     const mockEnabled = process.env.MOCK_LEAD === '1'
     if (mockEnabled){
       // Dev/unlocked path: do not call HubSpot, but optionally fire non-blocking integrations
@@ -58,9 +71,6 @@ export async function POST(req: Request){
       // Fire GA4 server-side events (best-effort)
       try{
         if(eligible){
-          const bill = lead.avgBillValue || 0
-          const plan = lead.plan as ServerPlan
-          const r = estimate(bill, plan)
           const clientId = undefined
           await sendGA4Event('generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan, bill_value: bill }, { clientId })
           await sendGA4Event('lead_submit_success', { plan, bill_value: bill }, { clientId })
@@ -69,9 +79,6 @@ export async function POST(req: Request){
       // Fire Meta CAPI (best-effort) — sem contexto de req específico; omite fbp/fbc
       try{
         if(eligible){
-          const bill = lead.avgBillValue || 0
-          const plan = lead.plan as ServerPlan
-          const r = estimate(bill, plan)
           await sendFbCapiEvent({
             eventName: 'Lead',
             eventSourceUrl: lead.landingUrl,
@@ -86,7 +93,7 @@ export async function POST(req: Request){
       // RD CRM (allow in mock when flag is set)
       try{
         if(eligible && (process.env.ALLOW_RDCRM_IN_MOCK === '1') && (process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN)){
-          await sendToRdCrm(lead as Lead)
+          await sendToRdCrm(enrichedLead as Lead)
         }
       }catch(e){ console.warn('[rdcrm] crm error (mock path)', e) }
       
@@ -96,7 +103,7 @@ export async function POST(req: Request){
         if (sheetsUrl) {
           const secret = process.env.SHEETS_SHARED_SECRET
           // Wrap lead data in 'lead' property to match Apps Script expectation
-          const sheetBody = { lead, secret, partial }
+          const sheetBody = { lead: enrichedLead, secret, partial }
           await fetch(sheetsUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -114,9 +121,6 @@ export async function POST(req: Request){
     // Fire GA4 server-side events (Measurement Protocol) for reliability
     try{
       if(eligible){
-        const bill = lead.avgBillValue || 0
-        const plan = lead.plan as ServerPlan
-        const r = estimate(bill, plan)
         const clientId = undefined // could be passed from client; fallback to random in sendGA4Event
         await sendGA4Event('generate_lead', { currency:'BRL', value: r.saving, method:'lead_form', plan, bill_value: bill }, { clientId })
         await sendGA4Event('lead_submit_success', { plan, bill_value: bill }, { clientId })
@@ -131,9 +135,6 @@ export async function POST(req: Request){
         const fbc = (cookies.match(/_fbc=([^;]+)/)?.[1]) || undefined
         const ua = req.headers.get('user-agent') || undefined
         const ip = (req.headers.get('x-forwarded-for')||'').split(',')[0]?.trim() || undefined
-        const bill = lead.avgBillValue || 0
-        const plan = lead.plan as ServerPlan
-        const r = estimate(bill, plan)
         await sendFbCapiEvent({
           eventName: 'Lead',
           eventSourceUrl: lead.landingUrl || url.origin,
@@ -152,7 +153,7 @@ export async function POST(req: Request){
     try{
       if(eligible){
         if(process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN){
-          await sendToRdCrm(lead as Lead)
+          await sendToRdCrm(enrichedLead as Lead)
         } else {
           console.warn('[rdcrm] RDCRM_API_TOKEN not set — skipping')
         }
@@ -167,7 +168,7 @@ export async function POST(req: Request){
       if (sheetsUrl) {
         const secret = process.env.SHEETS_SHARED_SECRET
         // Wrap lead data in 'lead' property to match Apps Script expectation
-        const sheetBody = { lead, secret, partial }
+        const sheetBody = { lead: enrichedLead, secret, partial }
         // Fire and forget (or await if critical)
         await fetch(sheetsUrl, {
           method: 'POST',

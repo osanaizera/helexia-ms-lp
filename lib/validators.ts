@@ -77,7 +77,9 @@ export const Step1Schema = BaseLeadSchema.pick({
   email: true,
   phone: true,
   avgBillValue: true,
-  plan: true
+  plan: true,
+  segment: true,
+  utm: true
 });
 
 export const Step2Schema = BaseLeadSchema.pick({
