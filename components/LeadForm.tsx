@@ -335,7 +335,7 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                       </div>
                     </div>
 
-                    {/* Live Calc Preview */}
+                    {/* Live Calc Preview - HIDDEN IN STEP 1
                     {calc.pct > 0 && (
                       <div className="bg-green-50 rounded-xl p-4 border border-green-100 flex items-center justify-between shadow-sm">
                         <div>
@@ -352,13 +352,14 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                         </div>
                       </div>
                     )}
+                    */}
 
                     <button
                       type="button"
                       onClick={handleNext}
                       className="w-full py-3.5 rounded-full text-white font-bold bg-gradient-to-r from-[color:var(--brand)] to-[color:var(--brand-accent)] shadow-lg shadow-brand/20 transition-all hover:shadow-xl hover:scale-[1.01] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 group text-sm"
                     >
-                      <span className="group-hover:mr-1 transition-all">Tenho interesse no desconto</span>
+                      <span className="group-hover:mr-1 transition-all">Quero descobrir minha economia simulada</span>
                       <svg className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all -ml-4 group-hover:ml-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                     </button>
                     <p className="text-xs text-gray-500 text-center mt-3">
@@ -370,6 +371,25 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
                 {/* STEP 2: REGISTRATION */}
                 {step === 2 && (
                   <div className="space-y-5 animate-fadeIn">
+                    
+                    {/* Live Calc Preview - MOVED TO STEP 2 */}
+                    {calc.pct > 0 && (
+                      <div className="bg-green-50 rounded-xl p-4 border border-green-100 flex items-center justify-between shadow-sm mb-4">
+                        <div>
+                          <p className="text-[10px] font-bold text-green-800 uppercase tracking-wider mb-0.5">Economia Estimada</p>
+                          <p className="text-xl font-bold text-green-700 tracking-tight">
+                            {calc.minSaving === calc.maxSaving ? formatBRL(calc.minSaving) : `${formatBRL(calc.minSaving)} a ${formatBRL(calc.maxSaving)}`}
+                            <span className="text-xs font-medium text-green-600">/mês</span>
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-green-700">
+                             {calc.pct === calc.maxPct ? `${calc.pct}%` : `${calc.pct}% a ${calc.maxPct}%`} OFF
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Person Type Toggle */}
                     <div className="flex p-1 bg-gray-100 rounded-lg w-full max-w-xs mx-auto">
                       {(['PF', 'PJ'] as const).map(t => (
