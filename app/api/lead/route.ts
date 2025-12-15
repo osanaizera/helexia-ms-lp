@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { LeadSchema, type Lead } from '@/lib/validators'
+import { LeadSchema, Step1Schema, type Lead } from '@/lib/validators'
 import { verifyRecaptcha } from '@/lib/recaptcha'
 import { isAllowedRequest } from '@/lib/origin'
 import { clientKeyFromRequest, rateLimit } from '@/lib/rateLimit'
@@ -34,11 +34,21 @@ export async function POST(req: Request){
       }
     }
 
-    const parsed = LeadSchema.safeParse(body as Lead)
-    if(!parsed.success){
-      return NextResponse.json({ error:'validation_error', details: parsed.error.flatten() }, { status: 400 })
+    let lead: Lead | Partial<Lead>
+    if(partial){
+      const parsed = Step1Schema.safeParse(body)
+      if(!parsed.success){
+        return NextResponse.json({ error:'validation_error', details: parsed.error.flatten() }, { status: 400 })
+      }
+      lead = parsed.data
+    } else {
+      const parsed = LeadSchema.safeParse(body as Lead)
+      if(!parsed.success){
+        return NextResponse.json({ error:'validation_error', details: parsed.error.flatten() }, { status: 400 })
+      }
+      lead = parsed.data
     }
-    const lead = parsed.data
+    
     const eligible = (lead.avgBillValue || 0) >= 500
 
     const mockEnabled = process.env.MOCK_LEAD === '1'
@@ -76,9 +86,26 @@ export async function POST(req: Request){
       // RD CRM (allow in mock when flag is set)
       try{
         if(eligible && (process.env.ALLOW_RDCRM_IN_MOCK === '1') && (process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN)){
-          await sendToRdCrm(lead)
+          await sendToRdCrm(lead as Lead)
         }
       }catch(e){ console.warn('[rdcrm] crm error (mock path)', e) }
+      
+      // Google Sheets Integration (Mock Path)
+      try {
+        const sheetsUrl = process.env.SHEETS_WEB_APP_URL
+        if (sheetsUrl) {
+          const secret = process.env.SHEETS_SHARED_SECRET
+          const sheetBody = { ...lead, secret, partial }
+          await fetch(sheetsUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(sheetBody)
+          }).catch(e => console.error('[sheets] error', e))
+        }
+      } catch (e) {
+        console.error('[sheets] integration error', e)
+      }
+
       return NextResponse.json({ id: `mock_${Date.now()}`, status: eligible ? (partial ? 'partial' : 'complete') : 'unqualified', mocked: true })
     }
 
@@ -124,7 +151,7 @@ export async function POST(req: Request){
     try{
       if(eligible){
         if(process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN){
-          await sendToRdCrm(lead)
+          await sendToRdCrm(lead as Lead)
         } else {
           console.warn('[rdcrm] RDCRM_API_TOKEN not set — skipping')
         }
@@ -132,6 +159,24 @@ export async function POST(req: Request){
     }catch(e){
       console.warn('[rdcrm] crm error', e)
     }
+
+    // Google Sheets Integration
+    try {
+      const sheetsUrl = process.env.SHEETS_WEB_APP_URL
+      if (sheetsUrl) {
+        const secret = process.env.SHEETS_SHARED_SECRET
+        const sheetBody = { ...lead, secret, partial }
+        // Fire and forget (or await if critical)
+        await fetch(sheetsUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sheetBody)
+        }).catch(e => console.error('[sheets] error', e))
+      }
+    } catch (e) {
+      console.error('[sheets] integration error', e)
+    }
+
     return NextResponse.json({ id: `ok_${Date.now()}`, status: eligible ? (partial ? 'partial' : 'complete') : 'unqualified' })
   }catch(e:any){
     console.error('lead api error', e)
