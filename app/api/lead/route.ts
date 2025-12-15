@@ -95,7 +95,8 @@ export async function POST(req: Request){
         const sheetsUrl = process.env.SHEETS_WEB_APP_URL
         if (sheetsUrl) {
           const secret = process.env.SHEETS_SHARED_SECRET
-          const sheetBody = { ...lead, secret, partial }
+          // Wrap lead data in 'lead' property to match Apps Script expectation
+          const sheetBody = { lead, secret, partial }
           await fetch(sheetsUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -165,7 +166,8 @@ export async function POST(req: Request){
       const sheetsUrl = process.env.SHEETS_WEB_APP_URL
       if (sheetsUrl) {
         const secret = process.env.SHEETS_SHARED_SECRET
-        const sheetBody = { ...lead, secret, partial }
+        // Wrap lead data in 'lead' property to match Apps Script expectation
+        const sheetBody = { lead, secret, partial }
         // Fire and forget (or await if critical)
         await fetch(sheetsUrl, {
           method: 'POST',
