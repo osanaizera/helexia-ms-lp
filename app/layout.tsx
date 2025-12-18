@@ -9,6 +9,7 @@ import type { ReactNode } from 'react'
 import { Suspense } from 'react'
 import { FbPixelHeadScript, FbPixelNoScript } from '@/lib/fbpixel'
 import FbqRoute from '@/components/FbqRoute'
+import { HotjarHeadScript } from '@/lib/hotjar'
 
 export const metadata = {
   metadataBase: new URL('https://suacontamenor.com.br'),
@@ -44,12 +45,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-XMNXWQXQJZ'
   const fbId = process.env.NEXT_PUBLIC_FB_PIXEL_ID || '1305029297374794'
   const fbIds = [fbId, '828825756438581']
+  const hotjarId = process.env.NEXT_PUBLIC_HOTJAR_ID || ''
   return (
     <html lang="pt-BR">
       <head>
         <GtmHeadScript id={gtmId} />
         <GA4HeadScript id={gaId} />
         <FbPixelHeadScript ids={fbIds} />
+        <HotjarHeadScript id={hotjarId} />
         <script src="https://t.contentsquare.net/uxa/1cd045c0e1044.js"></script>
         <script
           dangerouslySetInnerHTML={{
