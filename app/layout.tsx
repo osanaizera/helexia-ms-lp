@@ -50,6 +50,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <GtmHeadScript id={gtmId} />
         <GA4HeadScript id={gaId} />
         <FbPixelHeadScript ids={fbIds} />
+        <script src="https://t.contentsquare.net/uxa/1cd045c0e1044.js"></script>
         <script
           dangerouslySetInnerHTML={{
             __html: `
