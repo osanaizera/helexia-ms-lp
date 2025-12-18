@@ -92,7 +92,7 @@ export async function POST(req: Request){
       // RD Marketing desativado
       // RD CRM (allow in mock when flag is set)
       try{
-        if(eligible && (process.env.ALLOW_RDCRM_IN_MOCK === '1') && (process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN)){
+        if((process.env.ALLOW_RDCRM_IN_MOCK === '1') && (process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN)){
           await sendToRdCrm(enrichedLead as Lead)
         }
       }catch(e){ console.warn('[rdcrm] crm error (mock path)', e) }
@@ -149,14 +149,12 @@ export async function POST(req: Request){
       }
     }catch{}
     // RD Marketing desativado
-    // RD CRM (contato + negócio) — não bloqueante
+    // RD CRM (contato + negócio) — não bloqueante e sempre após Step 1
     try{
-      if(eligible){
-        if(process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN){
-          await sendToRdCrm(enrichedLead as Lead)
-        } else {
-          console.warn('[rdcrm] RDCRM_API_TOKEN not set — skipping')
-        }
+      if(process.env.RDCRM_API_TOKEN || process.env.RDSTATION_CRM_API_TOKEN){
+        await sendToRdCrm(enrichedLead as Lead)
+      } else {
+        console.warn('[rdcrm] RDCRM_API_TOKEN not set — skipping')
       }
     }catch(e){
       console.warn('[rdcrm] crm error', e)

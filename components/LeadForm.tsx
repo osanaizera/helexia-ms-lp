@@ -13,6 +13,23 @@ function formatBRL(n: number) {
   return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
+function inferLeadSource(utm: Record<string, string | undefined>, referrer: string | undefined) {
+  const src = (utm.utm_source || '').toLowerCase()
+  const has = (k: string) => !!utm[k as keyof typeof utm]
+  if (src) return src
+  if (has('gclid')) return 'google_ads'
+  if (has('fbclid')) return 'facebook_ads'
+  if (has('msclkid')) return 'microsoft_ads'
+  try {
+    if (referrer) {
+      const ru = new URL(referrer)
+      const host = ru.hostname.replace(/^www\./, '')
+      return host || 'direct'
+    }
+  } catch {}
+  return 'direct'
+}
+
 // --- Components ---
 
 function StepIndicator({ current, total }: { current: number; total: number }) {
@@ -127,6 +144,36 @@ export default function LeadForm(props: { initialPlan?: Plan }) {
     const el = document.getElementById('leadform')
     if (el && step > 1) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }, [step])
+
+  // Capture attribution (UTM/referrer/landing) once on mount
+  useEffect(() => {
+    try {
+      const url = new URL(window.location.href)
+      const sp = url.searchParams
+      const utm: Record<string, string | undefined> = {
+        utm_source: sp.get('utm_source') || undefined,
+        utm_medium: sp.get('utm_medium') || undefined,
+        utm_campaign: sp.get('utm_campaign') || undefined,
+        utm_term: sp.get('utm_term') || undefined,
+        utm_content: sp.get('utm_content') || undefined,
+        gclid: sp.get('gclid') || undefined,
+        fbclid: sp.get('fbclid') || undefined,
+        msclkid: sp.get('msclkid') || undefined,
+      }
+      const referrer = document.referrer || undefined
+      const landingUrl = url.href
+      const leadSource = inferLeadSource(utm, referrer)
+
+      // Store into form values so they go with Step 1 partial send
+      form.setValue('utm' as any, utm as any, { shouldDirty: false })
+      form.setValue('referrer' as any, referrer as any, { shouldDirty: false })
+      form.setValue('landingUrl' as any, landingUrl as any, { shouldDirty: false })
+      form.setValue('gclid' as any, utm.gclid as any, { shouldDirty: false })
+      form.setValue('fbclid' as any, utm.fbclid as any, { shouldDirty: false })
+      form.setValue('msclkid' as any, utm.msclkid as any, { shouldDirty: false })
+      form.setValue('leadSource' as any, leadSource as any, { shouldDirty: false })
+    } catch {}
+  }, [])
 
   // Clicksign Integration Logic
   const initClicksign = async () => {

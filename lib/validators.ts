@@ -79,7 +79,13 @@ export const Step1Schema = BaseLeadSchema.pick({
   avgBillValue: true,
   plan: true,
   segment: true,
-  utm: true
+  utm: true,
+  leadSource: true,
+  referrer: true,
+  landingUrl: true,
+  gclid: true,
+  fbclid: true,
+  msclkid: true,
 });
 
 export const Step2Schema = BaseLeadSchema.pick({
